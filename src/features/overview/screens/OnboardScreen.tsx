@@ -8,7 +8,6 @@ import {
 import PagerView from "react-native-pager-view";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-
 import { store } from "@/store";
 import PageWrapper from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
@@ -39,14 +38,12 @@ import { authActions } from "@features/auth/context/slice";
 import { gymActions } from "@features/gym/context/slice";
 import { Icon } from "react-native-paper";
 
-
 const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   navigation,
 }) => {
   const { user } = store.getState()["feature/auth"];
   const [currentStep, setCurrentStep] = useState<number>(0);
   const pageViewRef = useRef<PagerView>(null);
-
 
   const [age, setAge] = useState<number>(1);
   const [unit, setUnit] = useState(Unit.Metric);
@@ -61,7 +58,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   );
   const [isProfileSaved, setIsProfileSaved] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
-
 
   const goToNextStep = () => {
     if (currentStep === 1) {
@@ -83,7 +79,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
         return;
       }
     }
-
 
     pageViewRef.current?.setPage(currentStep + 1);
   };
@@ -135,7 +130,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
           : 655 + 4.35 * weight + 4.7 * height - 4.7 * age;
     }
 
-
     // Adjust for activity level
     let dci = bmr;
     switch (activityLevel) {
@@ -154,7 +148,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       default:
         break;
     }
-
 
     // Adjust for goal
     switch (goal) {
@@ -196,7 +189,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       return;
     }
 
-
     const personalInfo: PersonalInfo = {
       age,
       unit,
@@ -204,13 +196,11 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       height,
     };
 
-
     const fitnessInfo: FitnessInfo = {
       activityLevel: activityLevel as ActivityLevel,
       goal: goal as Goal,
       expertiseLevel: expertiseLevel as ExpertiseLevel,
     };
-
 
     const clientInfo: ClientInfo = {
       personalInfo,
@@ -218,11 +208,9 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       isInjured: false,
     };
 
-
     try {
       setIsLoading(true);
       store.dispatch(overviewActions.setProfile(clientInfo));
-
 
       // Calculate BMR and DCI
       const { bmr, dci } = calculateBmrAndDci(
@@ -235,15 +223,12 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
         goal
       );
 
-
       // If the user's subscription is active, save the profile information
       if (user?.subscription?.status === true) {
         await setClientProfileInfo(clientInfo);
       }
 
-
       setIsLoading(false);
-
 
       // Dispatch BMR and DCI values to Redux store
       store.dispatch(
@@ -252,15 +237,12 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
         })
       );
 
-
       // Calculate per meal requirements based on DCI and goal
       let perMealRequirement = dci;
-
 
       // Adjust per meal requirement based on the goal
       let perMealLowerLimit;
       let perMealUpperLimit;
-
 
       switch (goal) {
         case Goal.WeightGain:
@@ -286,7 +268,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
           break;
       }
 
-
       // ✅ Debugging logs
       console.log("=== Profile Submission Check ===");
       console.log("Age:", age);
@@ -303,7 +284,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       console.log("Per Meal Upper Limit:", perMealUpperLimit);
       console.log("================================");
 
-
       // Dispatch the updated calorie requirements to Redux store
       store.dispatch(
         gymActions.updateCaloriesRequirenment({
@@ -312,7 +292,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
           perMealUpperLimit,
         })
       );
-
 
       setIsProfileSaved(true);
       goToNextStep();
@@ -354,6 +333,8 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
         saveProfileInfo();
         navigation.navigate("PricingPackages");
       }
+      // saveProfileInfo();
+      // navigation.navigate("GenerateMealPlan");
     }
   };
   return (
@@ -381,7 +362,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
           </Box>
         }
       />
-
 
       <Box flex={1} style={{ flexGrow: 1 }}>
         <PagerView
@@ -428,7 +408,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                     Personal Info
                   </Text>
 
-
                   <Box gap="base">
                     <TextInput
                       label="Age"
@@ -443,40 +422,35 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                         alignItems: "center",
                         justifyContent: "flex-end",
                         marginBottom: "-8%",
-                        pointerEvents: "box-none",
+                        zIndex: 10,
                       }}
                     >
                       <Box
                         style={{
                           flexDirection: "row",
                           alignItems: "center",
-                          gap: 2,
                           backgroundColor: theme.colors.SecondaryGrey,
-                          borderRadius: 2,
-                          pointerEvents: "box-none",
+                          borderRadius: 6,
+                          padding: 2,
                         }}
                       >
                         <TouchableOpacity
-                          onPress={() => {
-                            if (unit !== Unit.Metric) toggleUnit(Unit.Metric);
-                          }}
+                          onPress={() =>
+                            unit !== Unit.Metric && toggleUnit(Unit.Metric)
+                          }
                           activeOpacity={0.7}
                           style={{
                             backgroundColor:
                               unit === Unit.Metric
                                 ? theme.colors.PrimaryGreen
-                                : undefined,
+                                : "transparent",
                             alignItems: "center",
                             justifyContent: "center",
-                            minHeight: theme.spacing.lg + 10,
-                            minWidth: theme.spacing["3xl"] + 10,
-                            paddingHorizontal: 10,
-
-
                             borderRadius: 4,
-                            zIndex: 1,
+                            paddingVertical: 5,
+                            paddingHorizontal: 10,
+                            minWidth: 80,
                           }}
-                          disabled={unit === Unit.Metric}
                         >
                           <Text
                             style={{
@@ -490,29 +464,24 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                           </Text>
                         </TouchableOpacity>
 
-
                         <TouchableOpacity
-                          onPress={() => {
-                            if (unit !== Unit.Imperial)
-                              toggleUnit(Unit.Imperial);
-                          }}
+                          onPress={() =>
+                            unit !== Unit.Imperial && toggleUnit(Unit.Imperial)
+                          }
                           activeOpacity={0.7}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                           style={{
                             backgroundColor:
                               unit === Unit.Imperial
                                 ? theme.colors.PrimaryGreen
-                                : undefined,
+                                : "transparent",
                             alignItems: "center",
                             justifyContent: "center",
-                            minHeight: theme.spacing.lg + 10,
-                            minWidth: theme.spacing["3xl"] + 10,
-                            paddingHorizontal: 10,
-
-
                             borderRadius: 4,
-                            zIndex: 1,
+                            paddingVertical: 5,
+                            paddingHorizontal: 10,
+                            minWidth: 80,
                           }}
-                          disabled={unit === Unit.Imperial}
                         >
                           <Text
                             style={{
@@ -549,7 +518,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                     />
                   </Box>
 
-
                   <Button title="Continue" onPress={goToNextStep} />
                 </Box>
               </View>
@@ -575,7 +543,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                   >
                     Fitness Info
                   </Text>
-
 
                   <Box gap="base">
                     <Select
@@ -606,7 +573,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                         setActivityLevel(value.value as ActivityLevel)
                       }
                     />
-
 
                     <Select
                       label="What is your goal?"
@@ -640,7 +606,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                       onSelect={(value) => setGoal(value.value as Goal)}
                     />
 
-
                     <Select
                       label="Expertise Level"
                       items={[
@@ -666,7 +631,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                     />
                   </Box>
 
-
                   <Button
                     title="Continue"
                     onPress={currentStep === 3 ? handleSubmit : goToNextStep}
@@ -687,7 +651,4 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   );
 };
 
-
 export default OnboardScreen;
-
-

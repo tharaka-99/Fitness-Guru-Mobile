@@ -1,16 +1,16 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
-import { StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import { StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
-import { constants, theme } from '@utils/styles/theme';
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { constants, theme } from "@utils/styles/theme";
 
 interface ButtonProps {
   onPress?: () => void;
   title: string;
-  type?: 'solid' | 'outline';
-  icon?: 'arrow' | 'none';
+  type?: "solid" | "outline";
+  icon?: "arrow" | "none";
   isLoading?: boolean;
 }
 
@@ -19,9 +19,9 @@ const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
   isLoading = false,
-  type = 'solid',
+  type = "solid",
 }) => {
-  if (type === 'solid')
+  if (type === "solid")
     return (
       <TouchableOpacity
         onPress={onPress}
@@ -32,7 +32,7 @@ const Button: React.FC<ButtonProps> = ({
           start={{ x: 1, y: 0.5 }}
           end={{ x: 0, y: 0.5 }}
           style={[styles.buttonBase, styles.buttonGradient]}
-          colors={['#A0E220', '#A0E220']}
+          colors={["#A0E220", "#A0E220"]}
         >
           <Box style={styles.buttonContent}>
             <Text
@@ -56,7 +56,7 @@ const Button: React.FC<ButtonProps> = ({
       </TouchableOpacity>
     );
 
-  if (type === 'outline')
+  if (type === "outline")
     return (
       <TouchableOpacity
         onPress={onPress}
@@ -92,10 +92,10 @@ export default Button;
 const styles = StyleSheet.create({
   buttonBase: {
     height: 50,
-    width: '100%',
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "100%",
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: theme.borderRadii.xs,
   },
 
@@ -107,9 +107,9 @@ const styles = StyleSheet.create({
   },
 
   buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   loader: {

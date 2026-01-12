@@ -1,4 +1,10 @@
-import { AntDesign, FontAwesome6 } from "@expo/vector-icons";
+import {
+  Trash2,
+  X,
+  XCircle,
+  ArrowRight,
+  PlusCircle,
+} from "lucide-react-native";
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -142,20 +148,18 @@ const GenerateWorkoutScreen: React.FC<
     exerciseIndex: number
   ) => {
     return (
-      <Box
-        bg="PrimaryRed"
-        justifyContent="center"
-        alignItems="center"
-        width={50}
-        mb="xs"
+      <TouchableOpacity
+        onPress={() => handleRemoveExercise(day, exerciseIndex)}
+        style={{
+          backgroundColor: theme.colors.PrimaryRed,
+          justifyContent: "center",
+          alignItems: "center",
+          width: 50,
+          marginBottom: theme.spacing.xs,
+        }}
       >
-        <AntDesign
-          name="delete"
-          size={theme.spacing.lg}
-          color="white"
-          onPress={() => handleRemoveExercise(day, exerciseIndex)}
-        />
-      </Box>
+        <Trash2 size={theme.spacing.lg} color="white" />
+      </TouchableOpacity>
     );
   };
 
@@ -208,12 +212,9 @@ const GenerateWorkoutScreen: React.FC<
           <Box flexDirection="row" gap="md" alignItems="center">
             <Text variant="lgBold">DAY {item.day}</Text>
           </Box>
-          <AntDesign
-            name="close"
-            size={24}
-            color={theme.colors.PrimaryRed}
-            onPress={() => removeDay(item.day)}
-          />
+          <TouchableOpacity onPress={() => removeDay(item.day)}>
+            <X size={24} color={theme.colors.PrimaryRed} />
+          </TouchableOpacity>
         </Box>
 
         <Box style={{ gap: 2 }} mt="lg">
@@ -292,12 +293,7 @@ const GenerateWorkoutScreen: React.FC<
                 onPress={closeExerciseModal}
                 style={{ alignSelf: "flex-end" }}
               >
-                <AntDesign
-                  p="sm"
-                  name="closecircleo"
-                  size={24}
-                  color={theme.colors.PrimaryRed}
-                />
+                <XCircle size={24} color={theme.colors.PrimaryRed} />
               </TouchableOpacity>
               <Box mt="base">
                 <TextInput
@@ -431,13 +427,13 @@ const GenerateWorkoutScreen: React.FC<
       <PageHeader
         title="Generate Workouts"
         rightComponent={
-          <AntDesign
-            name="arrowright"
-            size={30}
-            color={theme.colors.PrimaryGreen}
+          <TouchableOpacity
             onPress={handleSaveWorkout}
-            disabled={exerciseDaysLength <= 0 ? true : false}
-          />
+            disabled={exerciseDaysLength <= 0}
+            style={{ opacity: exerciseDaysLength <= 0 ? 0.5 : 1 }}
+          >
+            <ArrowRight size={30} color={theme.colors.PrimaryGreen} />
+          </TouchableOpacity>
         }
       />
       <KeyboardAvoidingView
@@ -478,8 +474,7 @@ const GenerateWorkoutScreen: React.FC<
                       backgroundColor: "transparent",
                     }}
                   >
-                    <AntDesign
-                      name="pluscircleo"
+                    <PlusCircle
                       size={20}
                       color={theme.colors.PrimaryGreen}
                       style={{ marginRight: 8 }}

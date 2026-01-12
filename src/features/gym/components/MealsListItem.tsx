@@ -1,16 +1,16 @@
-import React from 'react';
-import { Image } from 'react-native';
+import React from "react";
+import { Image } from "react-native";
 
-import { PAGE_WIDTH } from '@components/app/PageWrapper';
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
-import { theme as appTheme } from '@utils/styles/theme';
+import { PAGE_WIDTH } from "@components/app/PageWrapper";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { theme as appTheme } from "@utils/styles/theme";
 
 interface MealsListItemProps {
   image: string;
   title: string;
   description: string;
-  theme?: 'green' | 'standard';
+  theme?: "green" | "standard";
   unitCount?: string;
 }
 
@@ -21,9 +21,9 @@ const MealsListItem: React.FC<MealsListItemProps> = ({
   title,
   unitCount,
   description,
-  theme = 'standard',
+  theme = "standard",
 }) => {
-  const isThemeGreen = theme === 'green';
+  const isThemeGreen = theme === "green";
 
   return (
     <Box gap="base" width={PAGE_WIDTH} flexDirection="row">
@@ -34,7 +34,7 @@ const MealsListItem: React.FC<MealsListItemProps> = ({
         overflow="hidden"
         alignItems="center"
         justifyContent="center"
-        backgroundColor={isThemeGreen ? 'PrimaryGrey' : 'SecondaryWhite'}
+        backgroundColor={isThemeGreen ? "PrimaryGrey" : "SecondaryWhite"}
       >
         <Image
           resizeMode="cover"
@@ -55,8 +55,8 @@ const MealsListItem: React.FC<MealsListItemProps> = ({
         <Text
           variant="mdBold"
           numberOfLines={1}
-          color={isThemeGreen ? 'PrimaryBlack' : 'textPrimary'}
-          style={{ textTransform: 'capitalize' }}
+          color={isThemeGreen ? "PrimaryBlack" : "textPrimary"}
+          style={{ textTransform: "capitalize" }}
         >
           {title}
         </Text>
@@ -64,7 +64,7 @@ const MealsListItem: React.FC<MealsListItemProps> = ({
         {!unitCount && (
           <Text
             numberOfLines={1}
-            color={isThemeGreen ? 'PrimaryBlack' : 'textSecondary'}
+            color={isThemeGreen ? "PrimaryBlack" : "textSecondary"}
           >
             {description}
           </Text>
@@ -74,7 +74,7 @@ const MealsListItem: React.FC<MealsListItemProps> = ({
           <Box flexWrap="nowrap" flexDirection="row" alignItems="center">
             <Box flex={1}>
               <Text
-                color={isThemeGreen ? 'PrimaryBlack' : 'textSecondary'}
+                color={isThemeGreen ? "PrimaryBlack" : "textSecondary"}
                 numberOfLines={1}
               >
                 {description}
@@ -85,7 +85,7 @@ const MealsListItem: React.FC<MealsListItemProps> = ({
               <Text
                 variant="xsBold"
                 numberOfLines={1}
-                color={isThemeGreen ? 'PrimaryBlack' : 'textSecondary'}
+                color={isThemeGreen ? "PrimaryBlack" : "textSecondary"}
               >
                 {unitCount}
               </Text>
