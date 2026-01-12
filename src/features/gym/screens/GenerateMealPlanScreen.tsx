@@ -1,6 +1,6 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, TouchableOpacity } from "react-native";
+import { FlatList, Keyboard, TouchableOpacity } from "react-native";
 
 import { store } from "@/store";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
@@ -200,6 +200,7 @@ const GenerateMealPlanScreen: React.FC<
 
   //
   const handleMealItemPress = (mealItem: MealItem) => {
+    Keyboard.dismiss();
     setSelectedMealItem(mealItem);
     bottomSheetRef.current?.snapToIndex(0);
   };
@@ -353,32 +354,32 @@ const GenerateMealPlanScreen: React.FC<
   return (
     <PageWrapper>
       <Box mb="base">
-  {/* Always render the container to keep the layout stable */}
-  <Box height={60} justifyContent="center"> 
-    {!showSearchBar ? (
-      <PageHeader
-        title="Generate Meal Plans"
-        rightComponent={
-          <SearchWithArrow
-            arrow={{ onPress: () => handleSetMealType() }}
-            icons="both"
-            search={{ onPress: () => setShowSearchBar(true) }}
-          />
-        }
-      />
-    ) : (
-      <SearchBar
-        value={searchTerm}
-        // onClear={() => setSearchTerm("")}
-        onChangeText={(v) => setSearchTerm(v)}
-        onCancel={() => {
-          setSearchTerm("");
-          setShowSearchBar(false);
-        }}
-      />
-    )}
-  </Box>
-</Box>
+        {/* Always render the container to keep the layout stable */}
+        <Box height={60} justifyContent="center">
+          {!showSearchBar ? (
+            <PageHeader
+              title="Generate Meal Plans"
+              rightComponent={
+                <SearchWithArrow
+                  arrow={{ onPress: () => handleSetMealType() }}
+                  icons="both"
+                  search={{ onPress: () => setShowSearchBar(true) }}
+                />
+              }
+            />
+          ) : (
+            <SearchBar
+              value={searchTerm}
+              // onClear={() => setSearchTerm("")}
+              onChangeText={(v) => setSearchTerm(v)}
+              onCancel={() => {
+                setSearchTerm("");
+                setShowSearchBar(false);
+              }}
+            />
+          )}
+        </Box>
+      </Box>
       <Box height={SCREEN_HEIGHT}>
         <FlatList
           data={filteredData}
