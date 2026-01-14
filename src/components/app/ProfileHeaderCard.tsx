@@ -7,8 +7,9 @@ import { PAGE_WIDTH } from "@components/app/PageWrapper";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
 import { theme } from "@utils/styles/theme";
-import { MyStackNavigatorScreenProps } from "@navigation/types";
+import { RootStackParamList } from "@navigation/types";
 import { UserAvatar } from "./UserAvatar";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 interface ProfileHeaderCardProps {
   image: string | number; // Allow both string URIs and require() images
@@ -31,9 +32,7 @@ const ProfileHeaderCard: React.FC<ProfileHeaderCardProps> = ({
   isEditLink = false,
 }) => {
   const navigation =
-    useNavigation<
-      MyStackNavigatorScreenProps<"MyDashboardScreen">["navigation"]
-    >();
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
     <Box
@@ -107,7 +106,7 @@ const ProfileHeaderCard: React.FC<ProfileHeaderCardProps> = ({
           </TouchableOpacity>
         )}
         {isEditLink && (
-          <TouchableOpacity onPress={() => console.log("account edit")}>
+          <TouchableOpacity onPress={() => navigation.navigate("PersonalInfo")}>
             <Box
               gap="sm"
               pt="sm"
@@ -115,7 +114,7 @@ const ProfileHeaderCard: React.FC<ProfileHeaderCardProps> = ({
               alignItems="center"
               justifyContent="flex-end"
             >
-              {/* <Text
+              <Text
                 color={nameColor}
                 variant="sm"
                 fontWeight="600"
@@ -123,7 +122,7 @@ const ProfileHeaderCard: React.FC<ProfileHeaderCardProps> = ({
                 mr="sm"
               >
                 Edit
-              </Text> */}
+              </Text>
             </Box>
           </TouchableOpacity>
         )}

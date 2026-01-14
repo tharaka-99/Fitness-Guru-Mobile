@@ -126,6 +126,15 @@ export const authSlice = createSlice({
         state.user.isTrialActive = action.payload;
       }
     },
+    updateUserName(
+      state,
+      action: PayloadAction<{ firstName: string; lastName: string }>
+    ) {
+      if (state.user) {
+        state.user.firstName = action.payload.firstName;
+        state.user.lastName = action.payload.lastName;
+      }
+    },
   },
 });
 

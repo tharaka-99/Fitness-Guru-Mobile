@@ -66,13 +66,13 @@ const PricingPackagesScreen: React.FC<
 
         if (Platform.OS === "ios") {
           Purchases.configure({
-            // apiKey: "appl_xaIghnPYoNgfePDjSrzcubzjzqw",
-            apiKey: env.EXPO_PUBLIC_RC_IOS,
+            apiKey: "appl_xaIghnPYoNgfePDjSrzcubzjzqw",
+            //apiKey: env.EXPO_PUBLIC_RC_IOS,
           });
         } else if (Platform.OS === "android") {
           Purchases.configure({
-            apiKey: env.EXPO_PUBLIC_RC_ANDROID,
-            // apiKey: "goog_oyzmPsavutQJnKUwqqOOEiSLioN",
+            //apiKey: env.EXPO_PUBLIC_RC_ANDROID,
+            apiKey: "goog_oyzmPsavutQJnKUwqqOOEiSLioN",
           });
         }
 
