@@ -63,6 +63,7 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
 
   useEffect(() => {
     setSubscription(user?.subscription);
+    console.log("fitnessGuruRequest,,,,,,,,", fitnessGuruRequest?.status)
   }, [user]);
 
   useEffect(() => {

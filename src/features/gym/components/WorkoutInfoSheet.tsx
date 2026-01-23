@@ -2,13 +2,13 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetView,
-} from '@gorhom/bottom-sheet';
-import React, { useCallback } from 'react';
-import { Image } from 'react-native';
+} from "@gorhom/bottom-sheet";
+import React, { useCallback } from "react";
+import { ActivityIndicator, Image } from "react-native";
 
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
-import { theme } from '@utils/styles/theme';
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { theme } from "@utils/styles/theme";
 
 interface Props {
   bottomSheetRef: React.RefObject<BottomSheet>;
@@ -41,7 +41,7 @@ const WorkoutInfoSheet: React.FC<Props> = ({ bottomSheetRef, workoutInfo }) => {
   return (
     <BottomSheet
       index={-1}
-      snapPoints={['60%', '85%']}
+      snapPoints={["60%", "85%"]}
       ref={bottomSheetRef}
       enableDynamicSizing
       enablePanDownToClose
@@ -54,12 +54,23 @@ const WorkoutInfoSheet: React.FC<Props> = ({ bottomSheetRef, workoutInfo }) => {
       >
         <Box p="md" alignItems="center" gap="base">
           <Box borderRadius="sm" overflow="hidden">
-            <Image
-              resizeMode="cover"
-              width={150}
-              height={150}
-              source={{ uri: image }}
-            />
+            {image ? (
+              <Image
+                resizeMode="cover"
+                source={{ uri: image }}
+                width={150}
+                height={150}
+              />
+            ) : (
+              <Box
+                alignItems="center"
+                justifyContent="center"
+                width={150}
+                height={150}
+              >
+                <ActivityIndicator size={"large"} color="PrimaryGreen" />
+              </Box>
+            )}
           </Box>
 
           <Text variant="xlBold">{workoutName}</Text>

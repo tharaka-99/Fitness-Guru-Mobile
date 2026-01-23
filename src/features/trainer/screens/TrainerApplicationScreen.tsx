@@ -11,7 +11,7 @@ import {
 import PagerView from "react-native-pager-view";
 
 import PageHeader from "@components/app/header/PageHeader";
-import PageWrapper, {SCREEN_HEIGHT} from "@components/app/PageWrapper";
+import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import Box from "@components/atoms/Box";
 import Button from "@components/atoms/Button";
 import ImageInput from "@components/atoms/ImageInput";
@@ -39,7 +39,7 @@ import { Unit } from "@utils/types/types";
 import { Text as PaperText, Icon } from "react-native-paper";
 import { useSelector } from "react-redux";
 import Toast from "react-native-toast-message";
-import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view"
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const initialFormValues: CreateTrainerRequestDto = {
   trainerId: "",
@@ -403,7 +403,11 @@ const TrainerApplicationScreen: React.FC<
 
       <KeyboardAwareScrollView
         style={{ flex: 1 }}
-  
+        keyboardShouldPersistTaps="handled"
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        extraScrollHeight={20}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <PagerView

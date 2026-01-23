@@ -1,8 +1,8 @@
-import React from 'react';
-import { Image } from 'react-native';
+import React from "react";
+import { ActivityIndicator, Image } from "react-native";
 
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
 
 interface Props {
   workoutInfo: {
@@ -22,17 +22,28 @@ const WorkoutInfoCard: React.FC<Props> = ({ workoutInfo }) => {
   return (
     <Box p="md" alignItems="center" gap="base">
       <Box borderRadius="sm" overflow="hidden">
-        <Image
-          resizeMode="cover"
-          width={350}
-          height={350}
-          source={{ uri: image }}
-        />
+        {image ? (
+          <Image
+            resizeMode="cover"
+            source={{ uri: image }}
+            width={350}
+            height={350}
+          />
+        ) : (
+          <Box
+            alignItems="center"
+            justifyContent="center"
+            width={350}
+            height={350}
+          >
+            <ActivityIndicator size={"large"} color="PrimaryGreen" />
+          </Box>
+        )}
       </Box>
 
       <Text
         variant="xlBold"
-        style={{ textTransform: 'capitalize', textAlign: 'center' }}
+        style={{ textTransform: "capitalize", textAlign: "center" }}
       >
         {workoutName}
       </Text>
@@ -70,7 +81,7 @@ const WorkoutInfoCard: React.FC<Props> = ({ workoutInfo }) => {
         color="textSecondary"
         textAlign="left"
         mt="sm"
-        style={{ textAlign: 'center' }}
+        style={{ textAlign: "center" }}
       >
         {description}
       </Text>

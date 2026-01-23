@@ -18,7 +18,7 @@ import TextInput from "@components/molecules/TextInput";
 import { MyAuthStackNavigatorScreenProps } from "@navigation/types";
 import { Credentials } from "@utils/types/types";
 import { clientUserLogin } from "@utils/services/authServices";
-import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view"
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 type InputKey = keyof Credentials;
 
@@ -75,78 +75,75 @@ const LoginScreen: React.FC<MyAuthStackNavigatorScreenProps<"Login">> = ({
         keyboardVerticalOffset={Platform.OS === "ios" ? SCREEN_HEIGHT*0.15 : SCREEN_HEIGHT*0.15}
       > */}
       <KeyboardAwareScrollView
-      style={{flex:1}}
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        extraScrollHeight={20}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-            bounces={false}
-            showsVerticalScrollIndicator={false}
-          >
-            <Box backgroundColor="backgroundPrimary" flex={1}>
-              <Box style={{ height: SCREEN_HEIGHT * 0.5 }}>
-                <ImageBackground
-                  source={require("assets/images/background.png")}
-                  style={styles.backgroundImage}
-                >
-                  <Box mb="sm" pb="md">
-                    <Image
-                      resizeMode="cover"
-                      style={{ width: 125, height: 125 }}
-                      source={require("assets/logo_white.png")}
-                    />
-                  </Box>
-                  <Text fontWeight="500" style={{ fontSize: 20 }}>
-                    WELCOME TO
-                  </Text>
-                  <Text fontWeight="700" style={{ fontSize: 40 }} mb="md">
-                    FITNESS GURU
-                  </Text>
-                </ImageBackground>
+        <Box backgroundColor="backgroundPrimary" flex={1}>
+          <Box style={{ height: SCREEN_HEIGHT * 0.5 }}>
+            <ImageBackground
+              source={require("assets/images/background.png")}
+              style={styles.backgroundImage}
+            >
+              <Box mb="sm" pb="md">
+                <Image
+                  resizeMode="cover"
+                  style={{ width: 125, height: 125 }}
+                  source={require("assets/logo_white.png")}
+                />
               </Box>
+              <Text fontWeight="500" style={{ fontSize: 20 }}>
+                WELCOME TO
+              </Text>
+              <Text fontWeight="700" style={{ fontSize: 40 }} mb="md">
+                FITNESS GURU
+              </Text>
+            </ImageBackground>
+          </Box>
 
-              <Box padding="md" style={{ flex: 1 }}>
-                <Box gap="base">
-                  <TextInput
-                    label="Email"
-                    placeholder="Enter your email"
-                    keyboardType="email-address"
-                    onChangeText={(text) => handleInputChange("email", text)}
-                  />
-                  <TextInput
-                    secureTextEntry
-                    label="Password"
-                    placeholder="Enter your password"
-                    onChangeText={(text) => handleInputChange("password", text)}
-                  />
-                </Box>
-
-                <Box mt="lg">
-                  <Button
-                    title="Login"
-                    onPress={handleLogin}
-                    isLoading={isLoading}
-                  />
-                </Box>
-
-                <Box
-                  gap="sm"
-                  mt="md"
-                  flexDirection="row"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Text color="textSecondary">Not a member yet ?</Text>
-                  <Text onPress={() => navigation.navigate("Register")} py="md">
-                    Sign in
-                  </Text>
-                </Box>
-              </Box>
+          <Box padding="md" style={{ flex: 1 }}>
+            <Box gap="base">
+              <TextInput
+                label="Email"
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                onChangeText={(text) => handleInputChange("email", text)}
+              />
+              <TextInput
+                secureTextEntry
+                label="Password"
+                placeholder="Enter your password"
+                onChangeText={(text) => handleInputChange("password", text)}
+              />
             </Box>
-          </ScrollView>
-        </TouchableWithoutFeedback>
-        </KeyboardAwareScrollView>
+
+            <Box mt="lg">
+              <Button
+                title="Login"
+                onPress={handleLogin}
+                isLoading={isLoading}
+              />
+            </Box>
+
+            <Box
+              gap="sm"
+              mt="md"
+              flexDirection="row"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Text color="textSecondary">Not a member yet ?</Text>
+              <Text onPress={() => navigation.navigate("Register")} py="md">
+                Sign in
+              </Text>
+            </Box>
+          </Box>
+        </Box>
+      </KeyboardAwareScrollView>
       {/* </KeyboardAvoidingView> */}
     </PageWrapper>
   );

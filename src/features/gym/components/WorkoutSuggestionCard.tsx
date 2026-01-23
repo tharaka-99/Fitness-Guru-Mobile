@@ -14,7 +14,6 @@ import Text from "@components/atoms/Text";
 import { SearchExercises } from "@utils/types/types";
 import { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 
-
 interface WorkoutListItemProps {
   onPress: () => void;
   exercises: SearchExercises[];
@@ -49,34 +48,33 @@ const WorkoutSuggestionCard: React.FC<WorkoutListItemProps> = ({
   );
 
   return (
-    
-      <View style={{ flex: 1, maxHeight: 400 }}>
-        <Box py="sm" px="md" borderRadius="sm" bg="PrimaryWhite" width="100%">
-          {exercises.length > 0 ? (
-            <FlatList
-              data={exercises}
-              keyExtractor={({ name }) => name}
-              renderItem={renderItem}
-              showsVerticalScrollIndicator={true}
-              initialNumToRender={10}
-              maxToRenderPerBatch={5}
-              windowSize={5}
-              keyboardShouldPersistTaps="handled"
-              getItemLayout={(data, index) => ({
-                length: 80,
-                offset: 80 * index,
-                index,
-              })}
-            />
-          ) : (
-            <Box alignItems="center" justifyContent="center" py="lg">
-              <Text variant="md" color="PrimaryBlack">
-                No exercises found. Try a different search!
-              </Text>
-            </Box>
-          )}
-        </Box>
-      </View>
+    <View style={{ flex: 1, maxHeight: 400 }}>
+      <Box py="sm" px="md" borderRadius="sm" bg="PrimaryWhite" width="100%">
+        {exercises.length > 0 ? (
+          <FlatList
+            data={exercises}
+            keyExtractor={({ name }) => name}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={true}
+            initialNumToRender={10}
+            maxToRenderPerBatch={5}
+            windowSize={5}
+            keyboardShouldPersistTaps="handled"
+            getItemLayout={(data, index) => ({
+              length: 80,
+              offset: 80 * index,
+              index,
+            })}
+          />
+        ) : (
+          <Box alignItems="center" justifyContent="center" py="lg">
+            <Text variant="md" color="PrimaryBlack">
+              No exercises found. Try a different search!
+            </Text>
+          </Box>
+        )}
+      </Box>
+    </View>
   );
 };
 
@@ -118,11 +116,19 @@ const WorkoutSuggestionItem: React.FC<WorkoutSuggestionItemProps> = React.memo(
           )}
 
           {error || !url ? (
-            <Image
-              source={{ uri: sampleImage }}
+            // <Image
+            //   source={{ uri: sampleImage }}
+            //   style={{ width: 65, height: 65 }}
+            //   resizeMode="cover"
+            // />
+
+            <Box
+              alignItems="center"
+              justifyContent="center"
               style={{ width: 65, height: 65 }}
-              resizeMode="cover"
-            />
+            >
+              <ActivityIndicator size={"large"} color="PrimaryGreen" />
+            </Box>
           ) : (
             <Image
               source={{ uri: url }}
@@ -148,4 +154,6 @@ const WorkoutSuggestionItem: React.FC<WorkoutSuggestionItemProps> = React.memo(
   }
 );
 
-const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+// const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+const sampleImage =
+  "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif";

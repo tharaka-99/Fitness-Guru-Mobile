@@ -184,7 +184,7 @@ const GenerateWorkoutScreen: React.FC<
           >
             <WorkoutListItem
               theme="green"
-              image={item.exercise.url ? item.exercise.url : sampleImage}
+              image={item.exercise.url ? item.exercise.url : ""}
               title={item.exercise.name}
               description={`${item.sets} Sets | ${item.reps} Reps | ${item.rest} Rest`}
             />
@@ -509,4 +509,6 @@ const GenerateWorkoutScreen: React.FC<
 
 export default GenerateWorkoutScreen;
 
-const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+// const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+const sampleImage =
+  "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif";

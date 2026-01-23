@@ -41,12 +41,12 @@ export default function App() {
     try {
       if (Platform.OS === "ios") {
         Purchases.configure({
-          // apiKey: "appl_xaIghnPYoNgfePDjSrzcubzjzqw",
+          //apiKey: "appl_xaIghnPYoNgfePDjSrzcubzjzqw",
           apiKey: env.EXPO_PUBLIC_RC_IOS,
         });
       } else if (Platform.OS === "android") {
         Purchases.configure({
-          // apiKey: "goog_oyzmPsavutQJnKUwqqOOEiSLioN",
+          //apiKey: "goog_oyzmPsavutQJnKUwqqOOEiSLioN",
           apiKey: env.EXPO_PUBLIC_RC_ANDROID,
         });
       }

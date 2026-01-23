@@ -107,7 +107,7 @@ const ProfileHeaderCard: React.FC<ProfileHeaderCardProps> = ({
           </TouchableOpacity>
         )}
         {isEditLink && (
-          <TouchableOpacity onPress={() => console.log("account edit")}>
+          <TouchableOpacity onPress={() => navigation.navigate("PersonalInfo")}>
             <Box
               gap="sm"
               pt="sm"
@@ -115,7 +115,7 @@ const ProfileHeaderCard: React.FC<ProfileHeaderCardProps> = ({
               alignItems="center"
               justifyContent="flex-end"
             >
-              {/* <Text
+              <Text
                 color={nameColor}
                 variant="sm"
                 fontWeight="600"
@@ -123,7 +123,7 @@ const ProfileHeaderCard: React.FC<ProfileHeaderCardProps> = ({
                 mr="sm"
               >
                 Edit
-              </Text> */}
+              </Text>
             </Box>
           </TouchableOpacity>
         )}

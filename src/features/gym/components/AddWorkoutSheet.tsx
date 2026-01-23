@@ -5,7 +5,7 @@ import BottomSheet, {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import React, { useCallback, useState } from "react";
-import { Image, TouchableOpacity } from "react-native";
+import { Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 
 import Box from "@components/atoms/Box";
@@ -19,6 +19,8 @@ interface Props {
   bottomSheetRef: React.RefObject<any>;
   onAddWorkout: (exercise: Exercises) => void;
 }
+
+const loadingGif = require("assets/loading_gif.gif");
 
 const AddWorkoutSheet: React.FC<Props> = ({
   image,
@@ -88,11 +90,21 @@ const AddWorkoutSheet: React.FC<Props> = ({
               justifyContent="center"
               backgroundColor="SecondaryWhite"
             >
-              <Image
-                resizeMode="cover"
-                source={{ uri: image }}
-                style={{ width: 150, height: 150 }}
-              />
+              {image ? (
+                <Image
+                  resizeMode="cover"
+                  source={{ uri: image }}
+                  style={{ width: 150, height: 150 }}
+                />
+              ) : (
+                <Box
+                  alignItems="center"
+                  justifyContent="center"
+                  style={{ width: 150, height: 150 }}
+                >
+                  <ActivityIndicator size={"large"} color="PrimaryGreen" />
+                </Box>
+              )}
             </Box>
 
             <Text
@@ -131,7 +143,9 @@ const AddWorkoutSheet: React.FC<Props> = ({
                 <Text variant="md">Rest Time</Text>
               </Box>
               <DropDown
-                data={[...Array(50).keys()].map((i) => (i + 1).toString())}
+                data={[...Array(50).keys()].map((i) =>
+                  ((i + 1) * 15).toString()
+                )}
                 onSelect={(i) => setRest(Number(i))}
               />
             </Box>

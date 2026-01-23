@@ -228,6 +228,10 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
           key="1"
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+          enableOnAndroid={true}
+          extraScrollHeight={20}
         >
           <Box gap="base">
             <TextInput
@@ -329,6 +333,10 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
           key="2"
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+          enableOnAndroid={true}
+          extraScrollHeight={20}
         >
           <Box gap="base">
             <TouchableOpacity

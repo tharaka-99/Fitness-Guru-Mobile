@@ -37,6 +37,7 @@ import { theme } from "@utils/styles/theme";
 import { authActions } from "@features/auth/context/slice";
 import { gymActions } from "@features/gym/context/slice";
 import { Icon } from "react-native-paper";
+import { useIsFocused } from "@react-navigation/native";
 
 const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   navigation,
@@ -58,6 +59,8 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   );
   const [isProfileSaved, setIsProfileSaved] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const isFocused = useIsFocused();
 
   const goToNextStep = () => {
     if (currentStep === 1) {
@@ -322,19 +325,19 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       saveProfileInfo();
       navigation.navigate("GenerateWorkout");
     } else if (option === "default") {
-      if (user?.subscription?.status === true) {
-        saveProfileInfo();
-        navigation.navigate("GeneralWorkoutRoutine");
-      } else {
-        gymActions.setSelectedWorkout({
-          WorkoutType: WorkoutType.Default,
-          createdBy: "",
-        });
-        saveProfileInfo();
-        navigation.navigate("PricingPackages");
-      }
+      // if (user?.subscription?.status === true) {
       // saveProfileInfo();
-      // navigation.navigate("GenerateMealPlan");
+      //   navigation.navigate("GeneralWorkoutRoutine");
+      // } else {
+      //   gymActions.setSelectedWorkout({
+      //     WorkoutType: WorkoutType.Default,
+      //     createdBy: "",
+      //   });
+      //   saveProfileInfo();
+      //   navigation.navigate("PricingPackages");
+      // }
+      saveProfileInfo();
+      navigation.navigate("GenerateMealPlan");
     }
   };
   return (
@@ -365,8 +368,10 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
 
       <Box flex={1} style={{ flexGrow: 1 }}>
         <PagerView
-          initialPage={0}
+          //initialPage={0}
           ref={pageViewRef}
+          key={isFocused ? "focused" : "none"}
+          initialPage={currentStep}
           style={{ flex: 1 }}
           scrollEnabled={false}
           onPageSelected={(e) => setCurrentStep(e.nativeEvent.position)}

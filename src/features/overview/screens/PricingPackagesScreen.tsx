@@ -180,6 +180,7 @@ const PricingPackagesScreen: React.FC<
 
     // Perform the purchase
     const purchaseResult = await Purchases.purchasePackage(selectedPackage);
+    console.log("purchaseResult>>>>>>>>", purchaseResult)
 
     if (purchaseResult.customerInfo.activeSubscriptions.length > 0) {
       store.dispatch(authActions.setSubscription({ status: true }));
@@ -197,7 +198,7 @@ const PricingPackagesScreen: React.FC<
       return;
     }
 
-    // let paymentResult = null;
+    let paymentResult = null;
     // try {
     //   paymentResult = await activeNewPackage(id);
     //   store.dispatch(authActions.setSubscription(paymentResult));
@@ -212,6 +213,14 @@ const PricingPackagesScreen: React.FC<
     try {
       console.log("came here!!!!!!!!!!!!!!!!!!!");
       // check if user clicked they have injury button
+      paymentResult = await activeNewPackage(id);
+      store.dispatch(authActions.setSubscription(paymentResult));
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Activated subscription successfully!',
+      });
+
       if (user?.isInjured) {
         store.dispatch(authActions.setIsInjured(true));
         navigation.navigate("Tab", { screen: "FitnessGuru" });
