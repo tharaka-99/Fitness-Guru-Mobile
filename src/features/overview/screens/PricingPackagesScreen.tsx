@@ -8,7 +8,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-
 import { store } from "@/store";
 import PageWrapper from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
@@ -58,7 +57,6 @@ const PricingPackagesScreen: React.FC<
   const [packages, setPackages] = useState<SubscriptionPlans>([]);
   const [offerings, setOfferings] = useState<PurchasesOfferings>();
 
-  //configure revenue cat
   useEffect(() => {
     const initializeRevenueCat = async () => {
       try {
@@ -76,7 +74,6 @@ const PricingPackagesScreen: React.FC<
           });
         }
 
-        // Wait a bit for the SDK to initialize
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         await getCustomerInfo();
@@ -110,15 +107,15 @@ const PricingPackagesScreen: React.FC<
       console.log("rcOfferings:", rcOfferings);
       if (rcOfferings) {
         setOfferings(rcOfferings);
+        console.log("rcOfferings.current .........>>>>>>>>>>", rcOfferings);
 
-        // Iterate over offerings
         if (rcOfferings.current && rcOfferings.current.availablePackages) {
           console.log("Iterating over available packages:");
           rcOfferings.current.availablePackages.forEach((pkg, index) => {
             console.log(`Package ${index + 1}:`);
             console.log(`  - Identifier: ${pkg.identifier}`);
             console.log(`  - Package Type: ${pkg.packageType}`);
-            console.log(`  - Product:`, pkg.product);
+            console.log(`  - Product:`, JSON.stringify(pkg.product, null, 2));
           });
         }
       } else {
@@ -159,15 +156,17 @@ const PricingPackagesScreen: React.FC<
         productIdentifier: pkg.product.identifier,
         productTitle: pkg.product.title,
         productPrice: pkg.product.priceString,
-      }))
+      })),
     );
 
-    // Find the selected package
     const selectedPackage = offerings.current.availablePackages.find(
-      (pkg) => pkg.identifier === packageIdentifier
+      (pkg) => pkg.identifier === packageIdentifier,
     );
 
-    console.log(selectedPackage, "selectedPackage");
+    console.log(
+      "selectedPackage .........>>>>>>>>>>",
+      JSON.stringify(selectedPackage),
+    );
 
     if (!selectedPackage) {
       Toast.show({
@@ -178,9 +177,8 @@ const PricingPackagesScreen: React.FC<
       return;
     }
 
-    // Perform the purchase
     const purchaseResult = await Purchases.purchasePackage(selectedPackage);
-    console.log("purchaseResult>>>>>>>>", purchaseResult)
+    console.log("purchaseResult>>>>>>>>", purchaseResult);
 
     if (purchaseResult.customerInfo.activeSubscriptions.length > 0) {
       store.dispatch(authActions.setSubscription({ status: true }));
@@ -203,22 +201,21 @@ const PricingPackagesScreen: React.FC<
     //   paymentResult = await activeNewPackage(id);
     //   store.dispatch(authActions.setSubscription(paymentResult));
     //   Toast.show({
-    //     type: 'success',
-    //     text1: 'Success',
-    //     text2: 'Activated subscription successfully!',
+    //     type: "success",
+    //     text1: "Success",
+    //     text2: "Activated subscription successfully!",
     //   });
-    // } catch (error) {
+    // } catch (error) {}
 
-    // }
     try {
       console.log("came here!!!!!!!!!!!!!!!!!!!");
       // check if user clicked they have injury button
       paymentResult = await activeNewPackage(id);
       store.dispatch(authActions.setSubscription(paymentResult));
       Toast.show({
-        type: 'success',
-        text1: 'Success',
-        text2: 'Activated subscription successfully!',
+        type: "success",
+        text1: "Success",
+        text2: "Activated subscription successfully!",
       });
 
       if (user?.isInjured) {
@@ -228,25 +225,19 @@ const PricingPackagesScreen: React.FC<
       }
 
       if (selectedWorkout?.WorkoutType === WorkoutType.Default) {
-        await setClientProfileInfo(profile), navigation.navigate("Home");
+        (await setClientProfileInfo(profile), navigation.navigate("Home"));
         return;
       }
 
       console.log("check has subscriptions", user?.subscription?.status);
 
-      // Check if the user already has a subscription
-      // const hasSubscription = user?.subscription?.status ?? false;
-
-      //check if user has premium access - Testing Free Trial
       const hasSubscription = hasPremiumAccess(user);
 
-      // Execute initial setup if this is the user's first time (no subscription data)
       if (!hasSubscription) {
         console.log(
-          "User does not have an active subscription. Proceeding with setup."
+          "User does not have an active subscription. Proceeding with setup.",
         );
 
-        // Prepare the workout data
         console.log("Transforming workout data...");
         const transformedDays: Workout = {
           type: WorkoutType.SelfCreated,
@@ -266,7 +257,6 @@ const PricingPackagesScreen: React.FC<
         };
         console.log("Transformed workout data:", transformedDays);
 
-        // Prepare meal details without `calPerUnit`
         console.log("Omitting calPerUnit from meal details...");
         const omitCalPerUnit = (mealArray: MealItemDto[]) => {
           return mealArray.map(({ calPerUnit, ...rest }) => rest);
@@ -280,10 +270,9 @@ const PricingPackagesScreen: React.FC<
         };
         console.log(
           "Meal details without calPerUnit:",
-          mealDetailsWithoutCalPerUnit
+          mealDetailsWithoutCalPerUnit,
         );
 
-        // Make API calls concurrently for better performance
         try {
           console.log("Making API calls...");
           await Promise.all([
@@ -341,14 +330,16 @@ const PricingPackagesScreen: React.FC<
   useEffect(() => {
     const getPackages = async () => {
       const cilentPackages = await getClientPackages();
-      console.log(cilentPackages);
+      console.log(
+        "cilentPackages ........./////",
+        JSON.stringify(cilentPackages, null, 2),
+      );
       setPackages(cilentPackages);
     };
 
     getPackages();
   }, []);
 
-  // Iterate over offerings when they change
   useEffect(() => {
     if (offerings?.current?.availablePackages) {
       console.log("=== ITERATING OVER OFFERINGS ===");
@@ -367,7 +358,6 @@ const PricingPackagesScreen: React.FC<
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Top Image taking 1/3 of the screen */}
       <View style={styles.imageContainer}>
         <Image
           source={
@@ -381,7 +371,6 @@ const PricingPackagesScreen: React.FC<
         />
       </View>
 
-      {/* Bottom Pricing Card taking 2/3 of the screen */}
       <View style={styles.cardContainer}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -402,14 +391,14 @@ export default PricingPackagesScreen;
 
 const styles = StyleSheet.create({
   imageContainer: {
-    flex: 1, // Takes 1/3 of the screen
+    flex: 1,
   },
   image: {
     width: "100%",
     height: "100%",
   },
   cardContainer: {
-    flex: 3, // Takes 2/3 of the screen
+    flex: 3,
   },
   scrollContent: {
     flexGrow: 1,

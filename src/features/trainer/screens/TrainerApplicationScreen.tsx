@@ -40,6 +40,7 @@ import { Text as PaperText, Icon } from "react-native-paper";
 import { useSelector } from "react-redux";
 import Toast from "react-native-toast-message";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { ArrowLeft } from "lucide-react-native";
 
 const initialFormValues: CreateTrainerRequestDto = {
   trainerId: "",
@@ -174,7 +175,7 @@ const TrainerApplicationScreen: React.FC<
   //
   const handleInputChange = <Name extends keyof CreateTrainerRequestDto>(
     name: Name,
-    value: CreateTrainerRequestDto[Name]
+    value: CreateTrainerRequestDto[Name],
   ) => {
     setFormValues((prevValues) => ({
       ...prevValues,
@@ -187,7 +188,7 @@ const TrainerApplicationScreen: React.FC<
   //
   const handleImageUpload = (
     name: keyof typeof imageUploads,
-    value: string | string[]
+    value: string | string[],
   ) => {
     setImageUploads((prevImages) => ({
       ...prevImages,
@@ -205,7 +206,7 @@ const TrainerApplicationScreen: React.FC<
   const appendTrainerRequestData = (
     formValues: CreateTrainerRequestDto,
     imageUploads: any,
-    trainerId: string
+    trainerId: string,
   ) => {
     const formData = new FormData();
 
@@ -224,22 +225,22 @@ const TrainerApplicationScreen: React.FC<
     formData.append("homeEquipments", formValues.homeEquipments || "");
     formData.append(
       "isAnyFoodAllergies",
-      formValues.isAnyFoodAllergies.toString()
+      formValues.isAnyFoodAllergies.toString(),
     );
     formData.append("foodAllergies", formValues.foodAllergies || "");
     formData.append("isAnyInjuries", formValues.isAnyInjuries.toString());
     formData.append("injuries", formValues.injuries || "");
     formData.append(
       "isAnyPhysicalLimitations",
-      formValues.isAnyPhysicalLimitations.toString()
+      formValues.isAnyPhysicalLimitations.toString(),
     );
     formData.append(
       "physicalLimitations",
-      formValues.physicalLimitations || ""
+      formValues.physicalLimitations || "",
     );
     formData.append(
       "isUsingAnyMedications",
-      formValues.isUsingAnyMedications.toString()
+      formValues.isUsingAnyMedications.toString(),
     );
     formData.append("usingMedications", formValues.usingMedications || "");
     formData.append("activityLevel", formValues.activityLevel);
@@ -247,26 +248,26 @@ const TrainerApplicationScreen: React.FC<
     formData.append("weeklyMealBudget", formValues.weeklyMealBudget.toString());
     formData.append(
       "isUseAnySupplements",
-      formValues.isUseAnySupplements.toString()
+      formValues.isUseAnySupplements.toString(),
     );
     formData.append("supplements", formValues.supplements || "");
     formData.append("cardiovascular", formValues.cardiovascular);
     formData.append(
       "oneSetPushUpCount",
-      formValues.oneSetPushUpCount.toString()
+      formValues.oneSetPushUpCount.toString(),
     );
     formData.append(
       "oneSetBodyWeightSquats",
-      formValues.oneSetBodyWeightSquats.toString()
+      formValues.oneSetBodyWeightSquats.toString(),
     );
     formData.append("oneSetPullUps", formValues.oneSetPullUps.toString());
     formData.append(
       "canTouchToesKeepingLegsStraight",
-      formValues.canTouchToesKeepingLegsStraight.toString()
+      formValues.canTouchToesKeepingLegsStraight.toString(),
     );
     formData.append(
       "isPracticingAnyFlexibilityExercises",
-      formValues.isPracticingAnyFlexibilityExercises.toString()
+      formValues.isPracticingAnyFlexibilityExercises.toString(),
     );
     // Handle image uploads
     if (imageUploads.homeEquipments.length) {
@@ -277,7 +278,7 @@ const TrainerApplicationScreen: React.FC<
             name: `homeEquipment_${index + 1}.jpg`,
             type: "image/jpeg",
           });
-        }
+        },
       );
     }
 
@@ -312,7 +313,7 @@ const TrainerApplicationScreen: React.FC<
       const formData = appendTrainerRequestData(
         formValues,
         imageUploads,
-        trainerId
+        trainerId,
       );
 
       logFormData(formData);
@@ -375,11 +376,7 @@ const TrainerApplicationScreen: React.FC<
           leftComponent={
             <Box flexDirection="row" alignItems="center" gap="md">
               <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Icon
-                  source="arrow-left"
-                  size={30}
-                  color={theme.colors.PrimaryGreen}
-                />
+                <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
               </TouchableOpacity>
               <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
                 {trainerId === "fitness-guru"
@@ -504,7 +501,7 @@ const TrainerApplicationScreen: React.FC<
                       }}
                       disabled={unit === Unit.Metric}
                     >
-                      <PaperText
+                      <Text
                         style={{
                           color:
                             unit === Unit.Metric
@@ -513,7 +510,7 @@ const TrainerApplicationScreen: React.FC<
                         }}
                       >
                         Metric
-                      </PaperText>
+                      </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -536,7 +533,7 @@ const TrainerApplicationScreen: React.FC<
                       }}
                       disabled={unit === Unit.Imperial}
                     >
-                      <PaperText
+                      <Text
                         style={{
                           color:
                             unit === Unit.Imperial
@@ -545,7 +542,7 @@ const TrainerApplicationScreen: React.FC<
                         }}
                       >
                         Imperial
-                      </PaperText>
+                      </Text>
                     </TouchableOpacity>
                   </Box>
                 </View>
@@ -590,7 +587,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "workoutPlace",
-                      value.value as WorkoutPlace
+                      value.value as WorkoutPlace,
                     )
                   }
                   key={formValues.workoutPlace}
@@ -623,7 +620,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "isAnyFoodAllergies",
-                      value.value as boolean
+                      value.value as boolean,
                     )
                   }
                 />
@@ -665,7 +662,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "isAnyPhysicalLimitations",
-                      value.value as boolean
+                      value.value as boolean,
                     )
                   }
                 />
@@ -688,7 +685,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "isUsingAnyMedications",
-                      value.value as boolean
+                      value.value as boolean,
                     )
                   }
                 />
@@ -742,7 +739,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "activityLevel",
-                      value.value as ActivityLevel
+                      value.value as ActivityLevel,
                     )
                   }
                 />
@@ -785,7 +782,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "isUseAnySupplements",
-                      value.value as boolean
+                      value.value as boolean,
                     )
                   }
                 />
@@ -840,7 +837,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "cardiovascular",
-                      value.value as Cardiovascular
+                      value.value as Cardiovascular,
                     )
                   }
                 />
@@ -892,7 +889,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "canTouchToesKeepingLegsStraight",
-                      value.value as boolean
+                      value.value as boolean,
                     )
                   }
                 />
@@ -914,7 +911,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "isPracticingAnyFlexibilityExercises",
-                      value.value as boolean
+                      value.value as boolean,
                     )
                   }
                 />

@@ -37,6 +37,7 @@ import { theme } from "@utils/styles/theme";
 import { authActions } from "@features/auth/context/slice";
 import { gymActions } from "@features/gym/context/slice";
 import { Icon } from "react-native-paper";
+import { ArrowLeft } from "lucide-react-native";
 import { useIsFocused } from "@react-navigation/native";
 
 const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
@@ -51,11 +52,11 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   const [weight, setWeight] = useState<number>(0);
   const [height, setHeight] = useState<number>(0);
   const [activityLevel, setActivityLevel] = useState<ActivityLevel>(
-    ActivityLevel.Active
+    ActivityLevel.Active,
   );
   const [goal, setGoal] = useState<Goal>(Goal.FatLoss);
   const [expertiseLevel, setExpertiseLevel] = useState<ExpertiseLevel>(
-    ExpertiseLevel.Beginner
+    ExpertiseLevel.Beginner,
   );
   const [isProfileSaved, setIsProfileSaved] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -117,7 +118,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
     unit: Unit,
     gender: string,
     activityLevel: ActivityLevel,
-    goal: Goal
+    goal: Goal,
   ) => {
     // Calculate BMR
     let bmr = 0;
@@ -223,7 +224,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
         unit,
         user ? user.gender : "Male",
         activityLevel,
-        goal
+        goal,
       );
 
       // If the user's subscription is active, save the profile information
@@ -237,7 +238,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       store.dispatch(
         authActions.setBmrAndDci({
           calculatedMetrics: { bmr, dci },
-        })
+        }),
       );
 
       // Calculate per meal requirements based on DCI and goal
@@ -293,7 +294,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
           perMealRequirement,
           perMealLowerLimit,
           perMealUpperLimit,
-        })
+        }),
       );
 
       setIsProfileSaved(true);
@@ -355,11 +356,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                 }
               }}
             >
-              <Icon
-                source="arrow-left"
-                size={30}
-                color={theme.colors.PrimaryGreen}
-              />
+              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
             <UserNameWithAvatar />
           </Box>
@@ -451,10 +448,12 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                                 : "transparent",
                             alignItems: "center",
                             justifyContent: "center",
+                            minHeight: theme.spacing.lg + 10,
+                            minWidth: theme.spacing["3xl"] + 10,
+                            paddingHorizontal: 10,
+
                             borderRadius: 4,
                             paddingVertical: 5,
-                            paddingHorizontal: 10,
-                            minWidth: 80,
                           }}
                         >
                           <Text
@@ -482,10 +481,11 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                                 : "transparent",
                             alignItems: "center",
                             justifyContent: "center",
+                            minHeight: theme.spacing.lg + 10,
+                            minWidth: theme.spacing["3xl"] + 10,
+                            paddingHorizontal: 10,
                             borderRadius: 4,
                             paddingVertical: 5,
-                            paddingHorizontal: 10,
-                            minWidth: 80,
                           }}
                         >
                           <Text

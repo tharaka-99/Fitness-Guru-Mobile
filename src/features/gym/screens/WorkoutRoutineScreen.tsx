@@ -12,6 +12,7 @@ import { WorkoutType } from "@utils/types/types";
 // import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Icon } from "react-native-paper";
 import Text from "@components/atoms/Text";
+import { ArrowLeft } from "lucide-react-native";
 
 const WorkoutRoutineScreen: React.FC<
   MyStackNavigatorScreenProps<"WorkoutRoutine">
@@ -55,11 +56,7 @@ const WorkoutRoutineScreen: React.FC<
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Icon
-                source="arrow-left"
-                size={30}
-                color={theme.colors.PrimaryGreen}
-              />
+              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
             <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
               Workout Routine

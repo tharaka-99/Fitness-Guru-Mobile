@@ -3,7 +3,7 @@ import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
 import Box from "@components/atoms/Box";
 import BoxTab from "@components/atoms/BoxTab";
-import { Dumbbell, Edit, BarChart3 } from "lucide-react-native";
+import { Dumbbell, Edit, BarChart3, ArrowLeft } from "lucide-react-native";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
 import React, { useState } from "react";
 import {
@@ -60,8 +60,8 @@ const AnalyticsScreen: React.FC<
       getLogHistoryByWorkoutDayExercise(
         selectedExercise?.exercise?._id,
         selectedWorkoutId,
-        selectedDay
-      ) // Function reference
+        selectedDay,
+      ), // Function reference
   );
   const {
     isLoading: isLastWeekAnalyticsByWorkoutDayExerciseLoading,
@@ -78,8 +78,8 @@ const AnalyticsScreen: React.FC<
       getLastWeekAnalyticsByWorkoutDayExercise(
         selectedExercise?.exercise?._id,
         selectedWorkoutId,
-        selectedDay
-      ) // Function reference
+        selectedDay,
+      ), // Function reference
   );
 
   const handleBoxPress = (box: string) => {
@@ -233,7 +233,7 @@ const AnalyticsScreen: React.FC<
                   alreadyLogged={isTodayInLogs(
                     logHistoryByWorkoutDayExercise
                       ? logHistoryByWorkoutDayExercise
-                      : []
+                      : [],
                   )}
                 />
               )}

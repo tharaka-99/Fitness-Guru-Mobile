@@ -7,6 +7,7 @@ import {
   Platform,
   TouchableOpacity,
   View,
+  Keyboard,
 } from "react-native";
 import Box from "@components/atoms/Box";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -36,6 +37,7 @@ const WorkoutSuggestionCard: React.FC<WorkoutListItemProps> = ({
       return (
         <TouchableOpacity
           onPress={() => {
+            Keyboard.dismiss();
             onPress();
             setSelectedExercise(item);
           }}
@@ -44,7 +46,20 @@ const WorkoutSuggestionCard: React.FC<WorkoutListItemProps> = ({
         </TouchableOpacity>
       );
     },
-    [onPress, setSelectedExercise]
+    [onPress, setSelectedExercise],
+  );
+
+  const keyExtractor = useCallback((item: SearchExercises) => {
+    return item._id || item.name;
+  }, []);
+
+  const getItemLayout = useCallback(
+    (data: any, index: number) => ({
+      length: 80,
+      offset: 80 * index,
+      index,
+    }),
+    [],
   );
 
   return (
@@ -151,7 +166,7 @@ const WorkoutSuggestionItem: React.FC<WorkoutSuggestionItemProps> = React.memo(
         </Text>
       </Box>
     );
-  }
+  },
 );
 
 // const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";

@@ -16,6 +16,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { WorkoutType } from "@utils/types/types";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
+import { ArrowLeft, Plus } from "lucide-react-native";
 
 const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
   navigation,
@@ -48,11 +49,7 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
             <TouchableOpacity
               onPress={() => navigation.navigate("GenerateMealPlan")}
             >
-              <Icon
-                size={30}
-                source={"plus"}
-                color={theme.colors.PrimaryGreen}
-              />
+              <Plus size={30} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
           )
         }
@@ -60,11 +57,7 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Icon
-                source="arrow-left"
-                size={30}
-                color={theme.colors.PrimaryGreen}
-              />
+              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
             <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
               Meal Plan

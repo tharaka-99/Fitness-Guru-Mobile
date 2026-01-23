@@ -1,11 +1,11 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, Keyboard, TouchableOpacity } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
+import { ArrowLeft, ArrowRight, Search } from "lucide-react-native";
 
 import { store } from "@/store";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
-import SearchWithArrow from "@components/app/header/SearchWithArrow";
 import Box from "@components/atoms/Box";
 import SearchBar from "@components/atoms/SearchBar";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
@@ -47,7 +47,7 @@ const GenerateMealPlanScreen: React.FC<
   const [selectedMealItem, setSelectedMealItem] = useState<MealItem>();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [nextMealType, setNextMealType] = useState<MealType>(
-    MealType.Breakfast
+    MealType.Breakfast,
   );
   const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
 
@@ -77,7 +77,7 @@ const GenerateMealPlanScreen: React.FC<
   useEffect(() => {
     if (currentMealPlan?.length) {
       const selfCreatedMealPlan = currentMealPlan.filter(
-        (mealPlan) => mealPlan.type === "SelfCreated"
+        (mealPlan) => mealPlan.type === "SelfCreated",
       )[0];
 
       // Process breakfast items
@@ -91,7 +91,7 @@ const GenerateMealPlanScreen: React.FC<
               calPerUnit: food?.calPerUnit,
               mealType: MealType.Breakfast,
               unitAmount: food?.unitAmount,
-            })
+            }),
           );
         }
       });
@@ -105,7 +105,7 @@ const GenerateMealPlanScreen: React.FC<
               count: item?.count,
               calPerUnit: food?.calPerUnit,
               mealType: MealType.Lunch,
-            })
+            }),
           );
         }
       });
@@ -119,7 +119,7 @@ const GenerateMealPlanScreen: React.FC<
               count: item?.count,
               calPerUnit: food?.calPerUnit,
               mealType: MealType.Snack,
-            })
+            }),
           );
         }
       });
@@ -133,7 +133,7 @@ const GenerateMealPlanScreen: React.FC<
               count: item?.count,
               calPerUnit: food?.calPerUnit,
               mealType: MealType.Dinner,
-            })
+            }),
           );
         }
       });
@@ -156,11 +156,11 @@ const GenerateMealPlanScreen: React.FC<
       console.log("Per Meal Requirement (DCI):", perMealRequirement);
       console.log(
         "Current perMealLowerLimit:",
-        caloryRequirements.perMealLowerLimit
+        caloryRequirements.perMealLowerLimit,
       );
       console.log(
         "Current perMealUpperLimit:",
-        caloryRequirements.perMealUpperLimit
+        caloryRequirements.perMealUpperLimit,
       );
       console.log("Goal:", goal);
       console.log("===================================================");
@@ -170,7 +170,7 @@ const GenerateMealPlanScreen: React.FC<
   const getMealCount = (mealType: MealType, mealItemId: string) => {
     const mealItems = mealDetails[mealType.toLowerCase()] || [];
     const mealItem = mealItems.find(
-      (item: any) => item.mealItemId === mealItemId
+      (item: any) => item.mealItemId === mealItemId,
     );
     return mealItem ? mealItem.count : 0;
   };
@@ -188,7 +188,7 @@ const GenerateMealPlanScreen: React.FC<
         };
       })
       ?.filter((item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()),
       )
       ?.sort((a, b) => {
         if (a.selected === b.selected) {
@@ -212,7 +212,7 @@ const GenerateMealPlanScreen: React.FC<
         count: count,
         calPerUnit: selectedMealItem?.calPerUnit,
         unitAmount: selectedMealItem?.unitAmount ?? 100,
-      })
+      }),
     );
     bottomSheetRef.current?.close();
   };
@@ -306,12 +306,12 @@ const GenerateMealPlanScreen: React.FC<
         const selfCreatedMealPlan =
           currentMealPlan?.length &&
           currentMealPlan?.filter(
-            (mealPlan) => mealPlan.type === "SelfCreated"
+            (mealPlan) => mealPlan.type === "SelfCreated",
           )[0];
         if (selfCreatedMealPlan && selfCreatedMealPlan?._id) {
           await updateMealPlan(
             selfCreatedMealPlan?._id,
-            mealDetailsWithoutCalPerUnit
+            mealDetailsWithoutCalPerUnit,
           );
         } else {
           await createMealPlan(mealDetailsWithoutCalPerUnit);
@@ -355,16 +355,28 @@ const GenerateMealPlanScreen: React.FC<
     <PageWrapper>
       <Box mb="base">
         {/* Always render the container to keep the layout stable */}
-        <Box height={60} justifyContent="center">
+        <Box height={55} justifyContent="center">
           {!showSearchBar ? (
             <PageHeader
-              title="Generate Meal Plans"
+              leftComponent={
+                <Box flexDirection="row" alignItems="center" gap="md">
+                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+                  </TouchableOpacity>
+                  <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
+                    Generate Meal Plans
+                  </Text>
+                </Box>
+              }
               rightComponent={
-                <SearchWithArrow
-                  arrow={{ onPress: () => handleSetMealType() }}
-                  icons="both"
-                  search={{ onPress: () => setShowSearchBar(true) }}
-                />
+                <TouchableOpacity
+                  onPress={() => setShowSearchBar(true)}
+                  activeOpacity={constants.activeOpacity}
+                >
+                  <Box px="sm" py="xs">
+                    <Search size={23} color={theme.colors.PrimaryWhite} />
+                  </Box>
+                </TouchableOpacity>
               }
             />
           ) : (
@@ -380,6 +392,38 @@ const GenerateMealPlanScreen: React.FC<
           )}
         </Box>
       </Box>
+
+      {!showSearchBar && (
+        <Box flexDirection="row" justifyContent="flex-end" mb="md">
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              borderWidth: 2,
+              borderColor: theme.colors.PrimaryGreen,
+              borderRadius: theme.borderRadii.xs,
+              paddingHorizontal: theme.spacing.sm,
+              paddingVertical: theme.spacing.xs,
+              backgroundColor: theme.colors.backgroundPrimary,
+              gap: theme.spacing.xs,
+            }}
+            onPress={() => handleSetMealType()}
+            activeOpacity={constants.activeOpacity}
+          >
+            <Text
+              variant="lgBold"
+              style={{
+                color: theme.colors.PrimaryGreen,
+              }}
+            >
+              Next
+            </Text>
+            <ArrowRight size={20} color={theme.colors.PrimaryGreen} />
+          </TouchableOpacity>
+        </Box>
+      )}
+
       <Box height={SCREEN_HEIGHT}>
         <FlatList
           data={filteredData}
@@ -555,5 +599,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor: theme.colors.PrimaryGreen,
     borderWidth: 1,
+  },
+  nextButtonContainer: {
+    position: "absolute",
+    top: theme.spacing.sm,
+    right: theme.spacing.md,
+    zIndex: 10,
+  },
+  nextButton: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
   },
 });

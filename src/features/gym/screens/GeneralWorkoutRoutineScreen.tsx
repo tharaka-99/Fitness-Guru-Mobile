@@ -1,5 +1,6 @@
 import React from "react";
 import { FlatList, TouchableOpacity } from "react-native";
+import { ArrowLeft } from "lucide-react-native";
 
 import { store } from "@/store";
 import PageWrapper from "@components/app/PageWrapper";
@@ -100,15 +101,10 @@ const GeneralWorkoutRoutineScreen: React.FC<
   return (
     <PageWrapper>
       <PageHeader
-        title="Workout Routine"
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Icon
-                source="arrow-left"
-                size={30}
-                color={theme.colors.PrimaryGreen}
-              />
+              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
             <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
               Workout Routine

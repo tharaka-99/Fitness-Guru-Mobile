@@ -3,6 +3,7 @@ import React from 'react';
 
 import GenerateMealPlanScreen from '@features/gym/screens/GenerateMealPlanScreen';
 import GenerateWorkoutScreen from '@features/gym/screens/GenerateWorkoutScreen';
+import DayExercisesScreen from '@features/gym/screens/DayExercisesScreen';
 import MealPlanScreen from '@features/gym/screens/MealPlanScreen';
 import MealsListScreen from '@features/gym/screens/MealsListScreen';
 import WorkoutListScreen from '@features/gym/screens/WorkoutListScreen';
@@ -37,6 +38,7 @@ const AppNavigator = () => (
     />
     <Stack.Screen name="WorkoutList" component={WorkoutListScreen} />
     <Stack.Screen name="GenerateWorkout" component={GenerateWorkoutScreen} />
+    <Stack.Screen name="DayExercises" component={DayExercisesScreen} />
     <Stack.Screen name="MealPlan" component={MealPlanScreen} />
     <Stack.Screen name="MealsList" component={MealsListScreen} />
     <Stack.Screen name="GenerateMealPlan" component={GenerateMealPlanScreen} />
