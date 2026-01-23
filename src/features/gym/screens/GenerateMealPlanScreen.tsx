@@ -1,7 +1,11 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+<<<<<<< HEAD
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react-native";
+=======
+import { FlatList, Keyboard, TouchableOpacity } from "react-native";
+>>>>>>> development
 
 import { store } from "@/store";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
@@ -200,6 +204,7 @@ const GenerateMealPlanScreen: React.FC<
 
   //
   const handleMealItemPress = (mealItem: MealItem) => {
+    Keyboard.dismiss();
     setSelectedMealItem(mealItem);
     bottomSheetRef.current?.snapToIndex(0);
   };
@@ -354,6 +359,7 @@ const GenerateMealPlanScreen: React.FC<
     <PageWrapper>
       <Box mb="base">
         {/* Always render the container to keep the layout stable */}
+<<<<<<< HEAD
         <Box height={55} justifyContent="center">
           {!showSearchBar ? (
             <PageHeader
@@ -376,6 +382,18 @@ const GenerateMealPlanScreen: React.FC<
                     <Search size={23} color={theme.colors.PrimaryWhite} />
                   </Box>
                 </TouchableOpacity>
+=======
+        <Box height={60} justifyContent="center">
+          {!showSearchBar ? (
+            <PageHeader
+              title="Generate Meal Plans"
+              rightComponent={
+                <SearchWithArrow
+                  arrow={{ onPress: () => handleSetMealType() }}
+                  icons="both"
+                  search={{ onPress: () => setShowSearchBar(true) }}
+                />
+>>>>>>> development
               }
             />
           ) : (
@@ -391,6 +409,7 @@ const GenerateMealPlanScreen: React.FC<
           )}
         </Box>
       </Box>
+<<<<<<< HEAD
 
       {!showSearchBar && (
         <Box flexDirection="row" justifyContent="flex-end" mb="md">
@@ -423,6 +442,8 @@ const GenerateMealPlanScreen: React.FC<
         </Box>
       )}
 
+=======
+>>>>>>> development
       <Box height={SCREEN_HEIGHT}>
         <FlatList
           data={filteredData}

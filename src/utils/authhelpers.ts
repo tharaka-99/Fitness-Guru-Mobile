@@ -1,10 +1,10 @@
-import { jwtDecode, JwtPayload } from 'jwt-decode';
-import axios from 'axios';
-import 'core-js/stable/atob';
+import { jwtDecode, JwtPayload } from "jwt-decode";
+import axios from "axios";
+import "core-js/stable/atob";
 
-import { IAuthTokens, InitialState } from '@features/auth/context/slice';
-import { store } from '@/store';
-import env from './env';
+import { IAuthTokens, InitialState } from "@features/auth/context/slice";
+import { store } from "@/store";
+import env from "./env";
 
 export function getDecodedTokens({ accessToken, refreshToken }: IAuthTokens) {
   const decodedTokens: {
@@ -24,7 +24,7 @@ export function getDecodedTokens({ accessToken, refreshToken }: IAuthTokens) {
     decodedTokens.accessToken = jwtDecode<JwtPayload>(accessToken);
     decodedTokens.refreshToken = jwtDecode<JwtPayload>(refreshToken);
   } catch (error) {
-    console.log('Error decoding tokens:', error);
+    console.log("Error decoding tokens:", error);
     decodedTokens.tokenAvailable = false;
   }
 
@@ -56,18 +56,18 @@ export const isTokenAboutToExpire = (token: any) => {
 const NewRequest = axios.create({
   baseURL: env.baseURL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 NewRequest.interceptors.request.use((config) => {
-  const auth: InitialState = store.getState()['feature/auth'];
-  config.headers.set('Authorization', `Bearer ${auth?.tokens?.refreshToken}`);
+  const auth: InitialState = store.getState()["feature/auth"];
+  config.headers.set("Authorization", `Bearer ${auth?.tokens?.refreshToken}`);
   return config;
 });
 export async function refreshAccessTokenFn() {
   const data = await NewRequest<RefreshFnRes>({
-    method: 'post',
-    url: '/refreshToken',
+    method: "post",
+    url: "/refreshToken",
   });
   return data.data;
 }
