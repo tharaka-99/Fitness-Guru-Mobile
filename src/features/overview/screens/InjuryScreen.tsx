@@ -12,10 +12,7 @@ import { store } from "@/store";
 import { authActions } from "@features/auth/context/slice";
 import { Icon } from "react-native-paper";
 import { theme } from "@utils/styles/theme";
-<<<<<<< HEAD
 import { ArrowLeft } from "lucide-react-native";
-=======
->>>>>>> development
 
 const InjuryScreen: React.FC<MyStackNavigatorScreenProps<"Injury">> = ({
   navigation,
@@ -33,15 +30,7 @@ const InjuryScreen: React.FC<MyStackNavigatorScreenProps<"Injury">> = ({
     <PageWrapper>
       <Box flexDirection="row" alignItems="center" gap="md">
         <TouchableOpacity onPress={() => navigation.goBack()}>
-<<<<<<< HEAD
           <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
-=======
-          <Icon
-            source="arrow-left"
-            size={30}
-            color={theme.colors.PrimaryGreen}
-          />
->>>>>>> development
         </TouchableOpacity>
         <UserNameWithAvatar />
       </Box>

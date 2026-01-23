@@ -1,16 +1,4 @@
-<<<<<<< HEAD
 import React, { useEffect } from "react";
-=======
-import {
-  Trash2,
-  X,
-  XCircle,
-  ArrowRight,
-  PlusCircle,
-} from "lucide-react-native";
-import BottomSheet from "@gorhom/bottom-sheet";
-import React, { useEffect, useRef, useState } from "react";
->>>>>>> development
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -59,7 +47,7 @@ const GenerateWorkoutScreen: React.FC<
   useEffect(() => {
     if (currentWorkout?.length) {
       const selfCreatedWorkoutPlan = currentWorkout.find(
-        (workout) => workout.type === "SelfCreated"
+        (workout) => workout.type === "SelfCreated",
       );
 
       selfCreatedWorkoutPlan?.exerciseDays?.forEach((day: ExerciseDay) => {
@@ -87,7 +75,7 @@ const GenerateWorkoutScreen: React.FC<
             };
 
             store.dispatch(
-              gymActions.addExerciseToDay({ day: day.day, exercise })
+              gymActions.addExerciseToDay({ day: day.day, exercise }),
             );
           }
         });
@@ -105,77 +93,6 @@ const GenerateWorkoutScreen: React.FC<
     store.dispatch(gymActions.removeDay(day));
   };
 
-<<<<<<< HEAD
-=======
-  const handleAddExercise = (day: number, exercise: Exercises) => {
-    // Ensure exercise has valid exercise data before adding
-    if (exercise && exercise.exercise && exercise.exercise._id) {
-      store.dispatch(gymActions.addExerciseToDay({ day, exercise }));
-    }
-  };
-
-  const handleRemoveExercise = (day: number, exerciseIndex: number) => {
-    store.dispatch(gymActions.removeExerciseFromDay({ day, exerciseIndex }));
-    swipeableRef.current?.close();
-  };
-
-  const handleSearchTermChange = (index: number, text: string) => {
-    setSearchTerms((prevTerms) => ({ ...prevTerms, [index]: text }));
-  };
-
-  const renderExerciseRightActions = (
-    dragX: any,
-    day: number,
-    exerciseIndex: number
-  ) => {
-    return (
-      <TouchableOpacity
-        onPress={() => handleRemoveExercise(day, exerciseIndex)}
-        style={{
-          backgroundColor: theme.colors.PrimaryRed,
-          justifyContent: "center",
-          alignItems: "center",
-          width: 50,
-          marginBottom: theme.spacing.xs,
-        }}
-      >
-        <Trash2 size={theme.spacing.lg} color="white" />
-      </TouchableOpacity>
-    );
-  };
-
-  const renderExerciseItem = ({ item, index, drag, isActive }: any) => (
-    <ScaleDecorator>
-      <Swipeable
-        ref={swipeableRef}
-        renderRightActions={(progress, dragX) =>
-          renderExerciseRightActions(dragX, item.dayIndex, item.exerciseIndex)
-        }
-      >
-        <TouchableOpacity onLongPress={drag}>
-          <Box
-            key={item.exerciseIndex}
-            bg={isActive ? "LightBlue" : "SecondaryGreen"}
-            px="base"
-            py="base"
-            justifyContent="space-between"
-            flexDirection="column"
-            flex={1}
-            mb="xs"
-          >
-            <WorkoutListItem
-              theme="green"
-              image={item.exercise.url ? item.exercise.url : sampleImage}
-              title={item.exercise.name}
-              description={`${item.sets} Sets | ${item.reps} Reps | ${item.rest} Rest`}
-            />
-          </Box>
-        </TouchableOpacity>
-      </Swipeable>
-    </ScaleDecorator>
-  );
-
->>>>>>> development
   const renderWorkoutList = ({
     item,
     index,
@@ -194,17 +111,11 @@ const GenerateWorkoutScreen: React.FC<
           <Box flexDirection="row" gap="md" alignItems="center">
             <Text variant="lgBold">DAY {item.day}</Text>
           </Box>
-<<<<<<< HEAD
           <X
             size={24}
             color={theme.colors.PrimaryRed}
             onPress={() => removeDay(item.day)}
           />
-=======
-          <TouchableOpacity onPress={() => removeDay(item.day)}>
-            <X size={24} color={theme.colors.PrimaryRed} />
-          </TouchableOpacity>
->>>>>>> development
         </Box>
 
         <Box mt="lg">
@@ -241,83 +152,6 @@ const GenerateWorkoutScreen: React.FC<
             </Text>
           </TouchableOpacity>
         </Box>
-<<<<<<< HEAD
-=======
-
-        <Modal
-          visible={showExerciseModal && selectedDay === item.day}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={closeExerciseModal}
-        >
-          <Box
-            flex={1}
-            backgroundColor={"ModalOverlay"}
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Box
-              width="90%"
-              height="60%"
-              backgroundColor={"PrimaryBlack"}
-              borderRadius={"sm"}
-              p="sm"
-              borderWidth={2}
-              borderColor="PrimaryGrey"
-            >
-              <TouchableOpacity
-                onPress={closeExerciseModal}
-                style={{ alignSelf: "flex-end" }}
-              >
-                <XCircle size={24} color={theme.colors.PrimaryRed} />
-              </TouchableOpacity>
-              <Box mt="base">
-                <TextInput
-                  value={searchTerms[item.day] || ""}
-                  placeholder="Type to Search Exercise"
-                  onChangeText={(text) => {
-                    handleSearchTermChange(item.day, text);
-                  }}
-                />
-              </Box>
-              {searchTerms[item.day] ? (
-                <Box flex={1} pt={"sm"}>
-                  <WorkoutSuggestionCard
-                    onPress={() => {
-                      sheetRef.current?.expand();
-                      closeExerciseModal();
-                    }}
-                    exercises={(() => {
-                      const filtered =
-                        exercises?.filter(
-                          (exercise) =>
-                            exercise &&
-                            exercise.name &&
-                            exercise.name
-                              .toLowerCase()
-                              .includes(
-                                searchTerms[item.day]?.toLowerCase() || ""
-                              )
-                        ) || [];
-
-                      return filtered;
-                    })()}
-                    setSelectedExercise={(exercise) => {
-                      if (exercise && exercise._id) {
-                        setSelectedExercise(exercise);
-                      }
-                    }}
-                  />
-                </Box>
-              ) : (
-                <Text style={{ fontSize: 10, color: "orange", marginTop: 10 }}>
-                  No Search term for day {item.day}
-                </Text>
-              )}
-            </Box>
-          </Box>
-        </Modal>
->>>>>>> development
       </Box>
     );
   };
@@ -331,7 +165,7 @@ const GenerateWorkoutScreen: React.FC<
           exercises: exerciseDay.exercises
             .filter(
               (exercise: Exercises) =>
-                exercise.exercise && exercise.exercise._id
+                exercise.exercise && exercise.exercise._id,
             ) // Filter out exercises with null/undefined exercise
             .map((exercise: Exercises) => ({
               order: exercise.order,
@@ -345,7 +179,7 @@ const GenerateWorkoutScreen: React.FC<
 
       // Find existing self-created workout plan if it exists
       const selfCreatedWorkoutPlan = currentWorkout?.find(
-        (workout) => workout.type === "SelfCreated"
+        (workout) => workout.type === "SelfCreated",
       );
 
       try {
@@ -392,7 +226,6 @@ const GenerateWorkoutScreen: React.FC<
   return (
     <PageWrapper>
       <PageHeader
-<<<<<<< HEAD
         // title="Generate Workouts"
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">
@@ -403,17 +236,6 @@ const GenerateWorkoutScreen: React.FC<
               Generate Workouts
             </Text>
           </Box>
-=======
-        title="Generate Workouts"
-        rightComponent={
-          <TouchableOpacity
-            onPress={handleSaveWorkout}
-            disabled={exerciseDaysLength <= 0}
-            style={{ opacity: exerciseDaysLength <= 0 ? 0.5 : 1 }}
-          >
-            <ArrowRight size={30} color={theme.colors.PrimaryGreen} />
-          </TouchableOpacity>
->>>>>>> development
         }
       />
       <KeyboardAvoidingView
@@ -461,29 +283,10 @@ const GenerateWorkoutScreen: React.FC<
                       color: theme.colors.PrimaryGreen,
                     }}
                   >
-<<<<<<< HEAD
                     Next
                   </Text>
                   <ArrowRight size={18} color={theme.colors.PrimaryGreen} />
                 </TouchableOpacity>
-=======
-                    <PlusCircle
-                      size={20}
-                      color={theme.colors.PrimaryGreen}
-                      style={{ marginRight: 8 }}
-                    />
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "600",
-                        color: theme.colors.PrimaryGreen,
-                      }}
-                    >
-                      Add New Day
-                    </Text>
-                  </TouchableOpacity>
-                </Box>
->>>>>>> development
               </Box>
             )}
             contentContainerStyle={{ paddingBottom: theme.spacing.lg }}
@@ -543,8 +346,3 @@ const GenerateWorkoutScreen: React.FC<
 };
 
 export default GenerateWorkoutScreen;
-<<<<<<< HEAD
-=======
-
-const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
->>>>>>> development
