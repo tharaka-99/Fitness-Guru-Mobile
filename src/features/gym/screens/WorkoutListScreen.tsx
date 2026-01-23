@@ -12,6 +12,7 @@ import { store } from "@/store";
 import { DefaultExercise, Exercises, WorkoutType } from "@utils/types/types";
 import { gymActions } from "../context/slice";
 import { Icon } from "react-native-paper";
+import { ArrowLeft } from "lucide-react-native";
 
 // TODO: handle the user package
 const isPremiumUser = true;
@@ -62,7 +63,7 @@ const WorkoutListScreen: React.FC<
         gymActions.setSelectedWorkoutID(selectedWorkoutData?._id ?? "")
       );
 
-      navigation.push("AnalyticsScreen", {hideTabs: true});
+      navigation.push("AnalyticsScreen", { hideTabs: true });
     } else openWorkoutInfoSheet();
   };
   //
@@ -82,7 +83,7 @@ const WorkoutListScreen: React.FC<
   return (
     <PageWrapper>
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Icon source="arrow-left" size={30} color={theme.colors.PrimaryGreen} />
+        <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
       </TouchableOpacity>
       <PageHeader title={`Day ${selectedDay}`} />
 

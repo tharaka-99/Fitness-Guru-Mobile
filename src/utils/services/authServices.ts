@@ -1,15 +1,15 @@
-import { store } from '@/store';
-import { authActions } from '@features/auth/context/slice';
-import { gymActions } from '@features/gym/context/slice';
-import { overviewActions } from '@features/overview/context/slice';
+import { store } from "@/store";
+import { authActions } from "@features/auth/context/slice";
+import { gymActions } from "@features/gym/context/slice";
+import { overviewActions } from "@features/overview/context/slice";
 
-import api, { getApiForFormData } from '@utils/http/request';
-import { ClientInfo, Credentials, Profile, UserData } from '@utils/types/types';
+import api, { getApiForFormData } from "@utils/http/request";
+import { ClientInfo, Credentials, Profile, UserData } from "@utils/types/types";
 
 export const clientUserLogin = async (credentials: Credentials) => {
   try {
-    console.log('calling sign in');
-    const response = await api.post('/client/login', credentials);
+    console.log("calling sign in");
+    const response = await api.post("/client/login", credentials);
     const { accessToken, refreshToken } = response?.data?.data;
     const clientData = {
       ...response?.data?.data?.client,
@@ -29,9 +29,9 @@ export const clientUserLogin = async (credentials: Credentials) => {
 //
 export const clientUserRegister = async (userData: UserData): Promise<any> => {
   try {
-    console.log('calling sign up');
+    console.log("calling sign up");
 
-    const response = await api.post('/client/register', userData);
+    const response = await api.post("/client/register", userData);
 
     const { accessToken, refreshToken } = response.data.data;
     const clientData = {
@@ -53,7 +53,7 @@ export const clientUserRegister = async (userData: UserData): Promise<any> => {
 //
 export const getClientProfileInfo = async (): Promise<Profile> => {
   try {
-    const response = await api.get('/client/profile');
+    const response = await api.get("/client/profile");
     return response.data.data;
   } catch (error) {
     throw error;
@@ -64,7 +64,7 @@ export const setClientProfileInfo = async (
   clientInfo: ClientInfo
 ): Promise<Profile> => {
   try {
-    const response = await api.post('client/add-info', clientInfo);
+    const response = await api.post("client/add-info", clientInfo);
     const updatedClientInfo = {
       personalInfo: response?.data?.data?.personalInfo,
       fitnessInfo: response?.data?.data?.fitnessInfo,
@@ -81,7 +81,7 @@ export const setClientProfileInfo = async (
 export const uploadProfileImage = async (formData: any) => {
   try {
     const response = await getApiForFormData().post(
-      '/client/upload-profile-image',
+      "/client/upload-profile-image",
       formData
     );
     return response.data;

@@ -88,9 +88,7 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                 value: "10 Years Experience",
               },
               {
-                icon: ({ color, size }) => (
-                  <Users color={color} size={size} />
-                ),
+                icon: ({ color, size }) => <Users color={color} size={size} />,
                 value: "Men & Women",
               },
             ]}
@@ -101,7 +99,8 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
           // (subscription && subscription.status === true ? (
 
           //check if user has premium access - Testing Free Trial
-          (hasPremiumAccess(user) ? (
+          ((subscription && subscription?.status === true) ||
+          user?.isTrialActive === true ? (
             <InfoCard
               description="By clicking start your journey button, you will be redirected to fill a form where your trainer will create custom workout routines and meal plans based on your input data."
               imageSource={require("assets/images/trainer-with-form.png")}

@@ -18,6 +18,7 @@ export type RootStackParamList = {
   Onboard: undefined;
   Injury: undefined;
   GenerateWorkout: undefined;
+  DayExercises: { day: number };
   PricingPackages: undefined;
   Login: undefined;
   Register: undefined;

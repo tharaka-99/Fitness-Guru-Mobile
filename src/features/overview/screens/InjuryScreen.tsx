@@ -1,47 +1,42 @@
-import React from 'react';
-import { Image, TouchableOpacity } from 'react-native';
+import React from "react";
+import { Image, TouchableOpacity } from "react-native";
 
-import PageHeader from '@components/app/header/PageHeader';
-import PageWrapper from '@components/app/PageWrapper';
-import Box from '@components/atoms/Box';
-import Button from '@components/atoms/Button';
-import Text from '@components/atoms/Text';
-import { MyStackNavigatorScreenProps } from '@navigation/types';
-import UserNameWithAvatar from '../components/onboard/UserNameWithAvatar';
-import { store } from '@/store';
-import { authActions } from '@features/auth/context/slice';
-import { Icon } from 'react-native-paper';
-import { theme } from '@utils/styles/theme';
+import PageHeader from "@components/app/header/PageHeader";
+import PageWrapper from "@components/app/PageWrapper";
+import Box from "@components/atoms/Box";
+import Button from "@components/atoms/Button";
+import Text from "@components/atoms/Text";
+import { MyStackNavigatorScreenProps } from "@navigation/types";
+import UserNameWithAvatar from "../components/onboard/UserNameWithAvatar";
+import { store } from "@/store";
+import { authActions } from "@features/auth/context/slice";
+import { Icon } from "react-native-paper";
+import { theme } from "@utils/styles/theme";
+import { ArrowLeft } from "lucide-react-native";
 
-const InjuryScreen: React.FC<MyStackNavigatorScreenProps<'Injury'>> = ({
+const InjuryScreen: React.FC<MyStackNavigatorScreenProps<"Injury">> = ({
   navigation,
 }) => {
   const handleTrainWithFitnessGuru = () => {
     store.dispatch(authActions.setIsInjured(true));
-    navigation.navigate('PricingPackages');
+    navigation.navigate("PricingPackages");
   };
 
   const handleSearchTrainers = () => {
-    navigation.navigate('Tab', { screen: 'MyTrainer' });
+    navigation.navigate("Tab", { screen: "MyTrainer" });
   };
 
   return (
     <PageWrapper>
       <Box flexDirection="row" alignItems="center" gap="md">
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-            >
-              <Icon
-                source="arrow-left"
-                size={30}
-                color={theme.colors.PrimaryGreen}
-              />
-            </TouchableOpacity>
-            <UserNameWithAvatar />
-          </Box>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+        </TouchableOpacity>
+        <UserNameWithAvatar />
+      </Box>
       <Box flex={1} alignItems="center" justifyContent="center">
         <Image
-          source={require('assets/images/sadface.png')}
+          source={require("assets/images/sadface.png")}
           style={{ width: 150, height: 150 }}
           resizeMode="contain"
         />
@@ -52,7 +47,7 @@ const InjuryScreen: React.FC<MyStackNavigatorScreenProps<'Injury'>> = ({
           textAlign="center"
           textTransform="uppercase"
         >
-          Sorry we have to stop you here {'\n'} as we care about your health.
+          Sorry we have to stop you here {"\n"} as we care about your health.
         </Text>
 
         <Box gap="lg" mt="2xl">

@@ -1,70 +1,43 @@
-import { AntDesign, FontAwesome6 } from "@expo/vector-icons";
-import BottomSheet from "@gorhom/bottom-sheet";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   TouchableOpacity,
-  Modal,
+  View,
 } from "react-native";
 
 import { store } from "@/store";
 import PageWrapper from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
 import Box from "@components/atoms/Box";
-import TextInput from "@components/atoms/Input";
 import Text from "@components/atoms/Text";
-import Button from "@components/atoms/Button";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
 import {
   createWorkout,
   getCurrentWorkout,
-  getExercises,
   updateWorkout,
 } from "@utils/services/workoutService";
 import { theme } from "@utils/styles/theme";
 import {
   ExerciseDay,
   Exercises,
-  SearchExercises,
   Workout,
   WorkoutType,
 } from "@utils/types/types";
-import DraggableFlatList, {
-  ScaleDecorator,
-} from "react-native-draggable-flatlist";
-import { Swipeable } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
 import { useQuery } from "react-query";
 import { useSelector } from "react-redux";
-import AddWorkoutSheet from "../components/AddWorkoutSheet";
-import WorkoutListItem from "../components/WorkoutListItem";
-import WorkoutSuggestionCard from "../components/WorkoutSuggestionCard";
 import { gymActions } from "../context/slice";
+import { ArrowLeft, ArrowRight, X, PlusCircle } from "lucide-react-native";
 
 const GenerateWorkoutScreen: React.FC<
   MyStackNavigatorScreenProps<"GenerateWorkout">
 > = ({ navigation }) => {
   const { user } = store.getState()["feature/auth"];
   const { days } = useSelector((state: any) => state["feature/gym"]);
-  const sheetRef = useRef<BottomSheet>(null);
-  const swipeableRef = useRef<Swipeable>(null);
-  const [searchTerms, setSearchTerms] = useState<{ [key: number]: string }>({});
-  const [selectedExercise, setSelectedExercise] = useState<
-    SearchExercises | undefined
-  >();
-  const [selectedDay, setSelectedDay] = useState<number>(1);
-  const [showExerciseModal, setShowExerciseModal] = useState(false);
-  const openExerciseModal = () => setShowExerciseModal(true);
-  const closeExerciseModal = () => setShowExerciseModal(false);
   const exerciseDaysLength = days?.exerciseDays[0]?.exercises?.length || 0;
-  const {
-    isLoading: isExercisesLoading,
-    data: exercises,
-    refetch: exercisesRefetch,
-  } = useQuery("exercises", getExercises);
   const {
     isLoading: isCurrentWorkoutLoading,
     data: currentWorkout,
@@ -120,76 +93,6 @@ const GenerateWorkoutScreen: React.FC<
     store.dispatch(gymActions.removeDay(day));
   };
 
-  const handleAddExercise = (day: number, exercise: Exercises) => {
-    // Ensure exercise has valid exercise data before adding
-    if (exercise && exercise.exercise && exercise.exercise._id) {
-      store.dispatch(gymActions.addExerciseToDay({ day, exercise }));
-    }
-  };
-
-  const handleRemoveExercise = (day: number, exerciseIndex: number) => {
-    store.dispatch(gymActions.removeExerciseFromDay({ day, exerciseIndex }));
-    swipeableRef.current?.close();
-  };
-
-  const handleSearchTermChange = (index: number, text: string) => {
-    setSearchTerms((prevTerms) => ({ ...prevTerms, [index]: text }));
-  };
-
-  const renderExerciseRightActions = (
-    dragX: any,
-    day: number,
-    exerciseIndex: number
-  ) => {
-    return (
-      <Box
-        bg="PrimaryRed"
-        justifyContent="center"
-        alignItems="center"
-        width={50}
-        mb="xs"
-      >
-        <AntDesign
-          name="delete"
-          size={theme.spacing.lg}
-          color="white"
-          onPress={() => handleRemoveExercise(day, exerciseIndex)}
-        />
-      </Box>
-    );
-  };
-
-  const renderExerciseItem = ({ item, index, drag, isActive }: any) => (
-    <ScaleDecorator>
-      <Swipeable
-        ref={swipeableRef}
-        renderRightActions={(progress, dragX) =>
-          renderExerciseRightActions(dragX, item.dayIndex, item.exerciseIndex)
-        }
-      >
-        <TouchableOpacity onLongPress={drag}>
-          <Box
-            key={item.exerciseIndex}
-            bg={isActive ? "LightBlue" : "SecondaryGreen"}
-            px="base"
-            py="base"
-            justifyContent="space-between"
-            flexDirection="column"
-            flex={1}
-            mb="xs"
-          >
-            <WorkoutListItem
-              theme="green"
-              image={item.exercise.url ? item.exercise.url : sampleImage}
-              title={item.exercise.name}
-              description={`${item.sets} Sets | ${item.reps} Reps | ${item.rest} Rest`}
-            />
-          </Box>
-        </TouchableOpacity>
-      </Swipeable>
-    </ScaleDecorator>
-  );
-
   const renderWorkoutList = ({
     item,
     index,
@@ -208,41 +111,24 @@ const GenerateWorkoutScreen: React.FC<
           <Box flexDirection="row" gap="md" alignItems="center">
             <Text variant="lgBold">DAY {item.day}</Text>
           </Box>
-          <AntDesign
-            name="close"
+          <X
             size={24}
             color={theme.colors.PrimaryRed}
             onPress={() => removeDay(item.day)}
           />
         </Box>
 
-        <Box style={{ gap: 2 }} mt="lg">
-          <DraggableFlatList
-            scrollEnabled={false}
-            keyboardShouldPersistTaps="handled"
-            data={item.exercises.map((exercise, exerciseIndex) => ({
-              ...exercise,
-              dayIndex: item.day,
-              exerciseIndex: exerciseIndex,
-            }))}
-            renderItem={renderExerciseItem}
-            keyExtractor={(item, index) => index.toString()}
-            onDragEnd={({ data }) => {
-              store.dispatch(
-                gymActions.updateExercisesOrder({
-                  day: item.day,
-                  exercises: data,
-                })
-              );
-            }}
-          />
+        <Box mt="lg">
+          <Text variant="sm" color="SecondaryGrey">
+            {item.exercises.length}{" "}
+            {item.exercises.length === 1 ? "exercise" : "exercises"}
+          </Text>
         </Box>
 
         <Box mt="sm">
           <TouchableOpacity
             onPress={() => {
-              setSelectedDay(item.day);
-              openExerciseModal();
+              navigation.navigate("DayExercises", { day: item.day });
             }}
             activeOpacity={0.7}
             style={{
@@ -266,99 +152,10 @@ const GenerateWorkoutScreen: React.FC<
             </Text>
           </TouchableOpacity>
         </Box>
-
-        <Modal
-          visible={showExerciseModal && selectedDay === item.day}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={closeExerciseModal}
-        >
-          <Box
-            flex={1}
-            backgroundColor={"ModalOverlay"}
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Box
-              width="90%"
-              height="60%"
-              backgroundColor={"PrimaryBlack"}
-              borderRadius={"sm"}
-              p="sm"
-              borderWidth={2}
-              borderColor="PrimaryGrey"
-            >
-              <TouchableOpacity
-                onPress={closeExerciseModal}
-                style={{ alignSelf: "flex-end" }}
-              >
-                <AntDesign
-                  p="sm"
-                  name="closecircleo"
-                  size={24}
-                  color={theme.colors.PrimaryRed}
-                />
-              </TouchableOpacity>
-              <Box mt="base">
-                <TextInput
-                  value={searchTerms[item.day] || ""}
-                  placeholder="Type to Search Exercise"
-                  onChangeText={(text) => {
-                    handleSearchTermChange(item.day, text);
-                  }}
-                />
-              </Box>
-              {searchTerms[item.day] ? (
-                <Box flex={1} pt={"sm"}>
-                  <WorkoutSuggestionCard
-                    onPress={() => {
-                      sheetRef.current?.expand();
-                      closeExerciseModal();
-                    }}
-                    exercises={(() => {
-                      const filtered =
-                        exercises?.filter(
-                          (exercise) =>
-                            exercise &&
-                            exercise.name &&
-                            exercise.name
-                              .toLowerCase()
-                              .includes(
-                                searchTerms[item.day]?.toLowerCase() || ""
-                              )
-                        ) || [];
-
-                      return filtered;
-                    })()}
-                    setSelectedExercise={(exercise) => {
-                      if (exercise && exercise._id) {
-                        setSelectedExercise(exercise);
-                      }
-                    }}
-                  />
-                </Box>
-              ) : (
-                <Text style={{ fontSize: 10, color: "orange", marginTop: 10 }}>
-                  No Search term for day {item.day}
-                </Text>
-              )}
-            </Box>
-          </Box>
-        </Modal>
       </Box>
     );
   };
 
-  const handleAddWorkout = (exercise: Exercises) => {
-    // Ensure exercise has valid data before adding
-    if (exercise && exercise.exercise && exercise.exercise._id) {
-      handleAddExercise(selectedDay, exercise);
-      setSearchTerms("");
-      setSelectedExercise(undefined);
-      sheetRef.current?.close();
-    }
-  };
-  //
   const handleSaveWorkout = async () => {
     if (user?.subscription?.status === true) {
       const transformedDays: Workout = {
@@ -429,15 +226,16 @@ const GenerateWorkoutScreen: React.FC<
   return (
     <PageWrapper>
       <PageHeader
-        title="Generate Workouts"
-        rightComponent={
-          <AntDesign
-            name="arrowright"
-            size={30}
-            color={theme.colors.PrimaryGreen}
-            onPress={handleSaveWorkout}
-            disabled={exerciseDaysLength <= 0 ? true : false}
-          />
+        // title="Generate Workouts"
+        leftComponent={
+          <Box flexDirection="row" alignItems="center" gap="md">
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+            </TouchableOpacity>
+            <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
+              Generate Workouts
+            </Text>
+          </Box>
         }
       />
       <KeyboardAvoidingView
@@ -445,7 +243,7 @@ const GenerateWorkoutScreen: React.FC<
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
           keyboardShouldPersistTaps="handled"
         >
           <FlatList
@@ -456,62 +254,95 @@ const GenerateWorkoutScreen: React.FC<
             scrollEnabled={false}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
-            ListHeaderComponent={
-              <Box gap="md" mb="md">
-                <Box
-                  flexDirection="row"
-                  alignItems="center"
-                  justifyContent="flex-end"
+            ListHeaderComponent={() => (
+              <Box flexDirection="row" justifyContent="flex-end" mb="md">
+                <TouchableOpacity
+                  onPress={handleSaveWorkout}
+                  disabled={exerciseDaysLength <= 0 ? true : false}
+                  activeOpacity={0.7}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderWidth: 2,
+                    borderColor: theme.colors.PrimaryGreen,
+                    borderRadius: theme.borderRadii.xs,
+                    paddingHorizontal: theme.spacing.sm,
+                    paddingVertical: theme.spacing.xs,
+                    backgroundColor:
+                      exerciseDaysLength <= 0
+                        ? theme.colors.PrimaryGrey
+                        : "transparent",
+                    opacity: exerciseDaysLength <= 0 ? 0.5 : 1,
+                    gap: theme.spacing.xs,
+                  }}
                 >
-                  <TouchableOpacity
-                    onPress={addNewDay}
-                    activeOpacity={0.7}
+                  <Text
+                    variant="lgBold"
                     style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderWidth: 2,
-                      borderColor: theme.colors.PrimaryGreen,
-                      borderRadius: 8,
-                      paddingHorizontal: 16,
-                      paddingVertical: 10,
-                      backgroundColor: "transparent",
+                      color: theme.colors.PrimaryGreen,
                     }}
                   >
-                    <AntDesign
-                      name="pluscircleo"
-                      size={20}
-                      color={theme.colors.PrimaryGreen}
-                      style={{ marginRight: 8 }}
-                    />
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "600",
-                        color: theme.colors.PrimaryGreen,
-                      }}
-                    >
-                      Add New Day
-                    </Text>
-                  </TouchableOpacity>
-                </Box>
+                    Next
+                  </Text>
+                  <ArrowRight size={18} color={theme.colors.PrimaryGreen} />
+                </TouchableOpacity>
               </Box>
-            }
+            )}
             contentContainerStyle={{ paddingBottom: theme.spacing.lg }}
           />
         </ScrollView>
+        {/* Fixed Bottom Buttons */}
+        <View
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: theme.colors.backgroundPrimary,
+            paddingHorizontal: theme.spacing.sm,
+            paddingVertical: theme.spacing.sm,
+            borderTopWidth: 1,
+            borderTopColor: theme.colors.PrimaryGrey,
+            flexDirection: "row",
+            gap: theme.spacing.sm,
+          }}
+        >
+          <TouchableOpacity
+            onPress={addNewDay}
+            activeOpacity={0.7}
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              borderWidth: 2,
+              borderColor: theme.colors.PrimaryGreen,
+              borderRadius: 8,
+              paddingHorizontal: 16,
+              paddingVertical: 14,
+              backgroundColor: "transparent",
+            }}
+          >
+            <PlusCircle
+              size={20}
+              color={theme.colors.PrimaryGreen}
+              style={{ marginRight: 8 }}
+            />
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: "600",
+                color: theme.colors.PrimaryGreen,
+              }}
+            >
+              Add New Day
+            </Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
-
-      <AddWorkoutSheet
-        image={selectedExercise?.url ? selectedExercise?.url : sampleImage}
-        workoutName={selectedExercise || { _id: "", name: "" }}
-        bottomSheetRef={sheetRef}
-        onAddWorkout={handleAddWorkout}
-      />
     </PageWrapper>
   );
 };
 
 export default GenerateWorkoutScreen;
-
-const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";

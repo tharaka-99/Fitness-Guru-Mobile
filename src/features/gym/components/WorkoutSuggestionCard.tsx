@@ -7,13 +7,13 @@ import {
   Platform,
   TouchableOpacity,
   View,
+  Keyboard,
 } from "react-native";
 import Box from "@components/atoms/Box";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Text from "@components/atoms/Text";
 import { SearchExercises } from "@utils/types/types";
 import { SCREEN_HEIGHT } from "@components/app/PageWrapper";
-
 
 interface WorkoutListItemProps {
   onPress: () => void;
@@ -37,6 +37,7 @@ const WorkoutSuggestionCard: React.FC<WorkoutListItemProps> = ({
       return (
         <TouchableOpacity
           onPress={() => {
+            Keyboard.dismiss();
             onPress();
             setSelectedExercise(item);
           }}
@@ -48,35 +49,47 @@ const WorkoutSuggestionCard: React.FC<WorkoutListItemProps> = ({
     [onPress, setSelectedExercise]
   );
 
+  const keyExtractor = useCallback((item: SearchExercises) => {
+    return item._id || item.name;
+  }, []);
+
+  const getItemLayout = useCallback(
+    (data: any, index: number) => ({
+      length: 80,
+      offset: 80 * index,
+      index,
+    }),
+    []
+  );
+
   return (
-    
-      <View style={{ flex: 1, maxHeight: 400 }}>
-        <Box py="sm" px="md" borderRadius="sm" bg="PrimaryWhite" width="100%">
-          {exercises.length > 0 ? (
-            <FlatList
-              data={exercises}
-              keyExtractor={({ name }) => name}
-              renderItem={renderItem}
-              showsVerticalScrollIndicator={true}
-              initialNumToRender={10}
-              maxToRenderPerBatch={5}
-              windowSize={5}
-              keyboardShouldPersistTaps="handled"
-              getItemLayout={(data, index) => ({
-                length: 80,
-                offset: 80 * index,
-                index,
-              })}
-            />
-          ) : (
-            <Box alignItems="center" justifyContent="center" py="lg">
-              <Text variant="md" color="PrimaryBlack">
-                No exercises found. Try a different search!
-              </Text>
-            </Box>
-          )}
-        </Box>
-      </View>
+    <View style={{ maxHeight: 400 }}>
+      <Box py="sm" px="md" borderRadius="sm" bg="PrimaryWhite" width="100%">
+        {exercises.length > 0 ? (
+          <FlatList
+            data={exercises}
+            keyExtractor={({ name }) => name}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={true}
+            initialNumToRender={10}
+            maxToRenderPerBatch={5}
+            windowSize={5}
+            keyboardShouldPersistTaps="handled"
+            getItemLayout={(data, index) => ({
+              length: 80,
+              offset: 80 * index,
+              index,
+            })}
+          />
+        ) : (
+          <Box alignItems="center" justifyContent="center" py="lg">
+            <Text variant="md" color="PrimaryBlack">
+              No exercises found. Try a different search!
+            </Text>
+          </Box>
+        )}
+      </Box>
+    </View>
   );
 };
 

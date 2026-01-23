@@ -14,7 +14,7 @@ interface WorkoutListItemProps {
 
 const IMAGE_SIZE = 65;
 
-const WorkoutListItem: React.FC<WorkoutListItemProps> = ({
+const WorkoutListItem: React.FC<WorkoutListItemProps> = React.memo(({
   image,
   title,
   description,
@@ -63,6 +63,8 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = ({
       </Box>
     </Box>
   );
-};
+});
+
+WorkoutListItem.displayName = 'WorkoutListItem';
 
 export default WorkoutListItem;

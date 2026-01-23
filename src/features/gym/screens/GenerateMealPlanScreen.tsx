@@ -1,11 +1,11 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, TouchableOpacity } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
+import { ArrowLeft, ArrowRight, Search } from "lucide-react-native";
 
 import { store } from "@/store";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
-import SearchWithArrow from "@components/app/header/SearchWithArrow";
 import Box from "@components/atoms/Box";
 import SearchBar from "@components/atoms/SearchBar";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
@@ -353,32 +353,76 @@ const GenerateMealPlanScreen: React.FC<
   return (
     <PageWrapper>
       <Box mb="base">
-  {/* Always render the container to keep the layout stable */}
-  <Box height={60} justifyContent="center"> 
-    {!showSearchBar ? (
-      <PageHeader
-        title="Generate Meal Plans"
-        rightComponent={
-          <SearchWithArrow
-            arrow={{ onPress: () => handleSetMealType() }}
-            icons="both"
-            search={{ onPress: () => setShowSearchBar(true) }}
-          />
-        }
-      />
-    ) : (
-      <SearchBar
-        value={searchTerm}
-        // onClear={() => setSearchTerm("")}
-        onChangeText={(v) => setSearchTerm(v)}
-        onCancel={() => {
-          setSearchTerm("");
-          setShowSearchBar(false);
-        }}
-      />
-    )}
-  </Box>
-</Box>
+        {/* Always render the container to keep the layout stable */}
+        <Box height={55} justifyContent="center">
+          {!showSearchBar ? (
+            <PageHeader
+              leftComponent={
+                <Box flexDirection="row" alignItems="center" gap="md">
+                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+                  </TouchableOpacity>
+                  <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
+                    Generate Meal Plans
+                  </Text>
+                </Box>
+              }
+              rightComponent={
+                <TouchableOpacity
+                  onPress={() => setShowSearchBar(true)}
+                  activeOpacity={constants.activeOpacity}
+                >
+                  <Box px="sm" py="xs">
+                    <Search size={23} color={theme.colors.PrimaryWhite} />
+                  </Box>
+                </TouchableOpacity>
+              }
+            />
+          ) : (
+            <SearchBar
+              value={searchTerm}
+              // onClear={() => setSearchTerm("")}
+              onChangeText={(v) => setSearchTerm(v)}
+              onCancel={() => {
+                setSearchTerm("");
+                setShowSearchBar(false);
+              }}
+            />
+          )}
+        </Box>
+      </Box>
+
+      {!showSearchBar && (
+        <Box flexDirection="row" justifyContent="flex-end" mb="md">
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              borderWidth: 2,
+              borderColor: theme.colors.PrimaryGreen,
+              borderRadius: theme.borderRadii.xs,
+              paddingHorizontal: theme.spacing.sm,
+              paddingVertical: theme.spacing.xs,
+              backgroundColor: theme.colors.backgroundPrimary,
+              gap: theme.spacing.xs,
+            }}
+            onPress={() => handleSetMealType()}
+            activeOpacity={constants.activeOpacity}
+          >
+            <Text
+              variant="lgBold"
+              style={{
+                color: theme.colors.PrimaryGreen,
+              }}
+            >
+              Next
+            </Text>
+            <ArrowRight size={20} color={theme.colors.PrimaryGreen} />
+          </TouchableOpacity>
+        </Box>
+      )}
+
       <Box height={SCREEN_HEIGHT}>
         <FlatList
           data={filteredData}
@@ -554,5 +598,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor: theme.colors.PrimaryGreen,
     borderWidth: 1,
+  },
+  nextButtonContainer: {
+    position: "absolute",
+    top: theme.spacing.sm,
+    right: theme.spacing.md,
+    zIndex: 10,
+  },
+  nextButton: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
   },
 });

@@ -1,4 +1,4 @@
-import { Calendar, Users } from "lucide-react-native";
+import { ArrowLeft, Calendar, Users } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 
@@ -117,11 +117,7 @@ const TrainerProfileScreen: React.FC<
           leftComponent={
             <Box flexDirection="row" alignItems="center" gap="md">
               <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Icon
-                  source="arrow-left"
-                  size={30}
-                  color={theme.colors.PrimaryGreen}
-                />
+                <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
               </TouchableOpacity>
               <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
                 {capitalizeString(trainer?.firstName) + " " + trainer?.lastName}

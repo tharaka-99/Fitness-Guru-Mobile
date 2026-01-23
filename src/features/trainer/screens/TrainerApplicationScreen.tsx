@@ -11,7 +11,7 @@ import {
 import PagerView from "react-native-pager-view";
 
 import PageHeader from "@components/app/header/PageHeader";
-import PageWrapper, {SCREEN_HEIGHT} from "@components/app/PageWrapper";
+import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import Box from "@components/atoms/Box";
 import Button from "@components/atoms/Button";
 import ImageInput from "@components/atoms/ImageInput";
@@ -39,7 +39,8 @@ import { Unit } from "@utils/types/types";
 import { Text as PaperText, Icon } from "react-native-paper";
 import { useSelector } from "react-redux";
 import Toast from "react-native-toast-message";
-import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view"
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { ArrowLeft } from "lucide-react-native";
 
 const initialFormValues: CreateTrainerRequestDto = {
   trainerId: "",
@@ -375,11 +376,7 @@ const TrainerApplicationScreen: React.FC<
           leftComponent={
             <Box flexDirection="row" alignItems="center" gap="md">
               <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Icon
-                  source="arrow-left"
-                  size={30}
-                  color={theme.colors.PrimaryGreen}
-                />
+                <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
               </TouchableOpacity>
               <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
                 {trainerId === "fitness-guru"
@@ -401,10 +398,7 @@ const TrainerApplicationScreen: React.FC<
         />
       </Box>
 
-      <KeyboardAwareScrollView
-        style={{ flex: 1 }}
-  
-      >
+      <KeyboardAwareScrollView style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <PagerView
             initialPage={0}
@@ -500,7 +494,7 @@ const TrainerApplicationScreen: React.FC<
                       }}
                       disabled={unit === Unit.Metric}
                     >
-                      <PaperText
+                      <Text
                         style={{
                           color:
                             unit === Unit.Metric
@@ -509,7 +503,7 @@ const TrainerApplicationScreen: React.FC<
                         }}
                       >
                         Metric
-                      </PaperText>
+                      </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -532,7 +526,7 @@ const TrainerApplicationScreen: React.FC<
                       }}
                       disabled={unit === Unit.Imperial}
                     >
-                      <PaperText
+                      <Text
                         style={{
                           color:
                             unit === Unit.Imperial
@@ -541,7 +535,7 @@ const TrainerApplicationScreen: React.FC<
                         }}
                       >
                         Imperial
-                      </PaperText>
+                      </Text>
                     </TouchableOpacity>
                   </Box>
                 </View>

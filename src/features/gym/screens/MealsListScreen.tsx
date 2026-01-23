@@ -10,6 +10,7 @@ import { store } from "@/store";
 import Box from "@components/atoms/Box";
 import { Icon } from "react-native-paper";
 import Text from "@components/atoms/Text";
+import { ArrowLeft } from "lucide-react-native";
 
 const MealsListScreen: React.FC<MyStackNavigatorScreenProps<"MealsList">> = ({
   navigation,
@@ -24,11 +25,7 @@ const MealsListScreen: React.FC<MyStackNavigatorScreenProps<"MealsList">> = ({
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Icon
-                source="arrow-left"
-                size={30}
-                color={theme.colors.PrimaryGreen}
-              />
+              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
             <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
               {selectedMealType.toUpperCase()}

@@ -1,12 +1,20 @@
 import { store } from "@/store";
-import PageWrapper, {SCREEN_HEIGHT} from "@components/app/PageWrapper";
+import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
 import Box from "@components/atoms/Box";
 import BoxTab from "@components/atoms/BoxTab";
-import { Dumbbell, Edit, BarChart3 } from "lucide-react-native";
+import { Dumbbell, Edit, BarChart3, ArrowLeft } from "lucide-react-native";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
 import React, { useState } from "react";
-import { KeyboardAvoidingView, Platform,ScrollView,Keyboard, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Keyboard,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from "react-native";
 import AnalyticsDashboard from "../components/AnalyticsDashboard";
 import LogSetsCard from "../components/LogSetsCard";
 import WorkoutInfoCard from "../components/WorkoutInfoCard";
@@ -26,14 +34,14 @@ import { Text } from "react-native-paper";
 import { View } from "react-native";
 import { theme } from "@utils/styles/theme";
 import { Icon } from "react-native-paper";
-import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view"
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const AnalyticsScreen: React.FC<
   MyStackNavigatorScreenProps<"AnalyticsScreen">
-> = ({ navigation , route}) => {
+> = ({ navigation, route }) => {
   const { selectedExercise, selectedWorkoutId, selectedDay } =
     store.getState()["feature/gym"];
-  const hideTabs = route.params?.hideTabs ?? false
+  const hideTabs = route.params?.hideTabs ?? false;
   const [selectedBox, setSelectedBox] = useState<string | null>("Box1");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -124,146 +132,140 @@ const AnalyticsScreen: React.FC<
 
   return (
     <KeyboardAwareScrollView
-    style={{flex:1}}
-//  behavior={Platform.OS === "ios" ? "padding" : "height"}
-//         style={{flex:1, marginBottom:64}}
-//         // contentContainerStyle={{padding:16, gap:16}}
-//         bottemoffset
-//         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
-
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-
-
-          <View>
-      <PageWrapper>
-        <Box flexDirection="row" alignItems="center" gap="md">
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon
-              source="arrow-left"
-              size={30}
-              color={theme.colors.PrimaryGreen}
-            />
-          </TouchableOpacity>
-        </Box>
-        <PageHeader title="Analytics" />
-        {hideTabs && (
-        <Box
-          flexDirection="row"
-          justifyContent="space-around"
-          marginVertical="base"
-          // flex={1}
-        >
-          <BoxTab
-            title="Exercise"
-            onPress={() => handleBoxPress("Box1")}
-            style={styles.leftBox}
-            selected={selectedBox === "Box1"}
-            icon={{
-              icon: ({ color, size }) => (
-                <Dumbbell color={color} size={size + 1} />
-              ),
-            }}
-          />
-          <BoxTab
-            title="Log Sets"
-            onPress={() => handleBoxPress("Box2")}
-            style={styles.middleBox}
-            selected={selectedBox === "Box2"}
-            icon={{
-              icon: ({ color, size }) => <Edit color={color} size={size + 1} />,
-            }}
-          />
-          <BoxTab
-            title="Analytics"
-            onPress={() => handleBoxPress("Box3")}
-            style={styles.rightBox}
-            selected={selectedBox === "Box3"}
-            icon={{
-              icon: ({ color, size }) => (
-                <BarChart3 color={color} size={size + 1} />
-              ),
-            }}
-          />
-        </Box>
-        )}
-
-        <Box mt="base">
-          {selectedBox === "Box1" && (
-            <WorkoutInfoCard
-              workoutInfo={{
-                workoutName: selectedExercise?.exercise?.name,
-                description: selectedExercise?.exercise?.description,
-                image: selectedExercise?.exercise?.url || sampleImage,
-                additionalInfo: [
-                  {
-                    title: "Sets",
-                    value: selectedExercise?.sets?.toString(),
-                  },
-                  {
-                    title: "Reps",
-                    value: selectedExercise?.reps.toString(),
-                  },
-                  {
-                    title: "Rest",
-                    value: `${selectedExercise?.rest} min`,
-                  },
-                ],
-              }}
-            />
-          )}
-          {selectedBox === "Box2" && (
-            <LogSetsCard
-              sets={selectedExercise?.sets}
-              reps={selectedExercise?.reps}
-              submitRecord={submitRecord}
-              isLoading={isLoading}
-              alreadyLogged={isTodayInLogs(
-                logHistoryByWorkoutDayExercise
-                  ? logHistoryByWorkoutDayExercise
-                  : []
-              )}
-            />
-          )}
-
-          {selectedBox === "Box3" && (
-            <AnalyticsDashboard
-              logHistoryByWorkoutDayExercise={
-                logHistoryByWorkoutDayExercise
-                  ? logHistoryByWorkoutDayExercise
-                  : []
-              }
-              lastWeekAnalytics={
-                lastWeekAnalyticsByWorkoutDayExercise ||
-                ({} as LastWeekAnalytics)
-              }
-            />
-          )}
-
-          {logHistoryByWorkoutDayExercise &&
-            logHistoryByWorkoutDayExercise?.length <= 0 &&
-            selectedBox === "Box3" && (
-              <View>
-                <Text
-                  style={{
-                    color: theme.colors.PrimaryWhite,
-                    marginTop: theme.spacing["2xl"],
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+      style={{ flex: 1 }}
+      //  behavior={Platform.OS === "ios" ? "padding" : "height"}
+      //         style={{flex:1, marginBottom:64}}
+      //         // contentContainerStyle={{padding:16, gap:16}}
+      //         bottemoffset
+      //         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View>
+          <PageWrapper>
+            <Box flexDirection="row" alignItems="center" gap="md">
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+              </TouchableOpacity>
+            </Box>
+            <PageHeader title="Analytics" />
+            {hideTabs && (
+              <Box
+                flexDirection="row"
+                justifyContent="space-around"
+                marginVertical="base"
+                // flex={1}
+              >
+                <BoxTab
+                  title="Exercise"
+                  onPress={() => handleBoxPress("Box1")}
+                  style={styles.leftBox}
+                  selected={selectedBox === "Box1"}
+                  icon={{
+                    icon: ({ color, size }) => (
+                      <Dumbbell color={color} size={size + 1} />
+                    ),
                   }}
-                >
-                  {" "}
-                  No logged data available
-                </Text>
-              </View>
+                />
+                <BoxTab
+                  title="Log Sets"
+                  onPress={() => handleBoxPress("Box2")}
+                  style={styles.middleBox}
+                  selected={selectedBox === "Box2"}
+                  icon={{
+                    icon: ({ color, size }) => (
+                      <Edit color={color} size={size + 1} />
+                    ),
+                  }}
+                />
+                <BoxTab
+                  title="Analytics"
+                  onPress={() => handleBoxPress("Box3")}
+                  style={styles.rightBox}
+                  selected={selectedBox === "Box3"}
+                  icon={{
+                    icon: ({ color, size }) => (
+                      <BarChart3 color={color} size={size + 1} />
+                    ),
+                  }}
+                />
+              </Box>
             )}
-        </Box>
-      </PageWrapper>
-    </View>
-    </TouchableWithoutFeedback>
-    </KeyboardAwareScrollView>
 
+            <Box mt="base">
+              {selectedBox === "Box1" && (
+                <WorkoutInfoCard
+                  workoutInfo={{
+                    workoutName: selectedExercise?.exercise?.name,
+                    description: selectedExercise?.exercise?.description,
+                    image: selectedExercise?.exercise?.url || sampleImage,
+                    additionalInfo: [
+                      {
+                        title: "Sets",
+                        value: selectedExercise?.sets?.toString(),
+                      },
+                      {
+                        title: "Reps",
+                        value: selectedExercise?.reps.toString(),
+                      },
+                      {
+                        title: "Rest",
+                        value: `${selectedExercise?.rest} min`,
+                      },
+                    ],
+                  }}
+                />
+              )}
+              {selectedBox === "Box2" && (
+                <LogSetsCard
+                  sets={selectedExercise?.sets}
+                  reps={selectedExercise?.reps}
+                  submitRecord={submitRecord}
+                  isLoading={isLoading}
+                  alreadyLogged={isTodayInLogs(
+                    logHistoryByWorkoutDayExercise
+                      ? logHistoryByWorkoutDayExercise
+                      : []
+                  )}
+                />
+              )}
+
+              {selectedBox === "Box3" && (
+                <AnalyticsDashboard
+                  logHistoryByWorkoutDayExercise={
+                    logHistoryByWorkoutDayExercise
+                      ? logHistoryByWorkoutDayExercise
+                      : []
+                  }
+                  lastWeekAnalytics={
+                    lastWeekAnalyticsByWorkoutDayExercise ||
+                    ({} as LastWeekAnalytics)
+                  }
+                />
+              )}
+
+              {logHistoryByWorkoutDayExercise &&
+                logHistoryByWorkoutDayExercise?.length <= 0 &&
+                selectedBox === "Box3" && (
+                  <View>
+                    <Text
+                      style={{
+                        color: theme.colors.PrimaryWhite,
+                        marginTop: theme.spacing["2xl"],
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {" "}
+                      No logged data available
+                    </Text>
+                  </View>
+                )}
+            </Box>
+          </PageWrapper>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAwareScrollView>
   );
 };
 

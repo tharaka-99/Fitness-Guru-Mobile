@@ -18,6 +18,7 @@ import { FlatList, ScrollView } from "react-native-gesture-handler";
 import Text from "@components/atoms/Text";
 import { useQuery } from "react-query";
 import FullScreenLoader from "@components/atoms/FullScreenLoader";
+import { ArrowLeft } from "lucide-react-native";
 
 const MyDashboardScreen: React.FC<
   MyStackNavigatorScreenProps<"MyDashboardScreen">
@@ -189,7 +190,18 @@ const MyDashboardScreen: React.FC<
         contentContainerStyle={{ paddingBottom: theme.spacing.sm }}
         ListHeaderComponent={() => (
           <>
-            <PageHeader title="My Dashboard" />
+            <PageHeader
+              leftComponent={
+                <Box flexDirection="row" alignItems="center" gap="md">
+                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+                  </TouchableOpacity>
+                  <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
+                    My Dashboard
+                  </Text>
+                </Box>
+              }
+            />
             <Box
               flexDirection="row"
               justifyContent="space-between"
