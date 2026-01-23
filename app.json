@@ -1,0 +1,71 @@
+{
+  "expo": {
+    "name": "fitness-guru",
+    "slug": "fitness-guru",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/logo-Icon-new.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/dark-splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D0D0D"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fitnessguru.mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "icon":{
+        "dark":"./assets/logo-Icon-new.png",
+        "light":"./assets/logo-Icon-new.png",
+        "tinted":"./assets/logo-Icon-new.png"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0D0D0D"
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "com.android.vending.BILLING",
+        "com.google.android.gms.permission.AD_ID"
+      ],
+      "package": "com.fitnessguru.mobile",
+      "versionCode": 4
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app needs access to your photos so you can send the needed images to your trainer."
+        }
+      ],
+      "expo-asset",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon-dark.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0D0D0D",
+          "dark":{
+            "image": "./assets/splash-icon-dark.png",
+            "backgroundColor": "#0D0D0D"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f691fc7e-9054-43c1-962a-c117acd65888"
+      }
+    }
+  }
+}

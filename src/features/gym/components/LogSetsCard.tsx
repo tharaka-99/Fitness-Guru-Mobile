@@ -1,0 +1,264 @@
+import React, { useState } from "react";
+import { Image, StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { ChevronDown } from "lucide-react-native";
+
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { ActivityIndicator, Divider } from "react-native-paper";
+import { theme } from "@utils/styles/theme";
+import Button from "@components/atoms/Button";
+import SelectDropdown from "react-native-select-dropdown";
+import { Unit } from "@utils/types/types";
+import { LogSetDto } from "@utils/types/analyticsTypes";
+
+interface Props {
+  sets: number;
+  reps: number;
+  submitRecord: (data: LogSetDto[]) => void;
+  isLoading: boolean;
+  alreadyLogged: boolean | undefined;
+}
+
+const LogSetsCard: React.FC<Props> = ({
+  sets,
+  submitRecord,
+  isLoading,
+  alreadyLogged,
+}) => {
+  const today = new Date();
+  const dateStr = today
+    .toLocaleDateString("en-US", {
+      weekday: "long",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })
+    .toLocaleUpperCase();
+
+  // Initialize state to hold data for each set
+  const [logSets, setLogSets] = useState<LogSetDto[]>(
+    Array(sets)
+      .fill({
+        setNo: 0,
+        unit: Unit.Metric,
+        totalWeight: 0,
+        totalReps: 0,
+      })
+      .map((_, index) => ({
+        setNo: index + 1,
+        unit: Unit.Metric,
+        totalWeight: 0,
+        totalReps: 0,
+      }))
+  );
+
+  // Update set data based on input
+  const handleChange = (index: number, field: keyof LogSetDto, value: any) => {
+    // Convert string to number for numeric fields, handle empty string as 0
+    const numericValue =
+      field === "totalWeight" || field === "totalReps"
+        ? value === ""
+          ? 0
+          : Number(value) || 0
+        : value;
+
+    setLogSets((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, [field]: numericValue } : item
+      )
+    );
+  };
+
+  // Handle record button click
+  const handleRecord = () => {
+    submitRecord(logSets);
+  };
+
+  return (
+    <Box p="sm" gap="base">
+      <Text style={styles.dateText}>{dateStr}</Text>
+      <Divider />
+
+      <Box
+        flexDirection="row"
+        justifyContent="space-around"
+        marginVertical="base"
+        gap="2xl"
+      >
+        <Text variant="mdBold">Set</Text>
+        <Text variant="mdBold">Weight</Text>
+        <Text variant="mdBold">Reps</Text>
+      </Box>
+
+      {logSets.map((set, index) => (
+        <Box
+          key={index}
+          flexDirection="row"
+          justifyContent="space-around"
+          alignItems="center"
+        >
+          <Box
+            p="md"
+            backgroundColor={alreadyLogged ? "SecondaryGrey" : "PrimaryGreen"}
+            borderRadius="xs"
+          >
+            <Text color="PrimaryBlack">{index + 1}</Text>
+          </Box>
+          <Box
+            backgroundColor="PrimaryWhite"
+            flexDirection="column"
+            borderRadius="xs"
+            width={"40%"}
+          >
+            <Box
+              backgroundColor={alreadyLogged ? "SecondaryGrey" : "PrimaryGreen"}
+              p="base"
+              borderTopRightRadius="xs"
+              borderTopLeftRadius="xs"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Text color="PrimaryBlack">Total Weight</Text>
+            </Box>
+            <Box
+              flexDirection="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <TextInput
+                placeholder="Weight"
+                keyboardType="numeric"
+                style={styles.input}
+                value={set.totalWeight === 0 ? "" : String(set.totalWeight)}
+                onChangeText={(text) =>
+                  handleChange(index, "totalWeight", text)
+                }
+                editable={!alreadyLogged}
+              />
+              <Box backgroundColor="SecondaryWhite" width={"40%"}>
+                <DropDown
+                  data={[
+                    { label: "kg", value: Unit.Metric },
+                    { label: "lbs", value: Unit.Imperial },
+                  ]}
+                  onSelect={(selectedItem) =>
+                    handleChange(index, "unit", selectedItem.value)
+                  }
+                />
+              </Box>
+            </Box>
+          </Box>
+          <Box
+            backgroundColor="PrimaryWhite"
+            flexDirection="column"
+            borderRadius="xs"
+          >
+            <Box
+              backgroundColor={alreadyLogged ? "SecondaryGrey" : "PrimaryGreen"}
+              p="base"
+              borderTopRightRadius="xs"
+              borderTopLeftRadius="xs"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Text color="PrimaryBlack">Total Reps</Text>
+            </Box>
+            <TextInput
+              placeholder="Reps"
+              keyboardType="numeric"
+              style={styles.input}
+              value={set.totalReps === 0 ? "" : String(set.totalReps)}
+              onChangeText={(text) => handleChange(index, "totalReps", text)}
+              editable={!alreadyLogged}
+            />
+          </Box>
+        </Box>
+      ))}
+
+      <Box mt="lg" gap="base">
+        {isLoading && <ActivityIndicator color={theme.colors.PrimaryWhite} />}
+        {!alreadyLogged ? (
+          <>
+            <Button
+              title={isLoading ? "Adding your logs.." : "Record Workout"}
+              onPress={handleRecord}
+            />
+            <Text color="textSecondary" textAlign="center" mt="sm">
+              You can record your sets daily to keep track of your progress
+            </Text>
+          </>
+        ) : (
+          <Text color="textSecondary" textAlign="center" mt="sm">
+            You've already recorded today's sets! Keep up the great work and
+            track your progress tomorrow.
+          </Text>
+        )}
+      </Box>
+    </Box>
+  );
+};
+
+export default LogSetsCard;
+
+interface DropDownProps {
+  onSelect: (selectedItem: any, index: number) => void;
+  data: any[];
+}
+
+const DropDown: React.FC<DropDownProps> = ({ data, onSelect }) => {
+  return (
+    <SelectDropdown
+      data={data}
+      disableAutoScroll
+      onSelect={onSelect}
+      defaultButtonText="kg"
+      renderCustomizedButtonChild={(item) => (
+        <Box flex={1} alignItems="center" justifyContent="center">
+          <Text variant="sm" color={item ? "PrimaryBlack" : "textSecondary"}>
+            {item ? item.label : "kg"}
+          </Text>
+        </Box>
+      )}
+      buttonStyle={{
+        width: "100%",
+        borderRadius: theme.borderRadii.xs,
+        paddingHorizontal: theme.spacing.base,
+      }}
+      buttonTextStyle={{ color: theme.colors.PrimaryBlack }}
+      renderDropdownIcon={() => (
+        <ChevronDown
+          size={12}
+          color={theme.colors.textSecondary}
+        />
+      )}
+      renderCustomizedRowChild={(item) => (
+        <Box
+          flex={1}
+          alignItems="center"
+          justifyContent="center"
+          backgroundColor="backgroundSecondary"
+          borderBottomWidth={0}
+        >
+          <Text variant="sm">{item.label}</Text>
+        </Box>
+      )}
+      dropdownStyle={{
+        width: 40,
+        borderRadius: theme.borderRadii.xs,
+        backgroundColor: theme.colors.backgroundSecondary,
+      }}
+    />
+  );
+};
+
+const styles = StyleSheet.create({
+  dateText: {
+    color: theme.colors.textSecondary,
+  },
+  input: {
+    height: 40,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+});
