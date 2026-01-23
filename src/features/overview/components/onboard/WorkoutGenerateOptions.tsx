@@ -1,12 +1,13 @@
-import React from 'react';
-import { Image } from 'react-native';
+import React from "react";
+import { Image } from "react-native";
 
-import Box from '@components/atoms/Box';
-import Button from '@components/atoms/Button';
-import Text from '@components/atoms/Text';
+import Box from "@components/atoms/Box";
+import Button from "@components/atoms/Button";
+import Text from "@components/atoms/Text";
+import { useIsFocused } from "@react-navigation/native";
 
 interface Props {
-  onOptionSelected: (option: 'generater' | 'default') => void;
+  onOptionSelected: (option: "generater" | "default") => void;
 }
 
 const WorkoutGenerateOptions: React.FC<Props> = ({ onOptionSelected }) => {
@@ -14,7 +15,7 @@ const WorkoutGenerateOptions: React.FC<Props> = ({ onOptionSelected }) => {
     <Box flex={1} justifyContent="center">
       <Box alignItems="center" gap="lg">
         <Image
-          source={require('assets/images/gradient-dumbbell.png')}
+          source={require("assets/images/gradient-dumbbell.png")}
           style={{ width: 140, height: 140 }}
           resizeMode="contain"
         />
@@ -24,12 +25,12 @@ const WorkoutGenerateOptions: React.FC<Props> = ({ onOptionSelected }) => {
       <Box gap="base" mt="3xl">
         <Button
           title="Continue with Workout Generator"
-          onPress={() => onOptionSelected('generater')}
+          onPress={() => onOptionSelected("generater")}
         />
         <Button
           type="outline"
           title="Continue with Default Workouts"
-          onPress={() => onOptionSelected('default')}
+          onPress={() => onOptionSelected("default")}
         />
       </Box>
 

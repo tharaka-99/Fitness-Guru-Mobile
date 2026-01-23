@@ -157,7 +157,7 @@ const WorkoutListScreen: React.FC<
               },
               {
                 title: "Rest",
-                value: `${selectedGeneralWorkoutInfo?.rest} min`,
+                value: `${selectedGeneralWorkoutInfo?.rest} sec`,
               },
             ],
           }}
@@ -172,7 +172,7 @@ const WorkoutListScreen: React.FC<
             additionalInfo: [
               { title: "Sets", value: selectedWorkoutInfo?.sets?.toString() },
               { title: "Reps", value: selectedWorkoutInfo?.reps.toString() },
-              { title: "Rest", value: `${selectedWorkoutInfo?.rest} min` },
+              { title: "Rest", value: `${selectedWorkoutInfo?.rest} sec` },
             ],
           }}
         />
@@ -183,4 +183,6 @@ const WorkoutListScreen: React.FC<
 
 export default WorkoutListScreen;
 
-const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+// const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+const sampleImage =
+  "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif";

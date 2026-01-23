@@ -1,15 +1,15 @@
-import React from 'react';
-import { Image } from 'react-native';
+import React from "react";
+import { ActivityIndicator, Image } from "react-native";
 
-import { PAGE_WIDTH } from '@components/app/PageWrapper';
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
+import { PAGE_WIDTH } from "@components/app/PageWrapper";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
 
 interface WorkoutListItemProps {
   image: string;
   title: string;
   description: string;
-  theme?: 'green' | 'standard';
+  theme?: "green" | "standard";
 }
 
 const IMAGE_SIZE = 65;
@@ -18,9 +18,9 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = React.memo(({
   image,
   title,
   description,
-  theme = 'standard',
+  theme = "standard",
 }) => {
-  const isThemeGreen = theme === 'green';
+  const isThemeGreen = theme === "green";
 
   return (
     <Box gap="base" width={PAGE_WIDTH} flexDirection="row">
@@ -32,12 +32,23 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = React.memo(({
         borderBottomWidth={isThemeGreen ? 0.5 : 0}
         borderWidth={isThemeGreen ? 1 : undefined}
       >
-        <Image
-          width={IMAGE_SIZE}
-          height={IMAGE_SIZE}
-          resizeMode="cover"
-          source={{ uri: image }}
-        />
+        {image ? (
+          <Image
+            resizeMode="cover"
+            source={{ uri: image }}
+            width={IMAGE_SIZE}
+            height={IMAGE_SIZE}
+          />
+        ) : (
+          <Box
+            alignItems="center"
+            justifyContent="center"
+            width={IMAGE_SIZE}
+            height={IMAGE_SIZE}
+          >
+            <ActivityIndicator size={"large"} color="PrimaryGreen" />
+          </Box>
+        )}
       </Box>
       <Box
         flex={1}
@@ -49,14 +60,14 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = React.memo(({
         <Text
           variant="mdBold"
           numberOfLines={1}
-          color={isThemeGreen ? 'PrimaryBlack' : 'textPrimary'}
-          style={{ textTransform: 'capitalize' }}
+          color={isThemeGreen ? "PrimaryBlack" : "textPrimary"}
+          style={{ textTransform: "capitalize" }}
         >
           {title}
         </Text>
         <Text
           numberOfLines={1}
-          color={isThemeGreen ? 'PrimaryGrey' : 'textSecondary'}
+          color={isThemeGreen ? "PrimaryGrey" : "textSecondary"}
         >
           {description}
         </Text>

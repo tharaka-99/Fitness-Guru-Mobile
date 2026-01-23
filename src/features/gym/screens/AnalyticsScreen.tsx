@@ -60,8 +60,8 @@ const AnalyticsScreen: React.FC<
       getLogHistoryByWorkoutDayExercise(
         selectedExercise?.exercise?._id,
         selectedWorkoutId,
-        selectedDay
-      ) // Function reference
+        selectedDay,
+      ), // Function reference
   );
   const {
     isLoading: isLastWeekAnalyticsByWorkoutDayExerciseLoading,
@@ -78,8 +78,8 @@ const AnalyticsScreen: React.FC<
       getLastWeekAnalyticsByWorkoutDayExercise(
         selectedExercise?.exercise?._id,
         selectedWorkoutId,
-        selectedDay
-      ) // Function reference
+        selectedDay,
+      ), // Function reference
   );
 
   const handleBoxPress = (box: string) => {
@@ -133,6 +133,11 @@ const AnalyticsScreen: React.FC<
   return (
     <KeyboardAwareScrollView
       style={{ flex: 1 }}
+      keyboardShouldPersistTaps="handled"
+      bounces={false}
+      showsVerticalScrollIndicator={false}
+      enableOnAndroid={true}
+      extraScrollHeight={20}
       //  behavior={Platform.OS === "ios" ? "padding" : "height"}
       //         style={{flex:1, marginBottom:64}}
       //         // contentContainerStyle={{padding:16, gap:16}}
@@ -144,7 +149,11 @@ const AnalyticsScreen: React.FC<
           <PageWrapper>
             <Box flexDirection="row" alignItems="center" gap="md">
               <TouchableOpacity onPress={() => navigation.goBack()}>
-                <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+                <Icon
+                  source="arrow-left"
+                  size={30}
+                  color={theme.colors.PrimaryGreen}
+                />
               </TouchableOpacity>
             </Box>
             <PageHeader title="Analytics" />
@@ -209,7 +218,7 @@ const AnalyticsScreen: React.FC<
                       },
                       {
                         title: "Rest",
-                        value: `${selectedExercise?.rest} min`,
+                        value: `${selectedExercise?.rest} sec`,
                       },
                     ],
                   }}
@@ -224,7 +233,7 @@ const AnalyticsScreen: React.FC<
                   alreadyLogged={isTodayInLogs(
                     logHistoryByWorkoutDayExercise
                       ? logHistoryByWorkoutDayExercise
-                      : []
+                      : [],
                   )}
                 />
               )}
@@ -284,4 +293,6 @@ const styles = StyleSheet.create({
 });
 
 export default AnalyticsScreen;
-const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+// const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+const sampleImage =
+  "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif";

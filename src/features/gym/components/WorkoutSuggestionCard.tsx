@@ -46,7 +46,7 @@ const WorkoutSuggestionCard: React.FC<WorkoutListItemProps> = ({
         </TouchableOpacity>
       );
     },
-    [onPress, setSelectedExercise]
+    [onPress, setSelectedExercise],
   );
 
   const keyExtractor = useCallback((item: SearchExercises) => {
@@ -59,11 +59,11 @@ const WorkoutSuggestionCard: React.FC<WorkoutListItemProps> = ({
       offset: 80 * index,
       index,
     }),
-    []
+    [],
   );
 
   return (
-    <View style={{ maxHeight: 400 }}>
+    <View style={{ flex: 1, maxHeight: 400 }}>
       <Box py="sm" px="md" borderRadius="sm" bg="PrimaryWhite" width="100%">
         {exercises.length > 0 ? (
           <FlatList
@@ -131,11 +131,19 @@ const WorkoutSuggestionItem: React.FC<WorkoutSuggestionItemProps> = React.memo(
           )}
 
           {error || !url ? (
-            <Image
-              source={{ uri: sampleImage }}
+            // <Image
+            //   source={{ uri: sampleImage }}
+            //   style={{ width: 65, height: 65 }}
+            //   resizeMode="cover"
+            // />
+
+            <Box
+              alignItems="center"
+              justifyContent="center"
               style={{ width: 65, height: 65 }}
-              resizeMode="cover"
-            />
+            >
+              <ActivityIndicator size={"large"} color="PrimaryGreen" />
+            </Box>
           ) : (
             <Image
               source={{ uri: url }}
@@ -158,7 +166,9 @@ const WorkoutSuggestionItem: React.FC<WorkoutSuggestionItemProps> = React.memo(
         </Text>
       </Box>
     );
-  }
+  },
 );
 
-const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+// const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+const sampleImage =
+  "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif";

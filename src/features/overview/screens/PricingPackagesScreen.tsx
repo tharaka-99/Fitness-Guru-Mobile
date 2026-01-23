@@ -156,16 +156,16 @@ const PricingPackagesScreen: React.FC<
         productIdentifier: pkg.product.identifier,
         productTitle: pkg.product.title,
         productPrice: pkg.product.priceString,
-      }))
+      })),
     );
 
     const selectedPackage = offerings.current.availablePackages.find(
-      (pkg) => pkg.identifier === packageIdentifier
+      (pkg) => pkg.identifier === packageIdentifier,
     );
 
     console.log(
       "selectedPackage .........>>>>>>>>>>",
-      JSON.stringify(selectedPackage)
+      JSON.stringify(selectedPackage),
     );
 
     if (!selectedPackage) {
@@ -178,6 +178,7 @@ const PricingPackagesScreen: React.FC<
     }
 
     const purchaseResult = await Purchases.purchasePackage(selectedPackage);
+    console.log("purchaseResult>>>>>>>>", purchaseResult);
 
     if (purchaseResult.customerInfo.activeSubscriptions.length > 0) {
       store.dispatch(authActions.setSubscription({ status: true }));
@@ -195,7 +196,7 @@ const PricingPackagesScreen: React.FC<
       return;
     }
 
-    // let paymentResult = null;
+    let paymentResult = null;
     // try {
     //   paymentResult = await activeNewPackage(id);
     //   store.dispatch(authActions.setSubscription(paymentResult));
@@ -206,16 +207,10 @@ const PricingPackagesScreen: React.FC<
     //   });
     // } catch (error) {}
 
-    let paymentResult: any = null;
-
     try {
       console.log("came here!!!!!!!!!!!!!!!!!!!");
-
+      // check if user clicked they have injury button
       paymentResult = await activeNewPackage(id);
-      console.log(
-        "paymentResult .........>>>>>>>>>>",
-        JSON.stringify(paymentResult)
-      );
       store.dispatch(authActions.setSubscription(paymentResult));
       Toast.show({
         type: "success",
@@ -230,7 +225,7 @@ const PricingPackagesScreen: React.FC<
       }
 
       if (selectedWorkout?.WorkoutType === WorkoutType.Default) {
-        await setClientProfileInfo(profile), navigation.navigate("Home");
+        (await setClientProfileInfo(profile), navigation.navigate("Home"));
         return;
       }
 
@@ -240,7 +235,7 @@ const PricingPackagesScreen: React.FC<
 
       if (!hasSubscription) {
         console.log(
-          "User does not have an active subscription. Proceeding with setup."
+          "User does not have an active subscription. Proceeding with setup.",
         );
 
         console.log("Transforming workout data...");
@@ -275,7 +270,7 @@ const PricingPackagesScreen: React.FC<
         };
         console.log(
           "Meal details without calPerUnit:",
-          mealDetailsWithoutCalPerUnit
+          mealDetailsWithoutCalPerUnit,
         );
 
         try {
@@ -335,7 +330,10 @@ const PricingPackagesScreen: React.FC<
   useEffect(() => {
     const getPackages = async () => {
       const cilentPackages = await getClientPackages();
-      console.log("cilentPackages ........./////", JSON.stringify(cilentPackages, null, 2));
+      console.log(
+        "cilentPackages ........./////",
+        JSON.stringify(cilentPackages, null, 2),
+      );
       setPackages(cilentPackages);
     };
 
@@ -400,7 +398,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   cardContainer: {
-    flex: 3, 
+    flex: 3,
   },
   scrollContent: {
     flexGrow: 1,
