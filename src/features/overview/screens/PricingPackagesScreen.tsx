@@ -209,9 +209,16 @@ const PricingPackagesScreen: React.FC<
 
     try {
       console.log("came here!!!!!!!!!!!!!!!!!!!");
+      const selectedPlanData = packages.find((p) => p.name === id);
+      const planId = selectedPlanData ? selectedPlanData._id : id;
       // check if user clicked they have injury button
-      paymentResult = await activeNewPackage(id);
-      store.dispatch(authActions.setSubscription(paymentResult));
+      // paymentResult = await activeNewPackage(id);
+      // store.dispatch(authActions.setSubscription(paymentResult));
+      const isSubscribed =
+        purchaseResult.customerInfo.entitlements.active["premium"] !== undefined ||
+        purchaseResult.customerInfo.activeSubscriptions.length > 0;
+
+      store.dispatch(authActions.setSubscription({ status: isSubscribed }));
       Toast.show({
         type: "success",
         text1: "Success",
@@ -231,7 +238,8 @@ const PricingPackagesScreen: React.FC<
 
       console.log("check has subscriptions", user?.subscription?.status);
 
-      const hasSubscription = hasPremiumAccess(user);
+      const currentUser = (store.getState() as any)["feature/auth"].user;
+      const hasSubscription = hasPremiumAccess(currentUser);
 
       if (!hasSubscription) {
         console.log(
@@ -280,6 +288,12 @@ const PricingPackagesScreen: React.FC<
             createWorkout(transformedDays),
             createMealPlan(mealDetailsWithoutCalPerUnit),
           ]);
+          // console.log("Calling setClientProfileInfo...");
+          // await setClientProfileInfo(profile);
+          // console.log("Calling createWorkout...");
+          // await createWorkout(transformedDays);
+          // console.log("Calling createMealPlan...");
+          // await createMealPlan(mealDetailsWithoutCalPerUnit);
           console.log("API calls completed successfully.");
 
           store.dispatch(gymActions.resetWorkouts());

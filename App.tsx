@@ -50,6 +50,21 @@ export default function App() {
           apiKey: env.EXPO_PUBLIC_RC_ANDROID,
         });
       }
+      console.log("customerInfoListener.................");
+
+
+      const customerInfoListener = (customerInfo: any) => {
+        console.log("customerInfoListener.................", customerInfo);
+        const isSubscribed =
+          customerInfo.entitlements.active["premium"] !== undefined ||
+          customerInfo.activeSubscriptions.length > 0;
+
+        store.dispatch(authActions.setSubscription({ status: isSubscribed }));
+        console.log("customerInfoListener_____isSubscribed", isSubscribed);
+      };
+
+      Purchases.addCustomerInfoUpdateListener(customerInfoListener);
+      console.log("customerInfoListener____", customerInfoListener);
 
       fetchProducts();
       getCustomerInfo();
@@ -60,16 +75,16 @@ export default function App() {
 
   async function getCustomerInfo() {
     const customerInfo = await Purchases.getCustomerInfo();
-    console.log("CUSTOMER INFO", JSON.stringify(customerInfo));
+    console.log("CUSTOMER INFO", JSON.stringify(customerInfo, null, 2));
   }
 
   const fetchProducts = async () => {
     try {
-      const products = await Purchases.getProducts(["rc_fg_premium_monthly"]);
+      const products = await Purchases.getProducts(["premium_monthly"]);
       const offerings = await Purchases.getOfferings();
       console.log(
         "PRODUCTSSSSSS",
-        JSON.stringify(offerings.current?.availablePackages)
+        JSON.stringify(offerings.current?.availablePackages, null, 2)
       );
       if (offerings) {
         const customerInfo = await Purchases.getCustomerInfo();

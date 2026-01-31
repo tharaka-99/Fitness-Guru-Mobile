@@ -2,7 +2,6 @@ import { MapPin, Calendar, Dumbbell } from "lucide-react-native";
 import greetingTime from "greeting-time";
 import React from "react";
 import { ScrollView } from "react-native";
-
 import InfoCard from "@components/app/InfoCard";
 import PageWrapper from "@components/app/PageWrapper";
 import ProfileHeaderCard from "@components/app/ProfileHeaderCard";
@@ -12,7 +11,6 @@ import { MyTabNavigatorScreenProps } from "@navigation/types";
 import { capitalizeString } from "@utils/helpers";
 import { getClientProfileInfo } from "@utils/services/authServices";
 import PlanCategoryCard from "../components/PlanCategoryCard";
-
 import { store } from "@/store";
 import Text from "@components/atoms/Text";
 import { useFocusEffect } from "@react-navigation/native";
@@ -64,7 +62,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     error: defaultWorkoutError,
     refetch: defaultWorkoutRefetch,
   } = useQuery("defaultWorkout", getClientDefaultWorkouts);
-  // useEffect to fetch data when component mounts
+
   useFocusEffect(
     React.useCallback(() => {
       const fetchData = async () => {
@@ -235,21 +233,19 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                   ),
                   value: profile?.createdAt
                     ? new Date(profile.createdAt).toLocaleString("default", {
-                        month: "long",
-                        year: "numeric",
-                      })
+                      month: "long",
+                      year: "numeric",
+                    })
                     : "",
                 },
-                {
-                  icon: ({ color, size }) => (
-                    <Dumbbell color={color} size={size - 4} />
-                  ),
-                  value:
-                    profile?.fitnessInfo?.goal.replace(
-                      /([a-z])([A-Z])/g,
-                      "$1 $2"
-                    ) ?? "not set yet",
-                },
+                ...(profile?.fitnessInfo?.goal
+                  ? [
+                    {
+                      icon: ({ color, size }: { color: any; size: any }) => <Dumbbell color={color} size={size - 4} />,
+                      value: profile.fitnessInfo.goal.replace(/([a-z])([A-Z])/g, "$1 $2"),
+                    },
+                  ]
+                  : []),
               ]}
               isDashboardLink={
                 profile?.fitnessInfo && profile?.personalInfo ? true : false

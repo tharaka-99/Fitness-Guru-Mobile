@@ -1,6 +1,6 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { FlatList, Keyboard, TouchableOpacity, View } from "react-native";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react-native";
 
 import { store } from "@/store";
@@ -487,9 +487,8 @@ const GenerateMealPlanScreen: React.FC<
                     title={name}
                     image={url || image}
                     unitCount={selected ? formatUnitCount(count, unit) : ""}
-                    description={`${calPerUnit}Cal per unit (${
-                      unitAmount + unit
-                    })`}
+                    description={`${calPerUnit}Cal per unit (${unitAmount + unit
+                      })`}
                     theme={selected ? "green" : undefined}
                   />
                 </Box>
@@ -503,9 +502,8 @@ const GenerateMealPlanScreen: React.FC<
         image={selectedMealItem?.url || image}
         mealName={selectedMealItem?.name || "Meal item"}
         unit={selectedMealItem?.unit || "Unit"}
-        caloriesPerUnit={`${selectedMealItem?.calPerUnit}Cal per ${
-          selectedMealItem?.unitAmount + " " + selectedMealItem?.unit
-        }`}
+        caloriesPerUnit={`${selectedMealItem?.calPerUnit}Cal per ${selectedMealItem?.unitAmount + " " + selectedMealItem?.unit
+          }`}
         bottomSheetRef={bottomSheetRef}
         selectedMealItemcount={selectedMealItem?.count || 0}
         handleAddMealItem={handleAddMealItem}

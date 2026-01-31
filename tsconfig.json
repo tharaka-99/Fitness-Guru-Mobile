@@ -1,15 +1,29 @@
 {
   "extends": "expo/tsconfig.base",
-  "include": ["src/**/*", "App.tsx", "env.d.ts"],
+  "include": [
+    "src/**/*",
+    "App.tsx",
+    "env.d.ts"
+  ],
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["src/components/*"],
-      "@navigation/*": ["src/navigation/*"],
-      "@features/*": ["src/features/*"],
-      "@utils/*": ["src/utils/*"],
-      "@/*": ["src/*"]
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@navigation/*": [
+        "src/navigation/*"
+      ],
+      "@features/*": [
+        "src/features/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@/*": [
+        "src/*"
+      ]
     },
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

@@ -29,7 +29,7 @@ import AddWorkoutSheet from "../components/AddWorkoutSheet";
 import WorkoutListItem from "../components/WorkoutListItem";
 import WorkoutSuggestionCard from "../components/WorkoutSuggestionCard";
 import { gymActions } from "../context/slice";
-import { ArrowLeft, Trash2, GripVertical } from "lucide-react-native";
+import { ArrowLeft, Trash2, X, GripVertical } from "lucide-react-native";
 
 const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
 
@@ -70,37 +70,51 @@ const ExerciseItem = memo(
     );
 
     return (
-      <Box
-        bg={isActive ? "LightBlue" : "SecondaryGreen"}
-        px="base"
-        py="base"
-        flexDirection="row"
-        alignItems="center"
-        mb="xs"
-      >
-        <ScaleDecorator>
-          <TouchableOpacity onLongPress={drag} activeOpacity={0.7}>
-            <Box mr="sm" justifyContent="center" alignItems="center">
-              <GripVertical size={24} color={theme.colors.PrimaryGrey} />
+      <ScaleDecorator>
+        <TouchableOpacity
+          onLongPress={drag}
+          activeOpacity={0.7}
+          delayLongPress={200}
+        >
+          <Box
+            bg={isActive ? "LightBlue" : "SecondaryGreen"}
+            px="base"
+            py="base"
+            mb="xs"
+            style={{ overflow: "hidden" }}
+          >
+            <Box flex={1}>
+              <WorkoutListItem
+                theme="green"
+                image={imageUrl}
+                title={item.exercise.name}
+                description={description}
+              />
             </Box>
-          </TouchableOpacity>
-        </ScaleDecorator>
-
-        <Box flex={1}>
-          <WorkoutListItem
-            theme="green"
-            image={imageUrl}
-            title={item.exercise.name}
-            description={description}
-          />
-        </Box>
-
-        <TouchableOpacity onPress={() => onRemove(index)} activeOpacity={0.7}>
-          <Box ml="sm" justifyContent="center" alignItems="center">
-            <Trash2 size={20} color={theme.colors.PrimaryRed} />
+            <TouchableOpacity
+              onPress={() => onRemove(index)}
+              activeOpacity={0.7}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                zIndex: 1,
+              }}
+            >
+              <Box
+                bg="PrimaryWhite"
+                borderRadius="full"
+                p="xs"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <X size={14} color={theme.colors.PrimaryRed} />
+              </Box>
+            </TouchableOpacity>
           </Box>
         </TouchableOpacity>
-      </Box>
+      </ScaleDecorator>
     );
   }
 );
@@ -252,7 +266,6 @@ const DayExercisesScreen: React.FC<
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
-        {/* Search Input */}
         <Box mb="md">
           <TextInput
             value={searchTerm}
@@ -260,8 +273,6 @@ const DayExercisesScreen: React.FC<
             onChangeText={setSearchTerm}
           />
         </Box>
-
-        {/* Exercise List - Now properly scrollable */}
         {!isSearching && hasExercises && (
           <Box flex={1}>
             <DraggableFlatList
@@ -283,8 +294,6 @@ const DayExercisesScreen: React.FC<
             />
           </Box>
         )}
-
-        {/* Exercise Suggestions */}
         {isSearching && (
           <Box flex={1}>
             <Text variant="lgBold" mb="sm">
@@ -297,8 +306,6 @@ const DayExercisesScreen: React.FC<
             />
           </Box>
         )}
-
-        {/* Empty State */}
         {!isSearching && !hasExercises && <EmptyState />}
       </KeyboardAvoidingView>
 

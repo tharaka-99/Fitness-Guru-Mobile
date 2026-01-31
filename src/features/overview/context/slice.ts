@@ -20,6 +20,7 @@ export const initialState: InitialState = {
       goal: Goal.FatLoss,
     },
     personalInfo: { age: 0, height: 0, unit: Unit.Imperial, weight: 0 },
+    isInjured: false
   },
   isInjered: false,
 };
