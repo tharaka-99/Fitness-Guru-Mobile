@@ -7,39 +7,63 @@ import Button from "@components/atoms/Button";
 import { theme } from "@utils/styles/theme";
 import { store } from "@/store";
 import { authActions } from "@features/auth/context/slice";
+import { PurchasesOfferings } from "react-native-purchases";
+
 
 interface Props {
   packages: any;
+  offerings?: PurchasesOfferings;
   onActionPress: (id: string) => void;
   onChangePackage: (id: string) => void;
 }
 
+
 const PricingPackageCard: React.FC<Props> = ({
   packages,
+  offerings,
   onActionPress,
   onChangePackage,
 }) => {
   const { user } = store.getState()["feature/auth"];
+
 
   // const [selectedPlan, setSelectedPlan] = useState(
   //   user?.isInjured ? 'Premium' : 'Standard'
   // );
   const [selectedPlan, setSelectedPlan] = useState("Premium");
 
+
   useEffect(() => {
     // user?.isInjured ? setSelectedPlan('Premium') : setSelectedPlan('Standard');
     setSelectedPlan("Premium");
   }, [user?.isInjured]);
 
+
   const filteredPackages = packages?.filter(
     (p: any) => p.name === selectedPlan
   );
+  const getRevenueCatPrice = () => {
+    if (!offerings?.current?.availablePackages) return null;
+
+
+    const monthlyPackage = offerings.current.availablePackages.find(
+      (pkg) => pkg.identifier === "$rc_monthly"
+    );
+
+
+    return monthlyPackage?.product?.priceString || null;
+  };
+
+
+  const revenueCatPrice = getRevenueCatPrice();
+
 
   const openLink = (url: string) => {
     Linking.openURL(url).catch((err) =>
       console.error("Failed to open URL", err)
     );
   };
+
 
   return (
     <Box
@@ -56,15 +80,16 @@ const PricingPackageCard: React.FC<Props> = ({
           </Text>
         </Box>
 
+
         {/* Toggle Buttons - Hide if injured */}
-        {!user?.isInjured && (
+        {/* {!user?.isInjured && (
           <Box
             flexDirection="row"
             alignSelf="center"
             mt="sm"
             style={styles.toggleContainer}
-          >
-            {/* <TouchableOpacity
+          > */}
+        {/* <TouchableOpacity
               style={[
                 styles.toggleButton,
                 selectedPlan === 'Standard' && styles.selectedButton,
@@ -83,7 +108,7 @@ const PricingPackageCard: React.FC<Props> = ({
                 Standard
               </Text>
             </TouchableOpacity> */}
-            <TouchableOpacity
+        {/* <TouchableOpacity
               style={[
                 styles.toggleButton,
                 selectedPlan === "Premium" && styles.selectedButton,
@@ -101,9 +126,10 @@ const PricingPackageCard: React.FC<Props> = ({
               >
                 Premium
               </Text>
-            </TouchableOpacity>
-          </Box>
-        )}
+            </TouchableOpacity> */}
+        {/* </Box>
+        )} */}
+
 
         {/* Benefits */}
         <Box mt="lg" style={styles.benefitsContainer}>
@@ -121,6 +147,7 @@ const PricingPackageCard: React.FC<Props> = ({
           ))}
         </Box>
 
+
         {/* Plan Selection */}
         <Box mt="sm" style={styles.planCard}>
           <CheckCircle2
@@ -132,11 +159,12 @@ const PricingPackageCard: React.FC<Props> = ({
               Monthly
             </Text>
             <Text variant="sm" style={styles.planSubtitle}>
-              Full access for just LKR {filteredPackages[0]?.price}.00/month
+              Full access for just {revenueCatPrice || `LKR ${filteredPackages[0]?.price}.00`}/month
             </Text>
           </Box>
         </Box>
       </Box>
+
 
       {/* Continue Button */}
       <Box mt="sm">
@@ -145,6 +173,7 @@ const PricingPackageCard: React.FC<Props> = ({
           isLoading={false}
           onPress={() => onActionPress(selectedPlan)}
         />
+
 
         {/* Free Trial Button
         <Button
@@ -160,6 +189,7 @@ const PricingPackageCard: React.FC<Props> = ({
           }}
           style={styles.trialButton}
         /> */}
+
 
         <Box style={styles.footer}>
           <TouchableOpacity
@@ -182,6 +212,7 @@ const PricingPackageCard: React.FC<Props> = ({
     </Box>
   );
 };
+
 
 // Styles
 const styles = StyleSheet.create({
@@ -253,4 +284,8 @@ const styles = StyleSheet.create({
   },
 });
 
+
 export default PricingPackageCard;
+
+
+

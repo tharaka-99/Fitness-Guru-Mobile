@@ -10,10 +10,12 @@ import Toast from "react-native-toast-message";
 import { Provider as ReduxProvider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 
+
 import { reduxPersistor, store } from "@/store";
 import AppInitializer from "@components/app/AppInitializer";
 import navigationTheme from "@navigation/theme";
 import { theme } from "@utils/styles/theme";
+
 
 import { QueryClient, QueryClientProvider } from "react-query";
 import {
@@ -27,44 +29,65 @@ import { enableScreens } from "react-native-screens";
 import env from "./src/utils/env";
 enableScreens();
 
+
 const queryClient = new QueryClient();
+
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.error,
   strict: true, // Reanimated runs in strict mode by default
 });
 
+
 export default function App() {
   //configure revenue cat
   useEffect(() => {
     Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+
+
+    // Get user from Redux store to check if already logged in
+    const state = store.getState();
+    const user = state['feature/auth']?.user;
+    const appUserID = user?._id || undefined;
+
+
+    console.log("Configuring RevenueCat with user ID:", appUserID);
+
+
     try {
       if (Platform.OS === "ios") {
         Purchases.configure({
           //apiKey: "appl_xaIghnPYoNgfePDjSrzcubzjzqw",
           apiKey: env.EXPO_PUBLIC_RC_IOS,
+          appUserID: appUserID,
         });
       } else if (Platform.OS === "android") {
         Purchases.configure({
           //apiKey: "goog_oyzmPsavutQJnKUwqqOOEiSLioN",
           apiKey: env.EXPO_PUBLIC_RC_ANDROID,
+          appUserID: appUserID,
         });
       }
       console.log("customerInfoListener.................");
 
 
+
+
       const customerInfoListener = (customerInfo: any) => {
         console.log("customerInfoListener.................", customerInfo);
         const isSubscribed =
-          customerInfo.entitlements.active["premium"] !== undefined ||
+          customerInfo.entitlements.active["Premium access"] !== undefined ||
           customerInfo.activeSubscriptions.length > 0;
+
 
         store.dispatch(authActions.setSubscription({ status: isSubscribed }));
         console.log("customerInfoListener_____isSubscribed", isSubscribed);
       };
 
+
       Purchases.addCustomerInfoUpdateListener(customerInfoListener);
       console.log("customerInfoListener____", customerInfoListener);
+
 
       fetchProducts();
       getCustomerInfo();
@@ -73,10 +96,12 @@ export default function App() {
     }
   }, []);
 
+
   async function getCustomerInfo() {
     const customerInfo = await Purchases.getCustomerInfo();
     console.log("CUSTOMER INFO", JSON.stringify(customerInfo, null, 2));
   }
+
 
   const fetchProducts = async () => {
     try {
@@ -110,6 +135,7 @@ export default function App() {
     }
   };
 
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <ThemeProvider theme={theme}>
@@ -133,9 +159,13 @@ export default function App() {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.backgroundPrimary,
   },
 });
+
+
+

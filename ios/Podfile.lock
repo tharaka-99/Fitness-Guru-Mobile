@@ -9,7 +9,7 @@ PODS:
   - EXJSONUtils (0.14.0)
   - EXManifests (0.15.8):
     - ExpoModulesCore
-  - Expo (52.0.48):
+  - Expo (52.0.49):
     - ExpoModulesCore
   - expo-dev-client (5.0.20):
     - EXManifests
@@ -219,6 +219,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - ExpoAsset (11.0.5):
+    - ExpoModulesCore
+  - ExpoFileSystem (18.0.12):
     - ExpoModulesCore
   - ExpoFont (13.0.4):
     - ExpoModulesCore
@@ -1555,7 +1557,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-pager-view (6.5.1):
+  - react-native-netinfo (11.4.1):
+    - React-Core
+  - react-native-pager-view (6.7.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1576,7 +1580,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context (4.12.0):
+  - react-native-safe-area-context (5.4.0):
     - React-Core
   - React-nativeconfig (0.76.9)
   - React-NativeModulesApple (0.76.9):
@@ -1853,7 +1857,7 @@ PODS:
   - RevenueCat (5.32.0)
   - RevenueCatUI (5.32.0):
     - RevenueCat (= 5.32.0)
-  - RNCAsyncStorage (1.23.1):
+  - RNCAsyncStorage (2.1.2):
     - React-Core
   - RNCMaskedView (0.1.11):
     - React
@@ -1863,7 +1867,7 @@ PODS:
     - React-Core
     - SDWebImage (~> 5.11.1)
     - SDWebImageWebPCoder (~> 0.8.4)
-  - RNGestureHandler (2.20.2):
+  - RNGestureHandler (2.24.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2009,7 +2013,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.4.0):
+  - RNScreens (4.11.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2076,6 +2080,7 @@ DEPENDENCIES:
   - expo-dev-menu (from `../node_modules/expo-dev-menu`)
   - expo-dev-menu-interface (from `../node_modules/expo-dev-menu-interface/ios`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
+  - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../node_modules/expo-font/ios`)
   - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
   - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
@@ -2118,6 +2123,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
@@ -2196,6 +2202,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-dev-menu-interface/ios"
   ExpoAsset:
     :path: "../node_modules/expo-asset/ios"
+  ExpoFileSystem:
+    :path: "../node_modules/expo-file-system/ios"
   ExpoFont:
     :path: "../node_modules/expo-font/ios"
   ExpoImagePicker:
@@ -2277,6 +2285,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
@@ -2367,12 +2377,13 @@ SPEC CHECKSUMS:
   EXImageLoader: 759063a65ab016b836f73972d3bb25404888713d
   EXJSONUtils: 01fc7492b66c234e395dcffdd5f53439c5c29c93
   EXManifests: 77e77c283c4c53a50b9bddebed25abe93f0b48f1
-  Expo: df08d6ba6d04d146d4941ef58864db6bf6a04d7e
+  Expo: 03dca15247583ca0d09d3cee37fb2d5a0b878f04
   expo-dev-client: ca3ebc270cb0d3f26e6d9c3e1da19957ef4fcac1
   expo-dev-launcher: 11ea4216669a6e466dcb5ef1c23f4ad441605803
   expo-dev-menu: 2c332a184dc36a9a9f23f399cc8d834666495ece
   expo-dev-menu-interface: 00dc42302a72722fdecec3fa048de84a9133bcc4
   ExpoAsset: 0687fe05f5d051c4a34dd1f9440bd00858413cfe
+  ExpoFileSystem: c8c19bf80d914c83dda3beb8569d7fb603be0970
   ExpoFont: 773955186469acc5108ff569712a2d243857475f
   ExpoImagePicker: 482b2a6198b365dd18b5a0cb6d4caeec880cb8e1
   ExpoLinearGradient: ee9efc5acb988b911320e964fab9b4cbdeb198c4
@@ -2416,8 +2427,9 @@ SPEC CHECKSUMS:
   React-logger: dbca7bdfd4aa5ef69431362bde6b36d49403cb20
   React-Mapbuffer: 6efad4a606c1fae7e4a93385ee096681ef0300dc
   React-microtasksnativemodule: 8732b71aa66045da4bb341ddee1bb539f71e5f38
-  react-native-pager-view: 9ef31c5b9641bac037733d17471cd70b3f478ff5
-  react-native-safe-area-context: 142fade490cbebbe428640b8cbdb09daf17e8191
+  react-native-netinfo: f0a9899081c185db1de5bb2fdc1c88c202a059ac
+  react-native-pager-view: ad90e78510ae4cb5f91d8b0d7ebb8a794c2ad266
+  react-native-safe-area-context: 8870dc3e45c8d241336cd8ee3fa3fc76f3a040ac
   React-nativeconfig: 8efdb1ef1e9158c77098a93085438f7e7b463678
   React-NativeModulesApple: 958d4f6c5c2ace4c0f427cf7ef82e28ae6538a22
   React-perflogger: 9b4f13c0afe56bc7b4a0e93ec74b1150421ee22d
@@ -2447,15 +2459,15 @@ SPEC CHECKSUMS:
   ReactCommon: bfd3600989d79bc3acbe7704161b171a1480b9fd
   RevenueCat: 7e1d0768fb287c9983173c9b28e39ccbeeb828a9
   RevenueCatUI: 61ddba6f94803f9b79c470ffe1e8b81d807c11ce
-  RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
+  RNCAsyncStorage: addfc2cb6511dbe199c56c6b26ede383b6c38919
   RNCMaskedView: 0e1bc4bfa8365eba5fbbb71e07fbdc0555249489
   RNDeviceInfo: 8b6fa8379062949dd79a009cf3d6b02a9c03ca59
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
-  RNGestureHandler: 783a0ed6c92de677e2346d4250c5de028a1db698
+  RNGestureHandler: 950dfa674dbf481460ca389c65b9036ac4ab8ada
   RNPaywalls: 2b540ab79e2705fd3904920b1a4604d3b8d805f0
   RNPurchases: 7016ce5c482c4a56fc7cb8709e8ba42637766c56
   RNReanimated: 77c7dbb8d177efb8b2a064d076b5407e53d57591
-  RNScreens: 02c4adf5b4820807807b1d7d4f8bc27eeaed8e11
+  RNScreens: c1486d9ff1cdd08955cc716568d3c174b4da27f9
   RNSVG: 8b1a777d54096b8c2a0fd38fc9d5a454332bbb4d
   RNVectorIcons: 65f8934de8e9b3be733b742b106fe804fb808fc0
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d

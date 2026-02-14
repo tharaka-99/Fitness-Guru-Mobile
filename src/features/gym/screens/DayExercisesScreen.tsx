@@ -31,7 +31,9 @@ import WorkoutSuggestionCard from "../components/WorkoutSuggestionCard";
 import { gymActions } from "../context/slice";
 import { ArrowLeft, Trash2, X, GripVertical } from "lucide-react-native";
 
-const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+// const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
+const sampleImage =
+  "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif";
 
 const ExerciseItem = memo(
   ({

@@ -10,15 +10,20 @@ import {
 } from '@utils/services/analyticsService';
 import { LastWeekAnalytics } from '@utils/types/analyticsTypes';
 import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useQuery } from 'react-query';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import { ArrowLeft } from 'lucide-react-native';
+import { theme } from '@utils/styles/theme';
+import Text from "@components/atoms/Text";
+
 
 const ExercisesAnalyticsScreen: React.FC<
   MyStackNavigatorScreenProps<'ExercisesAnalytics'>
 > = ({ navigation }) => {
   const { selectedExercise, selectedWorkoutId, selectedDay } =
     store.getState()['feature/gym'];
+
 
   const {
     isLoading: isLogHistoryByWorkoutDayExerciseLoading,
@@ -29,6 +34,7 @@ const ExercisesAnalyticsScreen: React.FC<
     () => getLogHistoryByExerciseId(selectedExercise?.exercise?._id) // Function reference
   );
 
+
   const {
     isLoading: isLastWeekAnalyticsByWorkoutDayExerciseLoading,
     data: lastWeekAnalyticsByWorkoutDayExercise,
@@ -38,10 +44,22 @@ const ExercisesAnalyticsScreen: React.FC<
     () => getLastWeekAnalyticsByExerciseId(selectedExercise?.exercise?._id) // Function reference
   );
 
+
   return (
     <ScrollView>
       <PageWrapper>
-        <PageHeader title={selectedExercise?.exercise?.name} />
+        <PageHeader
+          leftComponent={
+            <Box flexDirection="row" alignItems="center" gap="md">
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+              </TouchableOpacity>
+              <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1} style={{ width: '80%' }}>
+                {selectedExercise?.exercise?.name}
+              </Text>
+            </Box>
+          }
+        />
         <Box>
           <AnalyticsDashboard
             logHistoryByWorkoutDayExercise={
@@ -59,6 +77,7 @@ const ExercisesAnalyticsScreen: React.FC<
   );
 };
 
+
 const styles = StyleSheet.create({
   leftBox: {
     borderTopLeftRadius: 10,
@@ -73,4 +92,8 @@ const styles = StyleSheet.create({
   },
 });
 
+
 export default ExercisesAnalyticsScreen;
+
+
+
