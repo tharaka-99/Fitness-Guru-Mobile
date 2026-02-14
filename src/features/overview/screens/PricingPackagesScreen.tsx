@@ -6,6 +6,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { store } from "@/store";
@@ -43,8 +44,12 @@ import Purchases, {
   LOG_LEVEL,
   PurchasesOfferings,
 } from "react-native-purchases";
+import { ArrowLeft } from "lucide-react-native";
+import { theme } from "@utils/styles/theme";
+
 
 const { height: screenHeight } = Dimensions.get("window");
+
 
 const PricingPackagesScreen: React.FC<
   MyStackNavigatorScreenProps<"PricingPackages">
@@ -57,24 +62,30 @@ const PricingPackagesScreen: React.FC<
   const [packages, setPackages] = useState<SubscriptionPlans>([]);
   const [offerings, setOfferings] = useState<PurchasesOfferings>();
 
+
   useEffect(() => {
     const initializeRevenueCat = async () => {
       try {
         Purchases.setLogLevel(LOG_LEVEL.DEBUG);
 
+
         if (Platform.OS === "ios") {
           Purchases.configure({
             // apiKey: "appl_xaIghnPYoNgfePDjSrzcubzjzqw",
             apiKey: env.EXPO_PUBLIC_RC_IOS,
+            appUserID: user?._id,
           });
         } else if (Platform.OS === "android") {
           Purchases.configure({
             apiKey: env.EXPO_PUBLIC_RC_ANDROID,
+            appUserID: user?._id,
             // apiKey: "goog_oyzmPsavutQJnKUwqqOOEiSLioN",
           });
         }
 
+
         await new Promise((resolve) => setTimeout(resolve, 500));
+
 
         await getCustomerInfo();
         await fetchProducts();
@@ -83,8 +94,10 @@ const PricingPackagesScreen: React.FC<
       }
     };
 
+
     initializeRevenueCat();
   }, []);
+
 
   // async function getCustomerInfo() {
   //   try {
@@ -95,11 +108,14 @@ const PricingPackagesScreen: React.FC<
   //   }
   // }
 
+
   async function getCustomerInfo() {
     const customerInfo = await Purchases.getCustomerInfo();
 
+
     console.log("📢 customerInfo", JSON.stringify(customerInfo, null, 2));
   }
+
 
   const fetchProducts = async () => {
     try {
@@ -108,6 +124,7 @@ const PricingPackagesScreen: React.FC<
       if (rcOfferings) {
         setOfferings(rcOfferings);
         console.log("rcOfferings.current .........>>>>>>>>>>", rcOfferings);
+
 
         if (rcOfferings.current && rcOfferings.current.availablePackages) {
           console.log("Iterating over available packages:");
@@ -126,14 +143,17 @@ const PricingPackagesScreen: React.FC<
     }
   };
 
+
   const onChangePackage = (id: string) => {
     setCurrentPackage(id);
   };
+
 
   const onActionPress = async (id: string) => {
     console.log("onActionPress called with id:", id);
     console.log("offerings:", offerings?.current);
     console.log("availablePackages:", offerings?.current?.availablePackages);
+
 
     if (!offerings?.current || !offerings.current.availablePackages.length) {
       console.log("No offerings available");
@@ -145,7 +165,9 @@ const PricingPackagesScreen: React.FC<
       return;
     }
 
+
     const packageIdentifier = id === "Premium" ? "$rc_monthly" : "";
+
 
     console.log("Looking for package with identifier:", packageIdentifier);
     console.log(
@@ -159,14 +181,17 @@ const PricingPackagesScreen: React.FC<
       })),
     );
 
+
     const selectedPackage = offerings.current.availablePackages.find(
       (pkg) => pkg.identifier === packageIdentifier,
     );
+
 
     console.log(
       "selectedPackage .........>>>>>>>>>>",
       JSON.stringify(selectedPackage),
     );
+
 
     if (!selectedPackage) {
       Toast.show({
@@ -177,8 +202,10 @@ const PricingPackagesScreen: React.FC<
       return;
     }
 
+
     const purchaseResult = await Purchases.purchasePackage(selectedPackage);
     console.log("purchaseResult>>>>>>>>", purchaseResult);
+
 
     if (purchaseResult.customerInfo.activeSubscriptions.length > 0) {
       store.dispatch(authActions.setSubscription({ status: true }));
@@ -196,6 +223,7 @@ const PricingPackagesScreen: React.FC<
       return;
     }
 
+
     let paymentResult = null;
     // try {
     //   paymentResult = await activeNewPackage(id);
@@ -207,16 +235,26 @@ const PricingPackagesScreen: React.FC<
     //   });
     // } catch (error) {}
 
+
     try {
       console.log("came here!!!!!!!!!!!!!!!!!!!");
+      const selectedPlanData = packages.find((p) => p.name === id);
+      const planId = selectedPlanData ? selectedPlanData._id : id;
       // check if user clicked they have injury button
-      paymentResult = await activeNewPackage(id);
-      store.dispatch(authActions.setSubscription(paymentResult));
+      // paymentResult = await activeNewPackage(id);
+      // store.dispatch(authActions.setSubscription(paymentResult));
+      const isSubscribed =
+        purchaseResult.customerInfo.entitlements.active["Premium access"] !== undefined ||
+        purchaseResult.customerInfo.activeSubscriptions.length > 0;
+
+
+      store.dispatch(authActions.setSubscription({ status: isSubscribed }));
       Toast.show({
         type: "success",
         text1: "Success",
         text2: "Activated subscription successfully!",
       });
+
 
       if (user?.isInjured) {
         store.dispatch(authActions.setIsInjured(true));
@@ -224,19 +262,24 @@ const PricingPackagesScreen: React.FC<
         return;
       }
 
+
       if (selectedWorkout?.WorkoutType === WorkoutType.Default) {
         (await setClientProfileInfo(profile), navigation.navigate("Home"));
         return;
       }
 
-      console.log("check has subscriptions", user?.subscription?.status);
 
-      const hasSubscription = hasPremiumAccess(user);
+      const currentUser = (store.getState() as any)["feature/auth"].user;
+      console.log("check has subscriptions", currentUser?.subscription?.status);
+      const hasSubscription = hasPremiumAccess(currentUser);
+      console.log("hasSubscription......", hasSubscription);
+
 
       if (!hasSubscription) {
         console.log(
           "User does not have an active subscription. Proceeding with setup.",
         );
+
 
         console.log("Transforming workout data...");
         const transformedDays: Workout = {
@@ -257,6 +300,7 @@ const PricingPackagesScreen: React.FC<
         };
         console.log("Transformed workout data:", transformedDays);
 
+
         console.log("Omitting calPerUnit from meal details...");
         const omitCalPerUnit = (mealArray: MealItemDto[]) => {
           return mealArray.map(({ calPerUnit, ...rest }) => rest);
@@ -273,6 +317,7 @@ const PricingPackagesScreen: React.FC<
           mealDetailsWithoutCalPerUnit,
         );
 
+
         try {
           console.log("Making API calls...");
           await Promise.all([
@@ -280,11 +325,19 @@ const PricingPackagesScreen: React.FC<
             createWorkout(transformedDays),
             createMealPlan(mealDetailsWithoutCalPerUnit),
           ]);
+          // console.log("Calling setClientProfileInfo...");
+          // await setClientProfileInfo(profile);
+          // console.log("Calling createWorkout...");
+          // await createWorkout(transformedDays);
+          // console.log("Calling createMealPlan...");
+          // await createMealPlan(mealDetailsWithoutCalPerUnit);
           console.log("API calls completed successfully.");
+
 
           store.dispatch(gymActions.resetWorkouts());
           store.dispatch(gymActions.resetMeals());
           console.log("Redux store reset for workouts and meals.");
+
 
           Toast.show({
             type: "success",
@@ -304,7 +357,7 @@ const PricingPackagesScreen: React.FC<
         Toast.show({
           type: "info",
           text1: "Info",
-          text2: "Subscription already active. Skipping setup.",
+          text2: "Subscription already active.",
         });
       }
 
@@ -319,6 +372,7 @@ const PricingPackagesScreen: React.FC<
     }
   };
 
+
   // const onActionPress = async (id: string) => {
   //   console.log('-------------in pricing page-------------');
   //   console.log(profile);
@@ -326,6 +380,7 @@ const PricingPackagesScreen: React.FC<
   //   console.log(mealDetails);
   //   console.log(days.type);
   // };
+
 
   useEffect(() => {
     const getPackages = async () => {
@@ -337,8 +392,10 @@ const PricingPackagesScreen: React.FC<
       setPackages(cilentPackages);
     };
 
+
     getPackages();
   }, []);
+
 
   useEffect(() => {
     if (offerings?.current?.availablePackages) {
@@ -356,8 +413,15 @@ const PricingPackagesScreen: React.FC<
     }
   }, [offerings]);
 
+
   return (
     <View style={{ flex: 1 }}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+      </TouchableOpacity>
       <View style={styles.imageContainer}>
         <Image
           source={
@@ -371,6 +435,7 @@ const PricingPackagesScreen: React.FC<
         />
       </View>
 
+
       <View style={styles.cardContainer}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -378,6 +443,7 @@ const PricingPackagesScreen: React.FC<
         >
           <PricingPackageCard
             packages={packages}
+            offerings={offerings}
             onActionPress={(id: string) => onActionPress(id)}
             onChangePackage={(id: string) => onChangePackage(id)}
           />
@@ -387,9 +453,20 @@ const PricingPackagesScreen: React.FC<
   );
 };
 
+
 export default PricingPackagesScreen;
 
+
 const styles = StyleSheet.create({
+  backButton: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? 20 : 10,
+    left: 10,
+    zIndex: 10,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    borderRadius: 20,
+    padding: 5,
+  },
   imageContainer: {
     flex: 1,
   },
@@ -406,3 +483,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
 });
+
+
+

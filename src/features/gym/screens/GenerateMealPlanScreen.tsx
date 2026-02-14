@@ -1,6 +1,6 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { FlatList, Keyboard, TouchableOpacity, View } from "react-native";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react-native";
 
 import { store } from "@/store";
@@ -487,9 +487,8 @@ const GenerateMealPlanScreen: React.FC<
                     title={name}
                     image={url || image}
                     unitCount={selected ? formatUnitCount(count, unit) : ""}
-                    description={`${calPerUnit}Cal per unit (${
-                      unitAmount + unit
-                    })`}
+                    description={`${calPerUnit}Cal per unit (${unitAmount + unit
+                      })`}
                     theme={selected ? "green" : undefined}
                   />
                 </Box>
@@ -503,9 +502,8 @@ const GenerateMealPlanScreen: React.FC<
         image={selectedMealItem?.url || image}
         mealName={selectedMealItem?.name || "Meal item"}
         unit={selectedMealItem?.unit || "Unit"}
-        caloriesPerUnit={`${selectedMealItem?.calPerUnit}Cal per ${
-          selectedMealItem?.unitAmount + " " + selectedMealItem?.unit
-        }`}
+        caloriesPerUnit={`${selectedMealItem?.calPerUnit}Cal per ${selectedMealItem?.unitAmount + " " + selectedMealItem?.unit
+          }`}
         bottomSheetRef={bottomSheetRef}
         selectedMealItemcount={selectedMealItem?.count || 0}
         handleAddMealItem={handleAddMealItem}
@@ -556,8 +554,11 @@ const GenerateMealPlanScreen: React.FC<
 
 export default GenerateMealPlanScreen;
 
+// const image =
+//   "https://s3-alpha-sig.figma.com/img/10aa/1eb1/2f1ee4b7bac921a2be64883946236e89?Expires=1710115200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=I0jSdjgwo1g54o3ooA7wbc2EQbyXHGRLcjIOi5K9NdixdUve9Ehn9HiNgprFv~8DkUMiekYYX2j3B~MVCPpyboB2MTMLpgpcKHm5bTL05KSJ21POS3QmgT5fxriTaOH4FEB0WKJumHVt99mnRHK444Qtr9h9gwm-4ClS9UUqxqFr9dN2ry~jjse1mhFi5YH-nlBkGyGLqPb4BZq6VTep7L6DQCahu6hFeRqLuj8bznjd5OW9Jtfq1vfLSnUeOOEZaN~jXBsfmsa1-nLC1xx00EDsd6GqkCMxa8pSk-~WGoCd2Tvg~X9glEeI~wZ9de2Dvc~Y-nEr-bexURKMXGAWMw__";
+
 const image =
-  "https://s3-alpha-sig.figma.com/img/10aa/1eb1/2f1ee4b7bac921a2be64883946236e89?Expires=1710115200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=I0jSdjgwo1g54o3ooA7wbc2EQbyXHGRLcjIOi5K9NdixdUve9Ehn9HiNgprFv~8DkUMiekYYX2j3B~MVCPpyboB2MTMLpgpcKHm5bTL05KSJ21POS3QmgT5fxriTaOH4FEB0WKJumHVt99mnRHK444Qtr9h9gwm-4ClS9UUqxqFr9dN2ry~jjse1mhFi5YH-nlBkGyGLqPb4BZq6VTep7L6DQCahu6hFeRqLuj8bznjd5OW9Jtfq1vfLSnUeOOEZaN~jXBsfmsa1-nLC1xx00EDsd6GqkCMxa8pSk-~WGoCd2Tvg~X9glEeI~wZ9de2Dvc~Y-nEr-bexURKMXGAWMw__";
+  "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif";
 
 const styles = StyleSheet.create({
   modalContainer: {

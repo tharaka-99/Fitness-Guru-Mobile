@@ -23,7 +23,8 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = React.memo(({
   const isThemeGreen = theme === "green";
 
   return (
-    <Box gap="base" width={PAGE_WIDTH} flexDirection="row">
+    // <Box gap="base" width={PAGE_WIDTH} flexDirection="row">
+    <Box gap="base" flex={1} flexDirection="row">
       <Box
         borderRadius="xs"
         width={IMAGE_SIZE}

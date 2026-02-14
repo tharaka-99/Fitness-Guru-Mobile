@@ -100,13 +100,13 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
     const convertedValues =
       unit === Unit.Imperial
         ? {
-            weight: +(weight * 2.20462).toFixed(1), // kg to lbs
-            height: +(height * 0.393701).toFixed(1), // cm to inches
-          }
+          weight: +(weight * 2.20462).toFixed(1), // kg to lbs
+          height: +(height * 0.393701).toFixed(1), // cm to inches
+        }
         : {
-            weight: +(weight / 2.20462).toFixed(1), // lbs to kg
-            height: +(height / 0.393701).toFixed(1), // inches to cm
-          };
+          weight: +(weight / 2.20462).toFixed(1), // lbs to kg
+          height: +(height / 0.393701).toFixed(1), // inches to cm
+        };
     setHeight(convertedValues.height);
     setWeight(convertedValues.weight);
   };
@@ -398,7 +398,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
             enableAutomaticScroll={true}
             nestedScrollEnabled={true}
           >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <TouchableWithoutFeedback>
               <View style={{ flex: 1 }}>
                 <Box gap="lg">
                   <Text
@@ -512,9 +512,8 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                     />
                     <TextInput
                       value={height ? height.toString() : ""}
-                      label={`Height in ${
-                        unit === Unit.Metric ? "cm" : "inches"
-                      }`}
+                      label={`Height in ${unit === Unit.Metric ? "cm" : "inches"
+                        }`}
                       keyboardType="number-pad"
                       placeholder="Enter your height"
                       onChangeText={(text) =>

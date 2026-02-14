@@ -1,7 +1,10 @@
-import { MapPin, Dumbbell, CreditCard } from 'lucide-react-native';
-import React, { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { MapPin, Dumbbell, CreditCard, ChevronRight } from 'lucide-react-native';
+import React, { useState, useCallback } from 'react';
+import { TouchableOpacity, Platform } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import Purchases, { CustomerInfo, PurchasesOfferings } from 'react-native-purchases';
+
 
 import PageHeader from '@components/app/header/PageHeader';
 import PageWrapper from '@components/app/PageWrapper';
@@ -14,24 +17,74 @@ import { authActions } from '@features/auth/context/slice';
 import ProfileHeaderCard from '@components/app/ProfileHeaderCard';
 import { useQuery } from 'react-query';
 import { getClientProfileInfo } from '@utils/services/authServices';
-import { Button, Dialog, Portal } from 'react-native-paper';
+import { Button as PaperButton, Dialog, Portal } from 'react-native-paper';
+import Button from '@components/atoms/Button';
+import { RootState } from '@/store';
+import env from '@utils/env';
+
 
 const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
   navigation,
 }) => {
   const dispatch = useDispatch();
   const [isDialogVisible, setIsDialogVisible] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
+  const [offerings, setOfferings] = useState<PurchasesOfferings | null>(null);
+  const user = useSelector((state: RootState) => state['feature/auth'].user);
+
+
+  const fetchSubscriptionDetails = useCallback(async () => {
+    try {
+      if (Platform.OS === 'ios') {
+        Purchases.configure({
+          apiKey: env.EXPO_PUBLIC_RC_IOS,
+          appUserID: user?._id,
+        });
+      } else if (Platform.OS === 'android') {
+        Purchases.configure({
+          apiKey: env.EXPO_PUBLIC_RC_ANDROID,
+          appUserID: user?._id,
+        });
+      }
+
+
+      const info = await Purchases.getCustomerInfo();
+      setCustomerInfo(info);
+
+
+      const rcOfferings = await Purchases.getOfferings();
+      setOfferings(rcOfferings);
+
+
+      const isSubscribed =
+        info.entitlements.active['Premium access'] !== undefined ||
+        info.activeSubscriptions.length > 0;
+
+
+      dispatch(authActions.setSubscription({ status: isSubscribed }));
+    } catch (error) {
+      console.error('Error fetching subscription details:', error);
+    }
+  }, [user?._id, dispatch]);
+
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchSubscriptionDetails();
+    }, [fetchSubscriptionDetails])
+  );
+
 
   const handleSignOut = async () => {
     dispatch(authActions.clearAuth());
   };
 
+
   const handleDeleteAccount = async () => {
-    // Call API to delete account or handle logic here
-    console.log('Account deleted');
     setIsDialogVisible(false);
     dispatch(authActions.clearAuth());
   };
+
 
   const {
     isLoading: isProfileLoading,
@@ -39,9 +92,11 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
     refetch: profileRefetch,
   } = useQuery('profile', getClientProfileInfo);
 
+
   return (
     <PageWrapper>
       <PageHeader title="Account" />
+
 
       <ProfileHeaderCard
         image={profile?.profileImageFileUrl || ''}
@@ -63,18 +118,64 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
         isEditLink={true}
       />
 
+
       <Box gap="md" mt="md">
         <SettingsBox.Group>
-          <SettingsBox.Item
-            isLastItem
-            title="My Subscription"
-            onPress={() => navigation.navigate('PricingPackages')}
-            icon={({ color, size }) => (
-              <CreditCard color={color} size={size} />
-            )}
-          />
+          {user?.subscription?.status ? (
+            <Box px="md" py="md">
+              <Box flexDirection="row" alignItems="center" mb="sm">
+                <Box width={30} alignItems="center" justifyContent="center" mr="md">
+                  <CreditCard color={theme.colors.textPrimary} size={25} />
+                </Box>
+                <Text>My Subscription</Text>
+              </Box>
+
+
+              <Box>
+                <Box flexDirection="row" justifyContent="space-between" mb="xs">
+                  <Text variant="sm" color="textSecondary">Plan</Text>
+                  <Text variant="sm" fontWeight="500">
+                    {customerInfo?.entitlements.active['Premium access']?.productIdentifier.includes('monthly') ? 'Premium Monthly' : 'Premium'}
+                  </Text>
+                </Box>
+
+
+                {customerInfo?.entitlements.active['Premium access']?.expirationDate && (
+                  <Box flexDirection="row" justifyContent="space-between">
+                    <Text variant="sm" color="textSecondary">Expires On</Text>
+                    <Text variant="sm" fontWeight="500">
+                      {new Date(customerInfo.entitlements.active['Premium access']!.expirationDate!).toLocaleDateString()}
+                    </Text>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          ) : (
+            <Box px="md" py="base">
+              <Box flexDirection="row" alignItems="center" mb="md">
+                <Box width={30} alignItems="center" justifyContent="center" mr="md">
+                  <CreditCard color={theme.colors.textPrimary} size={25} />
+                </Box>
+                <Text variant="md" fontWeight="bold">My Subscription</Text>
+              </Box>
+              <Text variant="sm" color="textSecondary" mb="md">
+                You are not currently subscribed to any plan. Upgrade now to get full access to all features.
+              </Text>
+              <TouchableOpacity
+                activeOpacity={constants.activeOpacity}
+                onPress={() => navigation.navigate('PricingPackages')}
+                style={{ marginTop: 5 }}
+              >
+                <Box flexDirection="row" justifyContent="flex-end" alignItems="center">
+                  <Text variant="sm" color="PrimaryGreen" mr="xs" fontWeight="bold">Upgrade to Premium</Text>
+                  <ChevronRight size={16} color={theme.colors.PrimaryGreen} />
+                </Box>
+              </TouchableOpacity>
+            </Box>
+          )}
         </SettingsBox.Group>
       </Box>
+
 
       <Box
         left={0}
@@ -120,6 +221,7 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
         </TouchableOpacity>
       </Box>
 
+
       <Portal>
         <Dialog
           visible={isDialogVisible}
@@ -135,13 +237,13 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setIsDialogVisible(false)}>Cancel</Button>
-            <Button
+            <PaperButton onPress={() => setIsDialogVisible(false)}>Cancel</PaperButton>
+            <PaperButton
               color={theme.colors.PrimaryRed}
               onPress={handleDeleteAccount}
             >
               Delete
-            </Button>
+            </PaperButton>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -149,4 +251,8 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
   );
 };
 
+
 export default AccountScreen;
+
+
+

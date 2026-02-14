@@ -214,11 +214,11 @@ const GenerateWorkoutScreen: React.FC<
       }
     } else {
       // If subscription is inactive, prompt user to subscribe or renew
-      // Toast.show({
-      //   type: 'info',
-      //   text1: 'Subscription Required',
-      //   text2: 'Please subscribe to save your workouts.',
-      // });
+      Toast.show({
+        type: 'info',
+        text1: 'Subscription Required',
+        text2: 'Please subscribe to save your workouts.',
+      });
       navigation.push("GenerateMealPlan"); // Or navigate to subscription/plan page
     }
   };

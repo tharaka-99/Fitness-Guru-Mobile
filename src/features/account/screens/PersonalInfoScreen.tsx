@@ -12,9 +12,13 @@ import { uploadProfileImage } from "@utils/services/authServices";
 import Toast from "react-native-toast-message";
 import { authActions } from "@features/auth/context/slice";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+import { ArrowLeft } from "lucide-react-native";
+import { theme } from "@utils/styles/theme";
 
 const PersonalInfoScreen: React.FC = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   // Use useSelector to make the component reactive to store changes
   const user = useSelector((state: any) => state["feature/auth"].user);
@@ -26,34 +30,43 @@ const PersonalInfoScreen: React.FC = () => {
   const [newImageUri, setNewImageUri] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
-  // Sync internal state when Redux store updates
   useEffect(() => {
-    console.log("--- Store Sync ---");
-    console.log("New URL from Store:", user?.profileImageFileUrl);
     setProfileImage(user?.profileImageFileUrl);
   }, [user?.profileImageFileUrl]);
 
   const handleImagePick = async () => {
     try {
+      // Request permissions for Android
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (status !== 'granted') {
+        Toast.show({
+          type: 'error',
+          text1: 'Permission Required',
+          text2: 'Please grant photo library access to change your profile picture',
+        });
+        return;
+      }
+
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"], // Fixed deprecated syntax
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.7, // Reduced slightly for better upload speed
+        quality: 0.7,
       });
-
-      console.log("--- Image Picker Result ---");
-      console.log("Canceled:", result.canceled);
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedUri = result.assets[0].uri;
-        console.log("Selected URI:", selectedUri);
-
         setNewImageUri(selectedUri);
-        setProfileImage(selectedUri); // Update preview immediately
+        setProfileImage(selectedUri);
       }
     } catch (err) {
       console.error("Picker Error:", err);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to pick image. Please try again.',
+      });
     }
   };
 
@@ -64,10 +77,8 @@ const PersonalInfoScreen: React.FC = () => {
     }
 
     setLoading(true);
-    console.log("--- Starting Upload ---");
 
     const formData = new FormData();
-    // Casting to 'any' prevents TypeScript errors with FormData file objects
     formData.append("file", {
       uri: newImageUri,
       name: "profile_photo.jpg",
@@ -76,17 +87,10 @@ const PersonalInfoScreen: React.FC = () => {
 
     try {
       const response = await uploadProfileImage(formData);
-
-      console.log("--- API SUCCESS ---");
-      console.log("Status:", response.status);
-      console.log("Response Data:", JSON.stringify(response.data, null, 2));
-
       const newRemoteUrl = response?.data?.profileImageFileUrl;
 
       if (newRemoteUrl) {
-        // 1. Update Redux
         dispatch(authActions.setProfileImage(newRemoteUrl));
-        // 2. Clear pending state
         setNewImageUri(undefined);
 
         Toast.show({
@@ -98,18 +102,13 @@ const PersonalInfoScreen: React.FC = () => {
         console.warn("API Success, but URL was missing in response body");
       }
     } catch (error: any) {
-      console.log("--- API ERROR ---");
       if (error.response) {
-        console.log("Server Error Data:", error.response.data);
-        console.log("Server Error Status:", error.response.status);
-
         Toast.show({
           type: "error",
           text1: "Upload Failed",
           text2: error.response.data?.message || "Server error occurred",
         });
       } else {
-        console.log("Network/Request Error:", error.message);
         Toast.show({
           type: "error",
           text1: "Network Error",
@@ -123,7 +122,19 @@ const PersonalInfoScreen: React.FC = () => {
 
   return (
     <PageWrapper>
-      <PageHeader title="Profile" />
+      <PageHeader
+        title="Profile"
+        leftComponent={
+          <Box flexDirection="row" alignItems="center" gap="md">
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+            </TouchableOpacity>
+            <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
+              Profile
+            </Text>
+          </Box>
+        }
+      />
       <Box flex={1} alignItems="center" padding="sm">
         {/* Profile Image Section */}
         <TouchableOpacity

@@ -131,19 +131,11 @@ const WorkoutSuggestionItem: React.FC<WorkoutSuggestionItemProps> = React.memo(
           )}
 
           {error || !url ? (
-            // <Image
-            //   source={{ uri: sampleImage }}
-            //   style={{ width: 65, height: 65 }}
-            //   resizeMode="cover"
-            // />
-
-            <Box
-              alignItems="center"
-              justifyContent="center"
+            <Image
+              source={{ uri: sampleImage }}
               style={{ width: 65, height: 65 }}
-            >
-              <ActivityIndicator size={"large"} color="PrimaryGreen" />
-            </Box>
+              resizeMode="cover"
+            />
           ) : (
             <Image
               source={{ uri: url }}

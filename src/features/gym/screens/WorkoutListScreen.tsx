@@ -2,6 +2,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useRef, useState } from "react";
 import { FlatList, TouchableOpacity } from "react-native";
 
+
 import PageWrapper from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
@@ -13,9 +14,13 @@ import { DefaultExercise, Exercises, WorkoutType } from "@utils/types/types";
 import { gymActions } from "../context/slice";
 import { Icon } from "react-native-paper";
 import { ArrowLeft } from "lucide-react-native";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+
 
 // TODO: handle the user package
 const isPremiumUser = true;
+
 
 const WorkoutListScreen: React.FC<
   MyStackNavigatorScreenProps<"WorkoutList">
@@ -24,12 +29,15 @@ const WorkoutListScreen: React.FC<
   const [selectedWorkoutInfo, setSelectedWorkoutInfo] =
     useState<Exercises | null>(null);
 
+
   const [selectedGeneralWorkoutInfo, setSelectedGeneralWorkoutInfo] =
     useState<DefaultExercise | null>(null);
+
 
   const openWorkoutInfoSheet = () => {
     bottomSheetRef.current?.snapToIndex(0);
   };
+
 
   const {
     selectedDay,
@@ -39,10 +47,12 @@ const WorkoutListScreen: React.FC<
     defaultWorkouts,
   } = store.getState()["feature/gym"];
 
+
   // Find the selected workout
   const selectedWorkoutData = workouts.find(
     (workout) => workout.type === selectedWorkout.WorkoutType
   );
+
 
   // Filter exercises based on selected day
   const filteredExercises =
@@ -63,6 +73,7 @@ const WorkoutListScreen: React.FC<
         gymActions.setSelectedWorkoutID(selectedWorkoutData?._id ?? "")
       );
 
+
       navigation.push("AnalyticsScreen", { hideTabs: true });
     } else openWorkoutInfoSheet();
   };
@@ -80,12 +91,24 @@ const WorkoutListScreen: React.FC<
     } else openWorkoutInfoSheet();
   };
 
+
   return (
     <PageWrapper>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
-      </TouchableOpacity>
-      <PageHeader title={`Day ${selectedDay}`} />
+      <PageHeader
+        leftComponent={
+          <Box flexDirection="row" alignItems="center" gap="md">
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+            </TouchableOpacity>
+            <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
+              {`Day ${selectedDay}`}
+            </Text>
+          </Box>
+
+
+        }
+      />
+
 
       {selectedWorkout.WorkoutType === WorkoutType.Default ? (
         <FlatList
@@ -138,6 +161,7 @@ const WorkoutListScreen: React.FC<
         />
       )}
 
+
       {selectedWorkout.WorkoutType === WorkoutType.Default ? (
         <WorkoutInfoSheet
           bottomSheetRef={bottomSheetRef}
@@ -181,8 +205,13 @@ const WorkoutListScreen: React.FC<
   );
 };
 
+
 export default WorkoutListScreen;
+
 
 // const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
 const sampleImage =
   "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif";
+
+
+

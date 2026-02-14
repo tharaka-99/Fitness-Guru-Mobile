@@ -9,7 +9,6 @@ import {
   View,
 } from "react-native";
 import PagerView from "react-native-pager-view";
-
 import PageHeader from "@components/app/header/PageHeader";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import Box from "@components/atoms/Box";
@@ -124,7 +123,7 @@ const TrainerApplicationScreen: React.FC<
   ];
 
   // const requiredFieldsScreen4 = ['cardiovascularEndurance', 'pushUps'];
-  //
+
   const getRequiredFieldsForStep = (step: number) => {
     switch (step) {
       case 0:
@@ -354,13 +353,13 @@ const TrainerApplicationScreen: React.FC<
     const convertedValues =
       unit === Unit.Imperial
         ? {
-            weight: +(formValues.weight * 2.20462).toFixed(1), // kg to lbs
-            height: +(formValues.height * 0.393701).toFixed(1), // cm to inches
-          }
+          weight: +(formValues.weight * 2.20462).toFixed(1), // kg to lbs
+          height: +(formValues.height * 0.393701).toFixed(1), // cm to inches
+        }
         : {
-            weight: +(formValues.weight / 2.20462).toFixed(1), // lbs to kg
-            height: +(formValues.height / 0.393701).toFixed(1), // inches to cm
-          };
+          weight: +(formValues.weight / 2.20462).toFixed(1), // lbs to kg
+          height: +(formValues.height / 0.393701).toFixed(1), // inches to cm
+        };
 
     setFormValues((prevValues) => ({
       ...prevValues,
@@ -382,8 +381,8 @@ const TrainerApplicationScreen: React.FC<
                 {trainerId === "fitness-guru"
                   ? "Fitness guru"
                   : capitalizeString(trainer?.firstName) +
-                    " " +
-                    trainer?.lastName}
+                  " " +
+                  trainer?.lastName}
               </Text>
             </Box>
           }
@@ -398,28 +397,23 @@ const TrainerApplicationScreen: React.FC<
         />
       </Box>
 
-      <KeyboardAwareScrollView
-        style={{ flex: 1 }}
-        keyboardShouldPersistTaps="handled"
-        bounces={false}
-        showsVerticalScrollIndicator={false}
-        enableOnAndroid={true}
-        extraScrollHeight={20}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <PagerView
-            initialPage={0}
-            ref={pageViewRef}
-            style={{ flex: 1 }}
-            scrollEnabled={false}
-            orientation="vertical"
-            onPageSelected={(e) => setCurrentStep(e.nativeEvent.position)}
-          >
-            {/* NOTE: screen 1 */}
-            <ScrollView
-              key="1"
+      <Box flex={1}>
+        <PagerView
+          initialPage={0}
+          ref={pageViewRef}
+          style={{ flex: 1 }}
+          scrollEnabled={false}
+          onPageSelected={(e) => setCurrentStep(e.nativeEvent.position)}
+        >
+          {/* NOTE: screen 1 */}
+          <View key="1" style={{ flex: 1 }}>
+            <KeyboardAwareScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1 }}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
+              enableOnAndroid={true}
+              extraScrollHeight={20}
             >
               <Box gap="base" px="md">
                 <TextInput
@@ -569,13 +563,18 @@ const TrainerApplicationScreen: React.FC<
                   <Button title="Next" onPress={handleNextStep} />
                 </Box>
               </Box>
-            </ScrollView>
+            </KeyboardAwareScrollView>
+          </View>
 
-            {/* NOTE: screen 2 */}
-            <ScrollView
-              key="2"
+          {/* NOTE: screen 2 */}
+          <View key="2" style={{ flex: 1 }}>
+            <KeyboardAwareScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1 }}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
+              enableOnAndroid={true}
+              extraScrollHeight={20}
             >
               <Box gap="base" px="md">
                 <Select
@@ -703,13 +702,18 @@ const TrainerApplicationScreen: React.FC<
                   <Button title="Next" onPress={handleNextStep} />
                 </Box>
               </Box>
-            </ScrollView>
+            </KeyboardAwareScrollView>
+          </View>
 
-            {/* NOTE: screen 3 */}
-            <ScrollView
-              key="3"
+          {/* NOTE: screen 3 */}
+          <View key="3" style={{ flex: 1 }}>
+            <KeyboardAwareScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1 }}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
+              enableOnAndroid={true}
+              extraScrollHeight={20}
             >
               <Box gap="base" px="md">
                 <Select
@@ -801,13 +805,18 @@ const TrainerApplicationScreen: React.FC<
                   <Button title="Next" onPress={handleNextStep} />
                 </Box>
               </Box>
-            </ScrollView>
+            </KeyboardAwareScrollView>
+          </View>
 
-            {/* NOTE: screen 4 */}
-            <ScrollView
-              key="4"
+          {/* NOTE: screen 4 */}
+          <View key="4" style={{ flex: 1 }}>
+            <KeyboardAwareScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1 }}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
+              enableOnAndroid={true}
+              extraScrollHeight={20}
             >
               <Box gap="base" px="md">
                 <Select
@@ -920,13 +929,18 @@ const TrainerApplicationScreen: React.FC<
                   <Button title="Next" onPress={handleNextStep} />
                 </Box>
               </Box>
-            </ScrollView>
+            </KeyboardAwareScrollView>
+          </View>
 
-            {/* NOTE: screen 5 */}
-            <ScrollView
-              key="5"
+          {/* NOTE: screen 5 */}
+          <View key="5" style={{ flex: 1 }}>
+            <KeyboardAwareScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1 }}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
+              enableOnAndroid={true}
+              extraScrollHeight={20}
             >
               <Box gap="base" px="md">
                 <InputLabel label="Please upload 4 images of your body in a clear background." />
@@ -964,10 +978,10 @@ const TrainerApplicationScreen: React.FC<
                   />
                 </Box>
               </Box>
-            </ScrollView>
-          </PagerView>
-        </TouchableWithoutFeedback>
-      </KeyboardAwareScrollView>
+            </KeyboardAwareScrollView>
+          </View>
+        </PagerView>
+      </Box>
     </PageWrapper>
   );
 };
