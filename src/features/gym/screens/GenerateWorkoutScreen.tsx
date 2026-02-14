@@ -52,7 +52,6 @@ const GenerateWorkoutScreen: React.FC<
 
       selfCreatedWorkoutPlan?.exerciseDays?.forEach((day: ExerciseDay) => {
         day.exercises.forEach((exerciseData) => {
-          // Check if exerciseData and exerciseData.exercise exist before processing
           if (
             exerciseData &&
             exerciseData.exercise &&
@@ -166,7 +165,7 @@ const GenerateWorkoutScreen: React.FC<
             .filter(
               (exercise: Exercises) =>
                 exercise.exercise && exercise.exercise._id,
-            ) // Filter out exercises with null/undefined exercise
+            )
             .map((exercise: Exercises) => ({
               order: exercise.order,
               exercise: exercise.exercise._id,
@@ -176,35 +175,26 @@ const GenerateWorkoutScreen: React.FC<
             })),
         })),
       };
-
-      // Find existing self-created workout plan if it exists
       const selfCreatedWorkoutPlan = currentWorkout?.find(
         (workout) => workout.type === "SelfCreated",
       );
 
       try {
-        // Check if the workout already exists and update it; otherwise, create a new one
         if (selfCreatedWorkoutPlan && selfCreatedWorkoutPlan._id) {
-          // Remove `type` for updates
           const updateData = { ...transformedDays };
           delete updateData.type;
           await updateWorkout(selfCreatedWorkoutPlan._id, updateData);
         } else {
           await createWorkout(transformedDays);
         }
-
-        // Show success message and navigate back to Home
         Toast.show({
           type: "success",
           text1: "Success",
           text2: "Workout saved successfully!",
         });
         navigation.navigate("Home");
-
-        // Reset workout state after saving
         store.dispatch(gymActions.resetWorkouts());
       } catch (error) {
-        // Handle error during workout save
         console.error("Error saving workout:", error);
         Toast.show({
           type: "error",
@@ -213,20 +203,18 @@ const GenerateWorkoutScreen: React.FC<
         });
       }
     } else {
-      // If subscription is inactive, prompt user to subscribe or renew
       Toast.show({
         type: 'info',
         text1: 'Subscription Required',
         text2: 'Please subscribe to save your workouts.',
       });
-      navigation.push("GenerateMealPlan"); // Or navigate to subscription/plan page
+      navigation.push("GenerateMealPlan");
     }
   };
 
   return (
     <PageWrapper>
       <PageHeader
-        // title="Generate Workouts"
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">
             <TouchableOpacity onPress={() => navigation.goBack()}>

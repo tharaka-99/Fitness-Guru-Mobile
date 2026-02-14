@@ -25,6 +25,7 @@ import {
 import { useEffect } from "react";
 import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import { authActions } from "@features/auth/context/slice";
+import { SubscriptionProvider } from "@features/subscription/context/SubscriptionProvider";
 import { enableScreens } from "react-native-screens";
 import env from "./src/utils/env";
 enableScreens();
@@ -144,10 +145,12 @@ export default function App() {
             <NavigationContainer theme={navigationTheme}>
               <ReduxProvider store={store}>
                 <PersistGate persistor={reduxPersistor}>
-                  <SafeAreaView style={styles.container}>
-                    <StatusBar style="light" />
-                    <AppInitializer />
-                  </SafeAreaView>
+                  <SubscriptionProvider>
+                    <SafeAreaView style={styles.container}>
+                      <StatusBar style="light" />
+                      <AppInitializer />
+                    </SafeAreaView>
+                  </SubscriptionProvider>
                 </PersistGate>
               </ReduxProvider>
             </NavigationContainer>

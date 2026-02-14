@@ -17,7 +17,6 @@ import { ArrowLeft } from 'lucide-react-native';
 import { theme } from '@utils/styles/theme';
 import Text from "@components/atoms/Text";
 
-
 const ExercisesAnalyticsScreen: React.FC<
   MyStackNavigatorScreenProps<'ExercisesAnalytics'>
 > = ({ navigation }) => {

@@ -3,8 +3,9 @@ import React, { useState, useCallback } from 'react';
 import { TouchableOpacity, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import Purchases, { CustomerInfo, PurchasesOfferings } from 'react-native-purchases';
-
+import Purchases from 'react-native-purchases';
+import Toast from 'react-native-toast-message';
+import useSubscription from '@features/subscription/hooks/useSubscription';
 
 import PageHeader from '@components/app/header/PageHeader';
 import PageWrapper from '@components/app/PageWrapper';
@@ -22,61 +23,17 @@ import Button from '@components/atoms/Button';
 import { RootState } from '@/store';
 import env from '@utils/env';
 
-
 const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
   navigation,
 }) => {
   const dispatch = useDispatch();
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-  const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
-  const [offerings, setOfferings] = useState<PurchasesOfferings | null>(null);
   const user = useSelector((state: RootState) => state['feature/auth'].user);
-
-
-  const fetchSubscriptionDetails = useCallback(async () => {
-    try {
-      if (Platform.OS === 'ios') {
-        Purchases.configure({
-          apiKey: env.EXPO_PUBLIC_RC_IOS,
-          appUserID: user?._id,
-        });
-      } else if (Platform.OS === 'android') {
-        Purchases.configure({
-          apiKey: env.EXPO_PUBLIC_RC_ANDROID,
-          appUserID: user?._id,
-        });
-      }
-
-
-      const info = await Purchases.getCustomerInfo();
-      setCustomerInfo(info);
-
-
-      const rcOfferings = await Purchases.getOfferings();
-      setOfferings(rcOfferings);
-
-
-      const isSubscribed =
-        info.entitlements.active['Premium access'] !== undefined ||
-        info.activeSubscriptions.length > 0;
-
-
-      dispatch(authActions.setSubscription({ status: isSubscribed }));
-    } catch (error) {
-      console.error('Error fetching subscription details:', error);
-    }
-  }, [user?._id, dispatch]);
-
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchSubscriptionDetails();
-    }, [fetchSubscriptionDetails])
-  );
-
+  const { isSubscribed, customerInfo, restorePurchases } = useSubscription();
 
   const handleSignOut = async () => {
     dispatch(authActions.clearAuth());
+    await Purchases.logOut();
   };
 
 
@@ -130,7 +87,6 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
                 <Text>My Subscription</Text>
               </Box>
 
-
               <Box>
                 <Box flexDirection="row" justifyContent="space-between" mb="xs">
                   <Text variant="sm" color="textSecondary">Plan</Text>
@@ -138,7 +94,6 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
                     {customerInfo?.entitlements.active['Premium access']?.productIdentifier.includes('monthly') ? 'Premium Monthly' : 'Premium'}
                   </Text>
                 </Box>
-
 
                 {customerInfo?.entitlements.active['Premium access']?.expirationDate && (
                   <Box flexDirection="row" justifyContent="space-between">
@@ -167,13 +122,14 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
                 style={{ marginTop: 5 }}
               >
                 <Box flexDirection="row" justifyContent="flex-end" alignItems="center">
-                  <Text variant="sm" color="PrimaryGreen" mr="xs" fontWeight="bold">Upgrade to Premium</Text>
-                  <ChevronRight size={16} color={theme.colors.PrimaryGreen} />
+                  <Text variant="smBold" color="PrimaryGreen" mr="xs">Upgrade to Premium</Text>
+
                 </Box>
               </TouchableOpacity>
             </Box>
           )}
         </SettingsBox.Group>
+
       </Box>
 
 

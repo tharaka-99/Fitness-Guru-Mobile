@@ -40,7 +40,7 @@
         "com.google.android.gms.permission.AD_ID"
       ],
       "package": "com.fitnessguru.mobile",
-      "versionCode": 14,
+      "versionCode": 23,
       "targetSdkVersion": 35
     },
     "web": {

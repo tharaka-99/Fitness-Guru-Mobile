@@ -17,7 +17,6 @@ import { ArrowLeft } from "lucide-react-native";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
 
-
 // TODO: handle the user package
 const isPremiumUser = true;
 
@@ -105,10 +104,8 @@ const WorkoutListScreen: React.FC<
             </Text>
           </Box>
 
-
         }
       />
-
 
       {selectedWorkout.WorkoutType === WorkoutType.Default ? (
         <FlatList

@@ -4,14 +4,12 @@ import { gymActions } from "@features/gym/context/slice";
 import { overviewActions } from "@features/overview/context/slice";
 import Purchases from "react-native-purchases";
 
-
 import api, { getApiForFormData } from "@utils/http/request";
 import { ClientInfo, Credentials, Profile, UserData } from "@utils/types/types";
 
 
 export const clientUserLogin = async (credentials: Credentials) => {
   try {
-    console.log("calling sign in");
     const response = await api.post("/client/login", credentials);
     const { accessToken, refreshToken } = response?.data?.data;
     const clientData = {
@@ -25,14 +23,11 @@ export const clientUserLogin = async (credentials: Credentials) => {
     store.dispatch(gymActions.resetWorkouts());
     store.dispatch(gymActions.resetMeals());
 
-
     try {
       await Purchases.logIn(clientData._id);
-      console.log("RevenueCat user linked successfully>>>>>>>>>>>>>", clientData._id);
     } catch (rcError) {
       console.error("RevenueCat login error:", rcError);
     }
-
 
     return response.data;
   } catch (error) {
@@ -42,9 +37,6 @@ export const clientUserLogin = async (credentials: Credentials) => {
 //
 export const clientUserRegister = async (userData: UserData): Promise<any> => {
   try {
-    console.log("calling sign up");
-
-
     const response = await api.post("/client/register", userData);
 
 
@@ -60,14 +52,11 @@ export const clientUserRegister = async (userData: UserData): Promise<any> => {
     store.dispatch(gymActions.resetWorkouts());
     store.dispatch(gymActions.resetMeals());
 
-
     try {
       await Purchases.logIn(clientData._id);
-      console.log("RevenueCat user linked successfully");
     } catch (rcError) {
       console.error("RevenueCat login error:", rcError);
     }
-
 
     return response.data;
   } catch (error) {
