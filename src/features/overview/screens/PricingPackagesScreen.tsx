@@ -6,6 +6,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { store } from "@/store";
@@ -39,10 +40,11 @@ import Toast from "react-native-toast-message";
 import PricingPackageCard from "../components/PricingPackageCard";
 import UserNameWithAvatar from "../components/onboard/UserNameWithAvatar";
 import { overviewActions } from "../context/slice";
-import Purchases, {
-  LOG_LEVEL,
-  PurchasesOfferings,
-} from "react-native-purchases";
+import Purchases from "react-native-purchases";
+import { ArrowLeft } from "lucide-react-native";
+import { theme } from "@utils/styles/theme";
+import useSubscription from "@features/subscription/hooks/useSubscription";
+import Text from "@components/atoms/Text";
 
 const { height: screenHeight } = Dimensions.get("window");
 
@@ -55,76 +57,14 @@ const PricingPackagesScreen: React.FC<
     store.getState()["feature/gym"];
   const [currentPackage, setCurrentPackage] = useState<string>("Premium");
   const [packages, setPackages] = useState<SubscriptionPlans>([]);
-  const [offerings, setOfferings] = useState<PurchasesOfferings>();
+
+  const { offerings, purchasePackage, isSubscribed, restorePurchases } = useSubscription();
 
   useEffect(() => {
-    const initializeRevenueCat = async () => {
-      try {
-        Purchases.setLogLevel(LOG_LEVEL.DEBUG);
-
-        if (Platform.OS === "ios") {
-          Purchases.configure({
-            // apiKey: "appl_xaIghnPYoNgfePDjSrzcubzjzqw",
-            apiKey: env.EXPO_PUBLIC_RC_IOS,
-          });
-        } else if (Platform.OS === "android") {
-          Purchases.configure({
-            apiKey: env.EXPO_PUBLIC_RC_ANDROID,
-            // apiKey: "goog_oyzmPsavutQJnKUwqqOOEiSLioN",
-          });
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        await getCustomerInfo();
-        await fetchProducts();
-      } catch (error) {
-        console.error("RevenueCat configuration error:", error);
-      }
-    };
-
-    initializeRevenueCat();
-  }, []);
-
-  // async function getCustomerInfo() {
-  //   try {
-  //     const customerInfo = await Purchases.getCustomerInfo();
-  //     console.log("CUSTOMER INFO", JSON.stringify(customerInfo));
-  //   } catch (error) {
-  //     console.error("Error getting customer info:", error);
-  //   }
-  // }
-
-  async function getCustomerInfo() {
-    const customerInfo = await Purchases.getCustomerInfo();
-
-    console.log("📢 customerInfo", JSON.stringify(customerInfo, null, 2));
-  }
-
-  const fetchProducts = async () => {
-    try {
-      const rcOfferings = await Purchases.getOfferings();
-      console.log("rcOfferings:", rcOfferings);
-      if (rcOfferings) {
-        setOfferings(rcOfferings);
-        console.log("rcOfferings.current .........>>>>>>>>>>", rcOfferings);
-
-        if (rcOfferings.current && rcOfferings.current.availablePackages) {
-          console.log("Iterating over available packages:");
-          rcOfferings.current.availablePackages.forEach((pkg, index) => {
-            console.log(`Package ${index + 1}:`);
-            console.log(`  - Identifier: ${pkg.identifier}`);
-            console.log(`  - Package Type: ${pkg.packageType}`);
-            console.log(`  - Product:`, JSON.stringify(pkg.product, null, 2));
-          });
-        }
-      } else {
-        console.log("No offerings found.");
-      }
-    } catch (error) {
-      console.error("Error fetching offerings:", JSON.stringify(error));
+    if (isSubscribed) {
+      store.dispatch(authActions.setSubscription({ status: true }));
     }
-  };
+  }, [isSubscribed]);
 
   const onChangePackage = (id: string) => {
     setCurrentPackage(id);
@@ -177,48 +117,8 @@ const PricingPackagesScreen: React.FC<
       return;
     }
 
-    const purchaseResult = await Purchases.purchasePackage(selectedPackage);
-    console.log("purchaseResult>>>>>>>>", purchaseResult);
-
-    if (purchaseResult.customerInfo.activeSubscriptions.length > 0) {
-      store.dispatch(authActions.setSubscription({ status: true }));
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Activated subscription successfully!",
-      });
-    } else {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Payment failed.",
-      });
-      return;
-    }
-
-    let paymentResult = null;
-    // try {
-    //   paymentResult = await activeNewPackage(id);
-    //   store.dispatch(authActions.setSubscription(paymentResult));
-    //   Toast.show({
-    //     type: "success",
-    //     text1: "Success",
-    //     text2: "Activated subscription successfully!",
-    //   });
-    // } catch (error) {}
-
     try {
-      console.log("came here!!!!!!!!!!!!!!!!!!!");
-      const selectedPlanData = packages.find((p) => p.name === id);
-      const planId = selectedPlanData ? selectedPlanData._id : id;
-      // check if user clicked they have injury button
-      // paymentResult = await activeNewPackage(id);
-      // store.dispatch(authActions.setSubscription(paymentResult));
-      const isSubscribed =
-        purchaseResult.customerInfo.entitlements.active["premium"] !== undefined ||
-        purchaseResult.customerInfo.activeSubscriptions.length > 0;
-
-      store.dispatch(authActions.setSubscription({ status: isSubscribed }));
+      await purchasePackage(selectedPackage);
       Toast.show({
         type: "success",
         text1: "Success",
@@ -236,10 +136,10 @@ const PricingPackagesScreen: React.FC<
         return;
       }
 
-      console.log("check has subscriptions", user?.subscription?.status);
-
       const currentUser = (store.getState() as any)["feature/auth"].user;
+      console.log("check has subscriptions", currentUser?.subscription?.status);
       const hasSubscription = hasPremiumAccess(currentUser);
+      console.log("hasSubscription......", hasSubscription);
 
       if (!hasSubscription) {
         console.log(
@@ -318,18 +218,20 @@ const PricingPackagesScreen: React.FC<
         Toast.show({
           type: "info",
           text1: "Info",
-          text2: "Subscription already active. Skipping setup.",
+          text2: "Subscription already active.",
         });
       }
 
       navigation.navigate("Home");
-    } catch (error) {
-      console.error("Error during profile setup:", error);
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Failed to complete setup. Please try again.",
-      });
+    } catch (error: any) {
+      if (!error.userCancelled) {
+        console.error("Error during purchase or setup:", error);
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to complete purchase or setup. Please try again.",
+        });
+      }
     }
   };
 
@@ -372,6 +274,12 @@ const PricingPackagesScreen: React.FC<
 
   return (
     <View style={{ flex: 1 }}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+      </TouchableOpacity>
       <View style={styles.imageContainer}>
         <Image
           source={
@@ -392,6 +300,7 @@ const PricingPackagesScreen: React.FC<
         >
           <PricingPackageCard
             packages={packages}
+            offerings={offerings ?? undefined}
             onActionPress={(id: string) => onActionPress(id)}
             onChangePackage={(id: string) => onChangePackage(id)}
           />
@@ -404,6 +313,15 @@ const PricingPackagesScreen: React.FC<
 export default PricingPackagesScreen;
 
 const styles = StyleSheet.create({
+  backButton: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? 20 : 10,
+    left: 10,
+    zIndex: 10,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    borderRadius: 20,
+    padding: 5,
+  },
   imageContainer: {
     flex: 1,
   },

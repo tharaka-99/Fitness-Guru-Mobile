@@ -13,6 +13,8 @@ import { DefaultExercise, Exercises, WorkoutType } from "@utils/types/types";
 import { gymActions } from "../context/slice";
 import { Icon } from "react-native-paper";
 import { ArrowLeft } from "lucide-react-native";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
 
 // TODO: handle the user package
 const isPremiumUser = true;
@@ -82,10 +84,19 @@ const WorkoutListScreen: React.FC<
 
   return (
     <PageWrapper>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
-      </TouchableOpacity>
-      <PageHeader title={`Day ${selectedDay}`} />
+      <PageHeader
+        leftComponent={
+          <Box flexDirection="row" alignItems="center" gap="md">
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
+            </TouchableOpacity>
+            <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
+              {`Day ${selectedDay}`}
+            </Text>
+          </Box>
+
+        }
+      />
 
       {selectedWorkout.WorkoutType === WorkoutType.Default ? (
         <FlatList

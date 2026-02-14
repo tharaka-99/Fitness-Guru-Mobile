@@ -1,55 +1,47 @@
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
-
+import { View, Image, TouchableOpacity, ScrollView } from "react-native";
 import { store } from "@/store";
-import PageHeader from "@components/app/header/PageHeader";
-import InfoCard from "@components/app/InfoCard";
-import PageWrapper from "@components/app/PageWrapper";
-import ProfileHeaderCard from "@components/app/ProfileHeaderCard";
-import { Calendar, Users } from "lucide-react-native";
+import PageWrapper, { PAGE_WIDTH } from "@components/app/PageWrapper";
+import { Calendar, Users, Bike, Utensils, BicepsFlexed, CirclePlus } from "lucide-react-native";
 import { MyTabNavigatorScreenProps } from "@navigation/types";
-import { ScrollView } from "react-native-gesture-handler";
-import {
-  Subscription,
-  SubscriptionPlans,
-} from "@utils/types/subscriptionTypes";
 import { useQuery } from "react-query";
 import { getFitnessGuruRequest } from "@utils/services/trainersService";
 import { getClientWorkoutsForTrainerView } from "@utils/services/workoutService";
 import { getClientMealForTrainerView } from "@utils/services/mealPlanService";
-import PlanCategoryCard from "@features/overview/components/PlanCategoryCard";
 import { gymActions } from "@features/gym/context/slice";
 import { WorkoutType } from "@utils/types/types";
 import { MealPlanType } from "@utils/types/mealPlanTypes";
 import Box from "@components/atoms/Box";
-import { hasPremiumAccess } from "@utils/helpers";
-
-const cardsGap = 14;
+import Text from "@components/atoms/Text";
+import FullScreenLoader from "@components/atoms/FullScreenLoader";
+import { theme, constants } from "@utils/styles/theme";
+import InfoCard from "@components/app/InfoCard";
+import greetingTime from "greeting-time";
+import { capitalizeString } from "@utils/helpers";
+import PageHeader from "@components/app/header/PageHeader";
 
 const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   navigation,
 }) => {
   const { user } = store.getState()["feature/auth"];
   const [subscription, setSubscription] = useState<any>(undefined);
+  const greetingMessage: string = greetingTime(new Date());
 
   const {
     isLoading: isFitnessGuruRequestLoading,
     data: fitnessGuruRequest,
-    error: fitnessGuruRequestError,
     refetch: fitnessGuruRequestRefetch,
   } = useQuery("fitnessGuruRequest", getFitnessGuruRequest);
 
   const {
     isLoading: isWorkoutLoading,
     data: workout,
-    error: workoutError,
     refetch: workoutRefetch,
   } = useQuery("workout", getClientWorkoutsForTrainerView);
 
   const {
     isLoading: isMealLoading,
     data: meal,
-    error: mealError,
     refetch: mealRefetch,
   } = useQuery("meal", getClientMealForTrainerView);
 
@@ -63,7 +55,6 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
 
   useEffect(() => {
     setSubscription(user?.subscription);
-    console.log("fitnessGuruRequest,,,,,,,,", fitnessGuruRequest?.status)
   }, [user]);
 
   useEffect(() => {
@@ -72,97 +63,265 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
     mealRefetch();
   }, [fitnessGuruRequestRefetch, workoutRefetch, mealRefetch]);
 
+  const formattedDate = new Intl.DateTimeFormat("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "long",
+  }).format(new Date());
+
+  if (isFitnessGuruRequestLoading || isWorkoutLoading || isMealLoading) {
+    return <FullScreenLoader />;
+  }
+
+  const isLoading = !user || subscription === undefined || fitnessGuruRequest === undefined;
+  if (isLoading) {
+    return <FullScreenLoader />;
+  }
+
   return (
     <Box flex={1}>
       <PageWrapper>
         <PageHeader title="Fitness Guru" />
 
-        <View style={{ marginBottom: cardsGap }}>
-          <ProfileHeaderCard
-            image={require("assets/logo-Icon-new.png")}
-            name={"Fitness Guru"}
-            details={[
-              {
-                icon: ({ color, size }) => (
-                  <Calendar color={color} size={size} />
-                ),
-                value: "10 Years Experience",
-              },
-              {
-                icon: ({ color, size }) => <Users color={color} size={size} />,
-                value: "Men & Women",
-              },
-            ]}
-            isDashboardLink={false}
-          />
-        </View>
-        {fitnessGuruRequest?.status !== "Pending" &&
-          // (subscription && subscription.status === true ? (
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: theme.spacing.sm }}
+          showsVerticalScrollIndicator={false}
+          overScrollMode="never"
+          keyboardShouldPersistTaps="handled"
+        >
+          <Box flex={1} gap="md">
+            <Box flexDirection="row" alignItems="center" gap="md" px="xs" mb="sm">
+              <Box position="relative">
+                {user?.profileImageFileUrl ? (
+                  <Image
+                    source={{ uri: user.profileImageFileUrl }}
+                    style={{ width: 60, height: 60, borderRadius: 30 }}
+                  />
+                ) : (
+                  <Box
+                    width={60}
+                    height={60}
+                    borderRadius="full"
+                    backgroundColor="SecondaryGrey"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text variant="lgBold" color="PrimaryWhite">
+                      {(user?.firstName?.[0] || "") + (user?.lastName?.[0] || "")}
+                    </Text>
+                  </Box>
+                )}
+              </Box>
+              <Box>
+                <Text variant="lgBold">
+                  Welcome back, {user?.firstName || "User"}
+                </Text>
+                <Text variant="md" color="textSecondary">
+                  {formattedDate}
+                </Text>
+              </Box>
+            </Box>
 
-          //check if user has premium access - Testing Free Trial
-          ((subscription && subscription?.status === true) ||
-          user?.isTrialActive === true ? (
-            <InfoCard
-              description="By clicking start your journey button, you will be redirected to fill a form where your trainer will create custom workout routines and meal plans based on your input data."
-              imageSource={require("assets/images/trainer-with-form.png")}
-              buttonTitle="Start Your Journey"
-              buttonOnPress={() =>
-                navigation.push("TrainerApplication", {
-                  trainerId: "fitness-guru",
-                  packageId: "456",
-                })
-              }
-            />
-          ) : (
-            <InfoCard
-              title="Need Assistance in Your Training?"
-              description="Get yourself a personal trainer at your fingertips."
-              imageSource={require("assets/images/trainer-with-form.png")}
-              buttonTitle="Invest in Yourself"
-              buttonOnPress={() => navigation.navigate("PricingPackages")}
-            />
-          ))}
 
-        {fitnessGuruRequest?.status === "Pending" &&
-          (!filteredWorkout?.length || !filteredMeal?.length) && (
-            <InfoCard
-              title="Your Schedule is on the way"
-              description="Your data have been shared with your fitnessguru. You will be displayed your workout routines and meal plans once the fitnessguru shared with you."
-              imageSource={require("assets/images/green-tick.png")}
-            />
-          )}
+            <Box flexDirection="row" justifyContent="space-between" mb="sm">
+              <Box
+                flex={1}
+                borderRadius="sm"
+                borderWidth={2}
+                borderColor="backgroundSecondary"
+                flexDirection="row"
+                overflow="hidden"
 
-        {/* Conditionally render PlanCategoryCard based on filteredWorkout presence */}
-        <View style={{ display: "flex", gap: 10, paddingTop: 10 }}>
-          {filteredWorkout && filteredWorkout.length > 0 && (
-            <PlanCategoryCard
-              category="workout"
-              onPress={() => {
-                store.dispatch(
-                  gymActions.setSelectedWorkout({
-                    WorkoutType: WorkoutType.FitnessGuruCreated,
-                    createdBy: fitnessGuruRequest?.trainerId,
-                  })
-                );
-                navigation.navigate("WorkoutRoutine");
-              }}
-            />
-          )}
+              >
+                <Box flex={1} p="sm">
+                  <Text variant="sm" color="textSecondary">Goal</Text>
+                  <Text variant="md" numberOfLines={1}>
+                    {user?.fitnessInfo?.goal
+                      ? user.fitnessInfo.goal.replace(/([a-z])([A-Z])/g, "$1 $2")
+                      : "Not Set"}
+                  </Text>
+                </Box>
+                <Box width={8} backgroundColor="PrimaryGreen" />
+              </Box>
 
-          {filteredMeal && filteredMeal.length > 0 && (
-            <PlanCategoryCard
-              category="meal"
-              onPress={() => {
-                store.dispatch(
-                  gymActions.setSelectedMealPlanType(
-                    MealPlanType.FitnessGuruCreated
-                  )
-                );
-                navigation.navigate("MealPlan");
-              }}
-            />
-          )}
-        </View>
+              <Box
+                flex={1}
+                borderRadius="sm"
+                borderWidth={2}
+                borderColor="backgroundSecondary"
+                flexDirection="row"
+                overflow="hidden"
+                mx="sm"
+              >
+                <Box flex={1} p="sm">
+                  <Text variant="sm" color="textSecondary">DCI</Text>
+                  <Text variant="md" numberOfLines={1}>
+                    {user?.calculatedMetrics?.dci
+                      ? `${Math.round(user.calculatedMetrics.dci)}KCal`
+                      : "0KCal"}
+                  </Text>
+                </Box>
+                <Box width={8} backgroundColor="PrimaryGreen" />
+              </Box>
+
+              <Box
+                flex={1}
+                borderRadius="sm"
+                borderWidth={2}
+                borderColor="backgroundSecondary"
+
+                flexDirection="row"
+                overflow="hidden"
+              >
+                <Box flex={1} p="sm">
+                  <Text variant="sm" color="textSecondary">BMR</Text>
+                  <Text variant="md" numberOfLines={1}>
+                    {user?.calculatedMetrics?.bmr
+                      ? `${Math.round(user.calculatedMetrics.bmr)}KCal`
+                      : "0KCal"}
+                  </Text>
+                </Box>
+                <Box width={8} backgroundColor="PrimaryGreen" />
+              </Box>
+            </Box>
+            {fitnessGuruRequest?.status !== "Pending" ? (
+              ((subscription && subscription?.status === true) ||
+                user?.isTrialActive === true) ? (
+                <InfoCard
+                  description="By clicking start your journey button, you will be redirected to fill a form where your trainer will create custom workout routines and meal plans based on your input data."
+                  imageSource={require("assets/images/trainer-with-form.png")}
+                  buttonTitle="Start Your Journey"
+                  buttonOnPress={() =>
+                    navigation.push("TrainerApplication", {
+                      trainerId: "fitness-guru",
+                      packageId: "456",
+                    })
+                  }
+                />
+              ) : (
+                <InfoCard
+                  title="Need Assistance in Your Training?"
+                  description="Get yourself a personal trainer at your fingertips."
+                  imageSource={require("assets/images/trainer-with-form.png")}
+                  buttonTitle="Invest in Yourself"
+                  buttonOnPress={() => navigation.navigate("PricingPackages")}
+                />
+              )
+            ) : (
+              (!filteredWorkout?.length && !filteredMeal?.length) && (
+                <InfoCard
+                  title="Your Schedule is on the way"
+                  description="Your data have been shared with your fitnessguru. You will be displayed your workout routines and meal plans once the fitnessguru shared with you."
+                  imageSource={require("assets/images/green-tick.png")}
+                />
+              )
+            )}
+
+
+            {((filteredWorkout?.length ?? 0) > 0 || (filteredMeal?.length ?? 0) > 0) && (
+              <>
+                <Box gap="md">
+                  {filteredWorkout && filteredWorkout.length > 0 && (
+                    <TouchableOpacity
+                      activeOpacity={constants.activeOpacity}
+                      onPress={() => {
+                        store.dispatch(
+                          gymActions.setSelectedWorkout({
+                            WorkoutType: WorkoutType.FitnessGuruCreated,
+                            createdBy: fitnessGuruRequest?.trainerId,
+                          })
+                        );
+                        navigation.navigate("WorkoutRoutine");
+                      }}
+                    >
+                      <Box
+                        backgroundColor="backgroundSecondary"
+                        borderRadius="md"
+                        p="lg"
+                        alignItems="center"
+                        justifyContent="center"
+                        gap="xs"
+                      >
+                        <BicepsFlexed color={theme.colors.PrimaryGreen} size={40} strokeWidth={1} />
+                        <Text variant="lg" color="PrimaryGreen">Your Workout Routine</Text>
+                        <Text color="textSecondary" textAlign="center" variant="sm">
+                          Perform any workout routine based on your weekly schedule.
+                        </Text>
+                      </Box>
+                    </TouchableOpacity>
+                  )}
+
+                  {filteredMeal && filteredMeal.length > 0 && (
+                    <TouchableOpacity
+                      activeOpacity={constants.activeOpacity}
+                      onPress={() => {
+                        store.dispatch(
+                          gymActions.setSelectedMealPlanType(
+                            MealPlanType.FitnessGuruCreated
+                          )
+                        );
+                        navigation.navigate("MealPlan");
+                      }}
+                    >
+                      <Box
+                        backgroundColor="backgroundSecondary"
+                        borderRadius="md"
+                        p="lg"
+                        alignItems="center"
+                        justifyContent="center"
+                        gap="xs"
+                      >
+                        <Utensils color={theme.colors.PrimaryGreen} size={40} strokeWidth={1} />
+                        <Text variant="lg" color="PrimaryGreen">Your Meal Plan</Text>
+                        <Text variant="sm" color="textSecondary" textAlign="center">
+                          Perform any workout routine based on your weekly schedule.
+                        </Text>
+                      </Box>
+                    </TouchableOpacity>
+                  )}
+                </Box>
+
+                {/* <Box mb="sm">
+                  <Text variant="lgBold">Request new schedules</Text>
+                  <Box flexDirection="row" justifyContent="space-between" gap="sm" mt="sm">
+                    <TouchableOpacity
+                      style={{ flex: 1 }}
+                      onPress={() => {
+                        // Navigate or handle request
+                      }}
+                    >
+                      <Box
+                        backgroundColor="backgroundSecondary"
+                        borderRadius="sm"
+                        p="md"
+                      >
+                        <Text variant="xs" color="textSecondary">Type</Text>
+                        <Text variant="md">Workout</Text>
+                      </Box>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={{ flex: 1 }}
+                      onPress={() => {
+                        // Navigate or handle request
+                      }}
+                    >
+                      <Box
+                        backgroundColor="backgroundSecondary"
+                        borderRadius="sm"
+                        p="md"
+                      >
+                        <Text variant="xs" color="textSecondary">Type</Text>
+                        <Text variant="md">Meal Plan</Text>
+                      </Box>
+                    </TouchableOpacity>
+                  </Box>
+                </Box> */}
+              </>
+            )}
+          </Box>
+        </ScrollView>
       </PageWrapper>
     </Box>
   );

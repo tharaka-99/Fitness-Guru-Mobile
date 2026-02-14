@@ -7,19 +7,27 @@ import Button from "@components/atoms/Button";
 import { theme } from "@utils/styles/theme";
 import { store } from "@/store";
 import { authActions } from "@features/auth/context/slice";
+import { PurchasesOfferings } from "react-native-purchases";
+import useSubscription from "@features/subscription/hooks/useSubscription";
+import Toast from "react-native-toast-message";
+import { useNavigation } from "@react-navigation/native";
 
 interface Props {
   packages: any;
+  offerings?: PurchasesOfferings;
   onActionPress: (id: string) => void;
   onChangePackage: (id: string) => void;
 }
 
 const PricingPackageCard: React.FC<Props> = ({
   packages,
+  offerings,
   onActionPress,
   onChangePackage,
 }) => {
   const { user } = store.getState()["feature/auth"];
+  const { restorePurchases } = useSubscription();
+  const navigation = useNavigation();
 
   // const [selectedPlan, setSelectedPlan] = useState(
   //   user?.isInjured ? 'Premium' : 'Standard'
@@ -34,6 +42,17 @@ const PricingPackageCard: React.FC<Props> = ({
   const filteredPackages = packages?.filter(
     (p: any) => p.name === selectedPlan
   );
+  const getRevenueCatPrice = () => {
+    if (!offerings?.current?.availablePackages) return null;
+
+    const monthlyPackage = offerings.current.availablePackages.find(
+      (pkg) => pkg.identifier === "$rc_monthly"
+    );
+
+    return monthlyPackage?.product?.priceString || null;
+  };
+
+  const revenueCatPrice = getRevenueCatPrice();
 
   const openLink = (url: string) => {
     Linking.openURL(url).catch((err) =>
@@ -57,14 +76,14 @@ const PricingPackageCard: React.FC<Props> = ({
         </Box>
 
         {/* Toggle Buttons - Hide if injured */}
-        {!user?.isInjured && (
+        {/* {!user?.isInjured && (
           <Box
             flexDirection="row"
             alignSelf="center"
             mt="sm"
             style={styles.toggleContainer}
-          >
-            {/* <TouchableOpacity
+          > */}
+        {/* <TouchableOpacity
               style={[
                 styles.toggleButton,
                 selectedPlan === 'Standard' && styles.selectedButton,
@@ -83,7 +102,7 @@ const PricingPackageCard: React.FC<Props> = ({
                 Standard
               </Text>
             </TouchableOpacity> */}
-            <TouchableOpacity
+        {/* <TouchableOpacity
               style={[
                 styles.toggleButton,
                 selectedPlan === "Premium" && styles.selectedButton,
@@ -101,9 +120,9 @@ const PricingPackageCard: React.FC<Props> = ({
               >
                 Premium
               </Text>
-            </TouchableOpacity>
-          </Box>
-        )}
+            </TouchableOpacity> */}
+        {/* </Box>
+        )} */}
 
         {/* Benefits */}
         <Box mt="lg" style={styles.benefitsContainer}>
@@ -132,7 +151,7 @@ const PricingPackageCard: React.FC<Props> = ({
               Monthly
             </Text>
             <Text variant="sm" style={styles.planSubtitle}>
-              Full access for just LKR {filteredPackages[0]?.price}.00/month
+              Full access for just {revenueCatPrice || `LKR ${filteredPackages[0]?.price}.00`}/month
             </Text>
           </Box>
         </Box>
@@ -145,6 +164,46 @@ const PricingPackageCard: React.FC<Props> = ({
           isLoading={false}
           onPress={() => onActionPress(selectedPlan)}
         />
+
+        <TouchableOpacity
+          onPress={async () => {
+            try {
+              const restoredInfo = await restorePurchases();
+              if (restoredInfo?.activeSubscriptions && restoredInfo.activeSubscriptions.length > 0) {
+                Toast.show({
+                  type: "success",
+                  text1: "Success",
+                  text2: "Purchases restored successfully!",
+                });
+                navigation.goBack();
+              } else {
+                Toast.show({
+                  type: "info",
+                  text1: "Info",
+                  text2: "No purchases to restore.",
+                });
+              }
+            } catch (error: any) {
+              console.error("Error restoring purchases:", error);
+              Toast.show({
+                type: "error",
+                text1: "Error",
+                text2: error.message || "Failed to restore purchases.",
+              });
+            }
+          }}
+          style={{
+            padding: 10,
+            alignItems: "center",
+
+          }}
+        >
+          <Box flexDirection="row" justifyContent="center" alignItems="center">
+            <Text variant="md" color="PrimaryGreen">
+              Restore Purchases
+            </Text>
+          </Box>
+        </TouchableOpacity>
 
         {/* Free Trial Button
         <Button

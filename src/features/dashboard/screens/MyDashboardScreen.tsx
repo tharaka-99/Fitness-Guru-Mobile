@@ -35,35 +35,19 @@ const MyDashboardScreen: React.FC<
     refetch: trainersRefetch,
   } = useQuery("trainers", getTrainers);
 
-  // Fetch workouts to ensure they're loaded
   const {
     isLoading: isWorkoutsLoading,
     data: fetchedWorkouts,
     refetch: workoutsRefetch,
   } = useQuery("dashboardWorkouts", getClientWorkouts);
 
-  // Update workouts in store when fetched
   useEffect(() => {
-    console.log("🔍 Dashboard - fetchedWorkouts:", fetchedWorkouts);
     if (fetchedWorkouts) {
-      console.log(
-        "📝 Dashboard - Dispatching workouts to store:",
-        fetchedWorkouts.length,
-        "workouts"
-      );
       store.dispatch(gymActions.setWorkouts(fetchedWorkouts));
     }
   }, [fetchedWorkouts]);
 
-  // Log current workouts from store
-  useEffect(() => {
-    console.log(
-      "🏪 Dashboard - Current workouts from store:",
-      workouts.length,
-      "workouts"
-    );
-    console.log("🏪 Dashboard - Workouts data:", workouts);
-  }, [workouts]);
+
 
   const myTrainers =
     trainers?.filter(
@@ -103,7 +87,6 @@ const MyDashboardScreen: React.FC<
     {}
   );
 
-  // my workout exercises
   const myWorkoutsExercises: Exercises[] = [];
   selfCreatedWorkouts.forEach((workout) => {
     workout.exerciseDays.forEach((day) => {
@@ -120,10 +103,8 @@ const MyDashboardScreen: React.FC<
     });
   });
 
-  // Combine all exercises if "All" is selected
   const allExercises: Exercises[] = [];
 
-  // Add exercises from trainers
   Object.values(exercisesByTrainer).forEach((exerciseList) => {
     exerciseList.forEach((exercise) => {
       if (
@@ -135,7 +116,6 @@ const MyDashboardScreen: React.FC<
     });
   });
 
-  // Add exercises from self-created workouts (My Workouts)
   myWorkoutsExercises.forEach((exercise) => {
     if (
       exercise?.exercise?._id &&
@@ -145,16 +125,8 @@ const MyDashboardScreen: React.FC<
     }
   });
 
-  console.log("📊 Dashboard - All exercises count:", allExercises.length);
-  console.log(
-    "📊 Dashboard - My workouts exercises count:",
-    myWorkoutsExercises.length
-  );
-  console.log("📊 Dashboard - Selected trainer:", selectedTrainer);
 
-  // Show loading state while workouts are being fetched
   if (isWorkoutsLoading) {
-    console.log("⏳ Dashboard - Showing loading state");
     return (
       <PageWrapper>
         <FullScreenLoader
@@ -170,17 +142,8 @@ const MyDashboardScreen: React.FC<
     selectedTrainer === "All"
       ? allExercises
       : selectedTrainer === "myWorkouts"
-      ? myWorkoutsExercises
-      : exercisesByTrainer[selectedTrainer] || [];
-
-  console.log(
-    "🎯 Dashboard - Display data for",
-    selectedTrainer,
-    ":",
-    displayData.length,
-    "items"
-  );
-  console.log("🎯 Dashboard - Display data:", displayData);
+        ? myWorkoutsExercises
+        : exercisesByTrainer[selectedTrainer] || [];
 
   return (
     <PageWrapper>
@@ -202,24 +165,6 @@ const MyDashboardScreen: React.FC<
                 </Box>
               }
             />
-            <Box
-              flexDirection="row"
-              justifyContent="space-between"
-              width={"100%"}
-              gap="xs"
-              mb="base"
-            >
-              <Box style={styles.topBox}>
-                <Text style={styles.boxTitle}>Goal</Text>
-                <Text style={styles.boxValue}>{goal}</Text>
-              </Box>
-              <Box style={styles.topBox}>
-                <Text style={styles.boxTitle}>Daily Calorie Intake</Text>
-                <Text style={styles.boxValue}>
-                  {`${user?.calculatedMetrics?.dci?.toFixed(2) || "0.00"} KCal`}
-                </Text>
-              </Box>
-            </Box>
 
             <Text style={{ fontSize: 18, marginBottom: 10, fontWeight: "700" }}>
               Workout Analytics
@@ -235,7 +180,6 @@ const MyDashboardScreen: React.FC<
                 <TouchableOpacity
                   key="all"
                   onPress={() => {
-                    console.log("🔄 Dashboard - All button pressed");
                     setSelectedTrainer("All");
                   }}
                 >
@@ -273,9 +217,8 @@ const MyDashboardScreen: React.FC<
                           : styles.tag
                       }
                     >
-                      <Text>{`${trainer?.firstName || ""} ${
-                        trainer?.lastName || ""
-                      }`}</Text>
+                      <Text>{`${trainer?.firstName || ""} ${trainer?.lastName || ""
+                        }`}</Text>
                     </Box>
                   </TouchableOpacity>
                 ))}
@@ -284,20 +227,13 @@ const MyDashboardScreen: React.FC<
           </>
         )}
         renderItem={({ item, index }) => {
-          console.log(`🎨 Dashboard - Rendering item ${index}:`, item);
           if (!item?.exercise) {
-            console.log(
-              `❌ Dashboard - Item ${index} has no exercise, returning null`
-            );
             return null;
           }
 
           const { exercise } = item;
           const description = "";
-          console.log(
-            `✅ Dashboard - Rendering exercise ${index}:`,
-            exercise.name
-          );
+
           return (
             <TouchableOpacity
               onPress={() => {

@@ -23,6 +23,7 @@ import {
 import { useEffect } from "react";
 import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import { authActions } from "@features/auth/context/slice";
+import { SubscriptionProvider } from "@features/subscription/context/SubscriptionProvider";
 import { enableScreens } from "react-native-screens";
 import env from "./src/utils/env";
 enableScreens();
@@ -35,81 +36,6 @@ configureReanimatedLogger({
 });
 
 export default function App() {
-  //configure revenue cat
-  useEffect(() => {
-    Purchases.setLogLevel(LOG_LEVEL.DEBUG);
-    try {
-      if (Platform.OS === "ios") {
-        Purchases.configure({
-          //apiKey: "appl_xaIghnPYoNgfePDjSrzcubzjzqw",
-          apiKey: env.EXPO_PUBLIC_RC_IOS,
-        });
-      } else if (Platform.OS === "android") {
-        Purchases.configure({
-          //apiKey: "goog_oyzmPsavutQJnKUwqqOOEiSLioN",
-          apiKey: env.EXPO_PUBLIC_RC_ANDROID,
-        });
-      }
-      console.log("customerInfoListener.................");
-
-
-      const customerInfoListener = (customerInfo: any) => {
-        console.log("customerInfoListener.................", customerInfo);
-        const isSubscribed =
-          customerInfo.entitlements.active["premium"] !== undefined ||
-          customerInfo.activeSubscriptions.length > 0;
-
-        store.dispatch(authActions.setSubscription({ status: isSubscribed }));
-        console.log("customerInfoListener_____isSubscribed", isSubscribed);
-      };
-
-      Purchases.addCustomerInfoUpdateListener(customerInfoListener);
-      console.log("customerInfoListener____", customerInfoListener);
-
-      fetchProducts();
-      getCustomerInfo();
-    } catch (error) {
-      console.error("RevenueCat configuration error:", error);
-    }
-  }, []);
-
-  async function getCustomerInfo() {
-    const customerInfo = await Purchases.getCustomerInfo();
-    console.log("CUSTOMER INFO", JSON.stringify(customerInfo, null, 2));
-  }
-
-  const fetchProducts = async () => {
-    try {
-      const products = await Purchases.getProducts(["premium_monthly"]);
-      const offerings = await Purchases.getOfferings();
-      console.log(
-        "PRODUCTSSSSSS",
-        JSON.stringify(offerings.current?.availablePackages, null, 2)
-      );
-      if (offerings) {
-        const customerInfo = await Purchases.getCustomerInfo();
-        if (customerInfo.activeSubscriptions.length > 0) {
-          store.dispatch(authActions.setSubscription({ status: true }));
-        } else {
-          store.dispatch(authActions.setSubscription({ status: false }));
-        }
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Revenuecat issue",
-          text2: "No offerings found!",
-        });
-      }
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Revenuecat issue",
-        text2: (error as Error)?.message || "Error configure Revenuecat",
-      });
-      console.error("Error fetching offerings:", JSON.stringify(error));
-    }
-  };
-
   return (
     <GestureHandlerRootView style={styles.container}>
       <ThemeProvider theme={theme}>
@@ -118,10 +44,12 @@ export default function App() {
             <NavigationContainer theme={navigationTheme}>
               <ReduxProvider store={store}>
                 <PersistGate persistor={reduxPersistor}>
-                  <SafeAreaView style={styles.container}>
-                    <StatusBar style="light" />
-                    <AppInitializer />
-                  </SafeAreaView>
+                  <SubscriptionProvider>
+                    <SafeAreaView style={styles.container}>
+                      <StatusBar style="light" />
+                      <AppInitializer />
+                    </SafeAreaView>
+                  </SubscriptionProvider>
                 </PersistGate>
               </ReduxProvider>
             </NavigationContainer>
