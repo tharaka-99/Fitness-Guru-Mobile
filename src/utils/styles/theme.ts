@@ -5,7 +5,7 @@ const palette = {
   PrimaryWhite: "#FFFFFF",
   SecondaryWhite: "#D9D9D9",
   PrimaryGrey: "#1D1D1D",
-  PrimaryGreyDark: "#1D1D1D",
+  PrimaryGreyDark: "#303030",
   SecondaryGrey: "#939292",
   PrimaryGreen: "#A0E220",
   SecondaryGreen: "#B7FFC8",
@@ -53,6 +53,8 @@ const theme = createTheme({
 
     border: palette.SecondaryGrey,
     borderColor: palette.SecondaryGrey,
+    borderSecondary: palette.PrimaryGreyDark,
+
 
     ...palette,
   },

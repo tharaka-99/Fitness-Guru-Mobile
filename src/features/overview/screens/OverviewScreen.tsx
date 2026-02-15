@@ -256,70 +256,74 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                 </Text>
               </Box>
             </Box>
-            <Box flexDirection="row" justifyContent="space-between" mb="sm">
-              <Box
-                flex={4}
-                borderRadius="sm"
-                borderWidth={2}
-                borderColor="backgroundSecondary"
-                flexDirection="row"
-                overflow="hidden"
-              >
-                <Box flex={1} p="sm">
-                  <Text variant="sm" color="textSecondary">Goal</Text>
-                  <Text variant="md" numberOfLines={1}>
-                    {profile?.fitnessInfo?.goal
-                      ? profile.fitnessInfo.goal.replace(/([a-z])([A-Z])/g, "$1 $2")
-                      : "Not Set"}
-                  </Text>
+            {(profile?.fitnessInfo?.goal ||
+              (profile?.calculatedMetrics?.dci && Math.round(profile.calculatedMetrics.dci) > 0) ||
+              (profile?.calculatedMetrics?.bmr && Math.round(profile.calculatedMetrics.bmr) > 0)) && (
+                <Box flexDirection="row" justifyContent="space-between" mb="sm">
+                  <Box
+                    flex={4}
+                    borderRadius="sm"
+                    borderWidth={1}
+                    borderColor="borderSecondary"
+                    flexDirection="row"
+                    overflow="hidden"
+                  >
+                    <Box flex={1} p="sm">
+                      <Text variant="sm" color="textSecondary">Goal</Text>
+                      <Text variant="md" numberOfLines={1}>
+                        {profile?.fitnessInfo?.goal
+                          ? profile.fitnessInfo.goal.replace(/([a-z])([A-Z])/g, "$1 $2")
+                          : "Not Set"}
+                      </Text>
+                    </Box>
+                    <Box width={8} backgroundColor="LightBlue" />
+                  </Box>
+                  <Box
+                    flex={4}
+                    borderRadius="sm"
+                    borderWidth={1}
+                    borderColor="borderSecondary"
+                    flexDirection="row"
+                    overflow="hidden"
+                    mx="sm"
+                  >
+                    <Box flex={1} p="sm">
+                      <Text variant="sm" color="textSecondary">DCI</Text>
+                      <Text variant="md" numberOfLines={1}>
+                        {profile?.calculatedMetrics?.dci
+                          ? `${Math.round(profile.calculatedMetrics.dci)} Cal`
+                          : "0Cal"}
+                      </Text>
+                    </Box>
+                    <Box width={8} backgroundColor="LightPink" />
+                  </Box>
+                  <Box
+                    flex={4}
+                    borderRadius="sm"
+                    borderWidth={1}
+                    borderColor="borderSecondary"
+                    flexDirection="row"
+                    overflow="hidden"
+                  >
+                    <Box flex={1} p="sm">
+                      <Text variant="sm" color="textSecondary">BMR</Text>
+                      <Text variant="md" numberOfLines={1}>
+                        {profile?.calculatedMetrics?.bmr
+                          ? `${Math.round(profile.calculatedMetrics.bmr)} Cal`
+                          : "0Cal"}
+                      </Text>
+                    </Box>
+                    <Box width={8} backgroundColor="PrimaryOrange" />
+                  </Box>
                 </Box>
-                <Box width={8} backgroundColor="LightBlue" />
-              </Box>
-              <Box
-                flex={4}
-                borderRadius="sm"
-                borderWidth={2}
-                borderColor="backgroundSecondary"
-                flexDirection="row"
-                overflow="hidden"
-                mx="sm"
-              >
-                <Box flex={1} p="sm">
-                  <Text variant="sm" color="textSecondary">DCI</Text>
-                  <Text variant="md" numberOfLines={1}>
-                    {profile?.calculatedMetrics?.dci
-                      ? `${Math.round(profile.calculatedMetrics.dci)} Cal`
-                      : "0Cal"}
-                  </Text>
-                </Box>
-                <Box width={8} backgroundColor="LightPink" />
-              </Box>
-              <Box
-                flex={4}
-                borderRadius="sm"
-                borderWidth={2}
-                borderColor="backgroundSecondary"
-                flexDirection="row"
-                overflow="hidden"
-              >
-                <Box flex={1} p="sm">
-                  <Text variant="sm" color="textSecondary">BMR</Text>
-                  <Text variant="md" numberOfLines={1}>
-                    {profile?.calculatedMetrics?.bmr
-                      ? `${Math.round(profile.calculatedMetrics.bmr)} Cal`
-                      : "0Cal"}
-                  </Text>
-                </Box>
-                <Box width={8} backgroundColor="PrimaryOrange" />
-              </Box>
-            </Box>
+              )}
 
-            <Box flex={1} paddingBottom="sm">
+            <Box flex={1} paddingBottom="sm" gap="sm">
               {!user?.isInjured &&
                 profile?.fitnessInfo &&
                 profile?.personalInfo && (
                   <>
-                    <Box flexDirection="row" justifyContent="space-between" mb="sm">
+                    <Box flex={1} flexDirection="row" justifyContent="space-between" gap="sm" >
                       {workout && workout?.length > 0 ? (
                         <TouchableOpacity
                           style={{ flex: 1 }}
@@ -334,7 +338,10 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                           }}
                         >
                           <Box
-                            backgroundColor="PrimaryGreyDark"
+                            flex={1}
+                            backgroundColor="backgroundSecondary"
+                            borderWidth={1}
+                            borderColor="borderSecondary"
                             borderRadius="sm"
                             p="md"
                             alignItems="center"
@@ -354,7 +361,10 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                           onPress={() => navigation.navigate("GenerateWorkout")}
                         >
                           <Box
-                            backgroundColor="PrimaryGreyDark"
+                            flex={1}
+                            backgroundColor="backgroundSecondary"
+                            borderWidth={1}
+                            borderColor="borderSecondary"
                             borderRadius="sm"
                             p="md"
                             alignItems="center"
@@ -371,7 +381,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                       )}
                       {mealPlan && mealPlan.length > 0 ? (
                         <TouchableOpacity
-                          style={{ flex: 1, paddingLeft: theme.spacing.sm }}
+                          style={{ flex: 1 }}
                           onPress={() => {
                             store.dispatch(
                               gymActions.setSelectedMealPlanType(
@@ -382,7 +392,10 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                           }}
                         >
                           <Box
-                            backgroundColor="PrimaryGreyDark"
+                            flex={1}
+                            backgroundColor="backgroundSecondary"
+                            borderWidth={1}
+                            borderColor="borderSecondary"
                             borderRadius="sm"
                             p="md"
                             alignItems="center"
@@ -398,11 +411,14 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                         </TouchableOpacity>
                       ) : (
                         <TouchableOpacity
-                          style={{ flex: 1, paddingLeft: theme.spacing.sm }}
+                          style={{ flex: 1 }}
                           onPress={() => navigation.navigate("GenerateMealPlan")}
                         >
                           <Box
-                            backgroundColor="PrimaryGreyDark"
+                            flex={1}
+                            backgroundColor="backgroundSecondary"
+                            borderWidth={1}
+                            borderColor="borderSecondary"
                             borderRadius="sm"
                             p="md"
                             alignItems="center"
@@ -417,9 +433,11 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                           </Box>
                         </TouchableOpacity>
                       )}
+
                     </Box>
 
                     <TouchableOpacity
+                      style={{ flex: 1 }}
                       onPress={() => {
                         navigation.navigate("GeneralWorkoutRoutine");
                         store.dispatch(
@@ -432,13 +450,14 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                     >
                       <Box
                         flex={1}
-                        backgroundColor="PrimaryGreyDark"
+                        backgroundColor="backgroundSecondary"
+                        borderWidth={1}
+                        borderColor="borderSecondary"
                         borderRadius="sm"
                         p="md"
                         alignItems="center"
                         justifyContent="center"
                         gap="sm"
-
                       >
                         <Bike color={theme.colors.PrimaryOrange} size={40} strokeWidth={1} />
                         <Text variant="lg" color="PrimaryOrange">Default Workouts</Text>
@@ -447,17 +466,18 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                         </Text>
                       </Box>
                     </TouchableOpacity>
-                    <Box mt="md" mb="sm">
+                    <Box flex={1}>
                       <Text variant="lgBold">Workout Analytics</Text>
-                      <Box flexDirection="row" justifyContent="space-between" gap="sm" mt="sm">
+                      <Box flex={1} flexDirection="row" justifyContent="space-between" gap="sm" mt="sm">
                         <TouchableOpacity
                           style={{ flex: 1 }}
                           onPress={() => navigation.navigate("MyDashboardScreen" as any)}
                         >
                           <Box
-                            backgroundColor="PrimaryGreyDark"
+                            backgroundColor="backgroundSecondary"
                             borderRadius="sm"
                             p="md"
+                            justifyContent="center"
                           >
                             <Text variant="xs" color="textSecondary">Schedule</Text>
                             <Text variant="md">My Workout</Text>
@@ -469,9 +489,10 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                           onPress={() => navigation.navigate("MyDashboardScreen" as any)}
                         >
                           <Box
-                            backgroundColor="PrimaryGreyDark"
+                            backgroundColor="backgroundSecondary"
                             borderRadius="sm"
                             p="md"
+                            justifyContent="center"
                           >
                             <Text variant="xs" color="textSecondary">Schedule</Text>
                             <Text variant="md">Fitness Guru</Text>

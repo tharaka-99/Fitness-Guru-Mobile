@@ -25,6 +25,7 @@ export const clientUserLogin = async (credentials: Credentials) => {
 
     try {
       await Purchases.logIn(clientData._id);
+      console.log("RevenueCat login success  >>>>>> ", clientData._id);
     } catch (rcError) {
       console.error("RevenueCat login error:", rcError);
     }

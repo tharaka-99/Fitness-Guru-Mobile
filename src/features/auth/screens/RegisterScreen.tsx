@@ -98,7 +98,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
       if (key === "password" || key === "confirmPassword") {
         setPasswordsMatch(
           updated.password === updated.confirmPassword &&
-            updated.confirmPassword.length > 0
+          updated.confirmPassword.length > 0
         );
       }
 
@@ -260,7 +260,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
                 // Check password match when password changes
                 setPasswordsMatch(
                   t === (userData.confirmPassword ?? "") &&
-                    (userData.confirmPassword?.length ?? 0) > 0
+                  (userData.confirmPassword?.length ?? 0) > 0
                 );
               }}
             />
@@ -296,8 +296,8 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
                       passwordStrength === "Strong"
                         ? "PrimaryGreen"
                         : passwordStrength === "Medium"
-                        ? "PrimaryOrange"
-                        : "PrimaryRed"
+                          ? "PrimaryOrange"
+                          : "PrimaryRed"
                     }
                   >
                     {passwordStrength}
@@ -356,7 +356,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
             <TextInput
               label="Mobile Number"
               keyboardType="phone-pad"
-              placeholder="1234567890"
+              placeholder="Your Mobile Number"
               onChangeText={(t) => handleInputChange("mobileNumber", t)}
             />
             <TextInput

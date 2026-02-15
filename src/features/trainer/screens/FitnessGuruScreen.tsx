@@ -115,7 +115,7 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
               </Box>
               <Box>
                 <Text variant="lgBold">
-                  Welcome back, {user?.firstName || "User"}
+                  Welcome Back, {user?.firstName || "User"}
                 </Text>
                 <Text variant="md" color="textSecondary">
                   {formattedDate}
@@ -124,67 +124,69 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
             </Box>
 
 
-            <Box flexDirection="row" justifyContent="space-between" mb="sm">
-              <Box
-                flex={1}
-                borderRadius="sm"
-                borderWidth={2}
-                borderColor="backgroundSecondary"
-                flexDirection="row"
-                overflow="hidden"
+            {(user?.fitnessInfo?.goal ||
+              (user?.calculatedMetrics?.dci && Math.round(user.calculatedMetrics.dci) > 0) ||
+              (user?.calculatedMetrics?.bmr && Math.round(user.calculatedMetrics.bmr) > 0)) && (
+                <Box flexDirection="row" justifyContent="space-between" mb="sm">
+                  <Box
+                    flex={1}
+                    borderRadius="sm"
+                    borderWidth={1}
+                    borderColor="borderSecondary"
+                    flexDirection="row"
+                    overflow="hidden"
+                  >
+                    <Box flex={1} p="sm">
+                      <Text variant="sm" color="textSecondary">Goal</Text>
+                      <Text variant="md" numberOfLines={1}>
+                        {user?.fitnessInfo?.goal
+                          ? user.fitnessInfo.goal.replace(/([a-z])([A-Z])/g, "$1 $2")
+                          : "Not Set"}
+                      </Text>
+                    </Box>
+                    <Box width={8} backgroundColor="PrimaryGreen" />
+                  </Box>
 
-              >
-                <Box flex={1} p="sm">
-                  <Text variant="sm" color="textSecondary">Goal</Text>
-                  <Text variant="md" numberOfLines={1}>
-                    {user?.fitnessInfo?.goal
-                      ? user.fitnessInfo.goal.replace(/([a-z])([A-Z])/g, "$1 $2")
-                      : "Not Set"}
-                  </Text>
+                  <Box
+                    flex={1}
+                    borderRadius="sm"
+                    borderWidth={1}
+                    borderColor="borderSecondary"
+                    flexDirection="row"
+                    overflow="hidden"
+                    mx="sm"
+                  >
+                    <Box flex={1} p="sm">
+                      <Text variant="sm" color="textSecondary">DCI</Text>
+                      <Text variant="md" numberOfLines={1}>
+                        {user?.calculatedMetrics?.dci
+                          ? `${Math.round(user.calculatedMetrics.dci)} Cal`
+                          : "0 Cal"}
+                      </Text>
+                    </Box>
+                    <Box width={8} backgroundColor="PrimaryGreen" />
+                  </Box>
+
+                  <Box
+                    flex={1}
+                    borderRadius="sm"
+                    borderWidth={1}
+                    borderColor="borderSecondary"
+                    flexDirection="row"
+                    overflow="hidden"
+                  >
+                    <Box flex={1} p="sm">
+                      <Text variant="sm" color="textSecondary">BMR</Text>
+                      <Text variant="md" numberOfLines={1}>
+                        {user?.calculatedMetrics?.bmr
+                          ? `${Math.round(user.calculatedMetrics.bmr)} Cal`
+                          : "0 Cal"}
+                      </Text>
+                    </Box>
+                    <Box width={8} backgroundColor="PrimaryGreen" />
+                  </Box>
                 </Box>
-                <Box width={8} backgroundColor="PrimaryGreen" />
-              </Box>
-
-              <Box
-                flex={1}
-                borderRadius="sm"
-                borderWidth={2}
-                borderColor="backgroundSecondary"
-                flexDirection="row"
-                overflow="hidden"
-                mx="sm"
-              >
-                <Box flex={1} p="sm">
-                  <Text variant="sm" color="textSecondary">DCI</Text>
-                  <Text variant="md" numberOfLines={1}>
-                    {user?.calculatedMetrics?.dci
-                      ? `${Math.round(user.calculatedMetrics.dci)}KCal`
-                      : "0KCal"}
-                  </Text>
-                </Box>
-                <Box width={8} backgroundColor="PrimaryGreen" />
-              </Box>
-
-              <Box
-                flex={1}
-                borderRadius="sm"
-                borderWidth={2}
-                borderColor="backgroundSecondary"
-
-                flexDirection="row"
-                overflow="hidden"
-              >
-                <Box flex={1} p="sm">
-                  <Text variant="sm" color="textSecondary">BMR</Text>
-                  <Text variant="md" numberOfLines={1}>
-                    {user?.calculatedMetrics?.bmr
-                      ? `${Math.round(user.calculatedMetrics.bmr)}KCal`
-                      : "0KCal"}
-                  </Text>
-                </Box>
-                <Box width={8} backgroundColor="PrimaryGreen" />
-              </Box>
-            </Box>
+              )}
             {fitnessGuruRequest?.status !== "Pending" ? (
               ((subscription && subscription?.status === true) ||
                 user?.isTrialActive === true) ? (
@@ -238,6 +240,8 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                       <Box
                         backgroundColor="backgroundSecondary"
                         borderRadius="md"
+                        borderWidth={1}
+                        borderColor="borderSecondary"
                         p="lg"
                         alignItems="center"
                         justifyContent="center"
@@ -267,6 +271,8 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                       <Box
                         backgroundColor="backgroundSecondary"
                         borderRadius="md"
+                        borderWidth={1}
+                        borderColor="borderSecondary"
                         p="lg"
                         alignItems="center"
                         justifyContent="center"
