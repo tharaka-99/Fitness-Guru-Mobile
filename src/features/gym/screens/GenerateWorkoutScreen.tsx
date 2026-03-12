@@ -31,6 +31,8 @@ import { useQuery } from "react-query";
 import { useSelector } from "react-redux";
 import { gymActions } from "../context/slice";
 import { ArrowLeft, ArrowRight, X, PlusCircle } from "lucide-react-native";
+import { PAGE_WIDTH } from "@components/app/PageWrapper";
+import { constants } from "@utils/styles/theme";
 
 const GenerateWorkoutScreen: React.FC<
   MyStackNavigatorScreenProps<"GenerateWorkout">
@@ -105,11 +107,9 @@ const GenerateWorkoutScreen: React.FC<
           gap="md"
           flexDirection="row"
           alignItems="center"
-          justifyContent="space-between"
+          justifyContent="flex-end"
+          mb="sm"
         >
-          <Box flexDirection="row" gap="md" alignItems="center">
-            <Text variant="lgBold">DAY {item.day}</Text>
-          </Box>
           <X
             size={24}
             color={theme.colors.PrimaryRed}
@@ -117,40 +117,51 @@ const GenerateWorkoutScreen: React.FC<
           />
         </Box>
 
-        <Box mt="lg">
-          <Text variant="sm" color="SecondaryGrey">
-            {item.exercises.length}{" "}
-            {item.exercises.length === 1 ? "exercise" : "exercises"}
-          </Text>
-        </Box>
-
-        <Box mt="sm">
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate("DayExercises", { day: item.day });
-            }}
-            activeOpacity={0.7}
-            style={{
-              flex: 1,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "flex-start",
-              borderRadius: 8,
-              paddingHorizontal: 16,
-              paddingVertical: 16,
-              backgroundColor: theme.colors.PrimaryGrey,
-            }}
+        <TouchableOpacity
+          activeOpacity={constants.activeOpacity}
+          onPress={() => {
+            navigation.navigate("DayExercises", { day: item.day });
+          }}
+        >
+          <Box
+            mb="xs"
+            height={80}
+            borderRadius="sm"
+            overflow="hidden"
+            width={PAGE_WIDTH}
+            flexDirection="row"
+            backgroundColor="backgroundSecondary"
           >
-            <Text
-              style={{
-                fontSize: theme.textVariants.lg.fontSize,
-                color: theme.colors.SecondaryGrey,
-              }}
+            <Box
+              px="lg"
+              flex={1}
+              alignItems="flex-start"
+              justifyContent="center"
             >
-              Add New Exercise
-            </Text>
-          </TouchableOpacity>
-        </Box>
+              <Text variant="mdBold" numberOfLines={1}>
+                DAY {item.day}
+              </Text>
+              <Text
+                color="textSecondary"
+                numberOfLines={1}
+                style={{ textTransform: "capitalize" }}
+              >
+                {`${item.exercises.length} ${item.exercises.length === 1 ? "exercise" : "exercises"
+                  } added`}
+              </Text>
+            </Box>
+
+            <Box
+              width="16%"
+              height="100%"
+              alignItems="center"
+              justifyContent="center"
+              backgroundColor="PrimaryGreen"
+            >
+              <ArrowRight size={23} color={theme.colors.PrimaryBlack} />
+            </Box>
+          </Box>
+        </TouchableOpacity>
       </Box>
     );
   };
@@ -208,7 +219,7 @@ const GenerateWorkoutScreen: React.FC<
         text1: 'Subscription Required',
         text2: 'Please subscribe to save your workouts.',
       });
-      navigation.push("GenerateMealPlan");
+      navigation.push("PricingPackages");
     }
   };
 

@@ -13,12 +13,28 @@ import { WorkoutType } from "@utils/types/types";
 import { Icon } from "react-native-paper";
 import Text from "@components/atoms/Text";
 import { ArrowLeft } from "lucide-react-native";
+import Toast from "react-native-toast-message";
+import useSubscription from "@features/subscription/hooks/useSubscription";
 
 const WorkoutRoutineScreen: React.FC<
   MyStackNavigatorScreenProps<"WorkoutRoutine">
 > = ({ navigation }) => {
   const { workouts, selectedWorkout, selectedGeneralDay, defaultWorkouts } =
     store.getState()["feature/gym"];
+  const { isSubscribed } = useSubscription();
+
+  const handleAddWorkout = () => {
+    if (!isSubscribed) {
+      Toast.show({
+        type: "info",
+        text1: "Subscription Required",
+        text2: "Please subscribe to save your workouts.",
+      });
+      navigation.push("PricingPackages");
+      return;
+    }
+    navigation.navigate("GenerateWorkout");
+  };
 
   // Filter out only the data with type "SelfCreated" and "Default"
   let filteredData;
@@ -64,24 +80,31 @@ const WorkoutRoutineScreen: React.FC<
           </Box>
         }
         rightComponent={
-          selectedWorkout.WorkoutType === WorkoutType.SelfCreated && (
-            <TouchableOpacity
-              onPress={() => navigation.navigate("GenerateWorkout")}
-            >
-              <Icon
-                size={30}
-                source={"plus"}
-                color={theme.colors.PrimaryGreen}
-              />
-            </TouchableOpacity>
-          )
+          <TouchableOpacity onPress={handleAddWorkout}>
+            <Icon
+              size={30}
+              source={"plus"}
+              color={theme.colors.PrimaryGreen}
+            />
+          </TouchableOpacity>
         }
       />
       {selectedWorkout.WorkoutType === WorkoutType.Default ? (
         <FlatList
           data={generalExerciseDays}
           keyExtractor={({ day }) => String(day)}
-          contentContainerStyle={{ gap: theme.spacing.sm }}
+
+          ListEmptyComponent={
+            <Box flex={1} justifyContent="center" alignItems="center" px="xl">
+              <Text variant="lgBold" color="textSecondary" textAlign="center">
+                No workouts available
+              </Text>
+              <Text variant="md" color="textSecondary" textAlign="center" mt="sm">
+                It looks like you don't have any workouts for this category.
+                Tap the "+" button to create one!
+              </Text>
+            </Box>
+          }
           renderItem={({ item }) => {
             const { day, exercises } = item;
 
@@ -109,7 +132,6 @@ const WorkoutRoutineScreen: React.FC<
             );
           })}
           keyExtractor={({ day }) => String(day)}
-          contentContainerStyle={{ gap: theme.spacing.sm }}
           renderItem={({ item }) => {
             const { day, exercises } = item;
             const exerciseNames =

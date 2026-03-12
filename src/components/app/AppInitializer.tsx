@@ -10,6 +10,7 @@ import { selectAuthTokens } from '@features/auth/context/selectors';
 import { authActions } from '@features/auth/context/slice';
 import AppNavigator from '@navigation/AppNavigator';
 import AuthNavigator from '@navigation/AuthNavigator';
+import CountdownGate from './CountdownGate';
 import {
   getDecodedTokens,
   isTokenAboutToExpire,
@@ -91,7 +92,27 @@ const AppInitializer = () => {
     NetInfo.refresh();
   };
 
+  const LAUNCH_DATE = new Date('2026-03-28T17:00:00');
+  const [showCountdown, setShowCountdown] = useState<boolean>(false);
+
+  useEffect(() => {
+    const now = new Date();
+    if (now < LAUNCH_DATE) {
+      setShowCountdown(true);
+    }
+  }, []);
+
   const renderContent = () => {
+    if (showCountdown) {
+      return (
+        <CountdownGate
+          launchDate={LAUNCH_DATE}
+          onLaunch={() => setShowCountdown(false)}
+          onBypass={() => setShowCountdown(false)}
+        />
+      );
+    }
+
     if (authencaticated === null)
       return (
         <Box

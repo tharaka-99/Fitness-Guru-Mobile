@@ -379,61 +379,36 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                           </Box>
                         </TouchableOpacity>
                       )}
-                      {mealPlan && mealPlan.length > 0 ? (
-                        <TouchableOpacity
-                          style={{ flex: 1 }}
-                          onPress={() => {
-                            store.dispatch(
-                              gymActions.setSelectedMealPlanType(
-                                MealPlanType.SelfCreated
-                              )
-                            );
-                            navigation.navigate("MealPlan");
-                          }}
-                        >
-                          <Box
-                            flex={1}
-                            backgroundColor="backgroundSecondary"
-                            borderWidth={1}
-                            borderColor="borderSecondary"
-                            borderRadius="sm"
-                            p="md"
-                            alignItems="center"
-                            justifyContent="center"
-                            gap="sm"
-                          >
-                            <Utensils color={theme.colors.LightPink} size={40} strokeWidth={1} />
-                            <Text variant="lg" color="LightPink">My Meal Plan</Text>
-                            <Text variant="xs" color="textSecondary" textAlign="center">
-                              Update your meal plan when ever you think its necessary.
-                            </Text>
-                          </Box>
-                        </TouchableOpacity>
-                      ) : (
-                        <TouchableOpacity
-                          style={{ flex: 1 }}
-                          onPress={() => navigation.navigate("GenerateMealPlan")}
-                        >
-                          <Box
-                            flex={1}
-                            backgroundColor="backgroundSecondary"
-                            borderWidth={1}
-                            borderColor="borderSecondary"
-                            borderRadius="sm"
-                            p="md"
-                            alignItems="center"
-                            justifyContent="center"
-                            gap="sm"
-                          >
-                            <CirclePlus color={theme.colors.LightPink} size={40} strokeWidth={1} />
-                            <Text variant="lg" color="LightPink">Create Meal Plan</Text>
-                            <Text variant="xs" color="textSecondary" textAlign="center">
-                              You can create your own meal plan.
-                            </Text>
-                          </Box>
-                        </TouchableOpacity>
-                      )}
 
+                      <TouchableOpacity
+                        style={{ flex: 1 }}
+                        onPress={() => {
+                          store.dispatch(
+                            gymActions.setSelectedMealPlanType(
+                              MealPlanType.SelfCreated
+                            )
+                          );
+                          navigation.navigate("MealPlan");
+                        }}
+                      >
+                        <Box
+                          flex={1}
+                          backgroundColor="backgroundSecondary"
+                          borderWidth={1}
+                          borderColor="borderSecondary"
+                          borderRadius="sm"
+                          p="md"
+                          alignItems="center"
+                          justifyContent="center"
+                          gap="sm"
+                        >
+                          <Utensils color={theme.colors.LightPink} size={40} strokeWidth={1} />
+                          <Text variant="lg" color="LightPink">My Meal Plan</Text>
+                          <Text variant="xs" color="textSecondary" textAlign="center">
+                            Update your meal plan when ever you think its necessary.
+                          </Text>
+                        </Box>
+                      </TouchableOpacity>
                     </Box>
 
                     <TouchableOpacity
@@ -507,9 +482,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                 !profile?.personalInfo && (
                   <InfoCard
                     buttonTitle="Get Started"
-                    description="By getting started, you will get to choose your preferred meal plan
-                according to your body statistics and you will be provided with a
-                Workout Routine based on your expertise level."
+                    description="Get started by adding your body stats and goals, then create your own personalized workout routine and meal plan."
                     imageSource={require("assets/images/dumble-with-heart.png")}
                     buttonOnPress={() => navigation.navigate("Onboard")}
                   />

@@ -30,10 +30,10 @@ import {
 } from "@utils/types/analyticsTypes";
 import Toast from "react-native-toast-message";
 import { useQuery } from "react-query";
-import { Text } from "react-native-paper";
 import { View } from "react-native";
 import { theme } from "@utils/styles/theme";
 import { Icon } from "react-native-paper";
+import Text from "@components/atoms/Text";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const AnalyticsScreen: React.FC<
@@ -138,31 +138,39 @@ const AnalyticsScreen: React.FC<
       showsVerticalScrollIndicator={false}
       enableOnAndroid={true}
       extraScrollHeight={20}
-      //  behavior={Platform.OS === "ios" ? "padding" : "height"}
-      //         style={{flex:1, marginBottom:64}}
-      //         // contentContainerStyle={{padding:16, gap:16}}
-      //         bottemoffset
-      //         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+    //  behavior={Platform.OS === "ios" ? "padding" : "height"}
+    //         style={{flex:1, marginBottom:64}}
+    //         // contentContainerStyle={{padding:16, gap:16}}
+    //         bottemoffset
+    //         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View>
           <PageWrapper>
-            <Box flexDirection="row" alignItems="center" gap="md">
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Icon
-                  source="arrow-left"
-                  size={30}
-                  color={theme.colors.PrimaryGreen}
-                />
-              </TouchableOpacity>
-            </Box>
-            <PageHeader title="Analytics" />
+
+            <PageHeader
+              leftComponent={
+                <Box flexDirection="row" alignItems="center" gap="md">
+                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Icon
+                      source="arrow-left"
+                      size={30}
+                      color={theme.colors.PrimaryGreen}
+                    />
+                  </TouchableOpacity>
+                  <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
+                    Analytics
+                  </Text>
+                </Box>
+              }
+            />
+
             {hideTabs && (
               <Box
                 flexDirection="row"
                 justifyContent="space-around"
                 marginVertical="base"
-                // flex={1}
+              // flex={1}
               >
                 <BoxTab
                   title="Exercise"

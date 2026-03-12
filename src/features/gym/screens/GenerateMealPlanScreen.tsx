@@ -234,24 +234,30 @@ const GenerateMealPlanScreen: React.FC<
   //
   const handleMealWarnPopUp = () => {
     const selectedCalories = getPlannedCalorieIntakeByMealType();
-    if (
+    return (
       selectedCalories < caloryRequirements.perMealLowerLimit ||
       selectedCalories > caloryRequirements.perMealUpperLimit
-    ) {
-      return true;
-    }
-    return false;
+    );
+  };
+
+  const handleTotalWarnPopUp = () => {
+    return (
+      totalCalories < caloryRequirements.totalLowerLimit ||
+      totalCalories > caloryRequirements.totalUpperLimit
+    );
   };
   //
   const handleSetMealType = () => {
     const nextMealType = getNextMealType();
-    if (selectedMealType === MealType.Dinner && handleMealWarnPopUp()) {
+    const isOutOfMealLimits = handleMealWarnPopUp();
+    const isOutOfTotalLimits =
+      selectedMealType === MealType.Dinner && handleTotalWarnPopUp();
+
+    if (isOutOfMealLimits && isOutOfTotalLimits) {
       setNextMealType(nextMealType);
       setModalVisible(true);
     } else {
-      if (readyToSubmit) {
-        store.dispatch(gymActions.setSelectedMealType(nextMealType));
-
+      if (selectedMealType === MealType.Dinner) {
         handleSubmitMealPlan();
       } else {
         store.dispatch(gymActions.setSelectedMealType(nextMealType));
@@ -313,9 +319,10 @@ const GenerateMealPlanScreen: React.FC<
             selfCreatedMealPlan?._id,
             mealDetailsWithoutCalPerUnit,
           );
-        } else {
-          await createMealPlan(mealDetailsWithoutCalPerUnit);
         }
+        // } else {
+        //   await createMealPlan(mealDetailsWithoutCalPerUnit);
+        // }
 
         Toast.show({
           type: "success",
@@ -336,15 +343,18 @@ const GenerateMealPlanScreen: React.FC<
       }
     } else {
       setModalVisible(false);
+      Toast.show({
+        type: "info",
+        text1: "Subscription Required",
+        text2: "Please subscribe to save your meal plans.",
+      });
       navigation.push("PricingPackages");
     }
   };
   //
   const handleContinue = () => {
     setModalVisible(false);
-    if (readyToSubmit) {
-      store.dispatch(gymActions.setSelectedMealType(nextMealType));
-
+    if (selectedMealType === MealType.Dinner) {
       handleSubmitMealPlan();
     } else {
       store.dispatch(gymActions.setSelectedMealType(nextMealType));
@@ -435,7 +445,7 @@ const GenerateMealPlanScreen: React.FC<
           ListHeaderComponentStyle={{ marginBottom: theme.spacing.md }}
           contentContainerStyle={{ paddingBottom: theme.spacing.md, gap: 1 }}
           ListHeaderComponent={
-            <>
+            <Box style={{ backgroundColor: theme.colors.PrimaryBlack }}>
               <MealCalorieInfoCard
                 totalIntakeData={{
                   maxCalarieIntake: caloryRequirements.totalUpperLimit,
@@ -459,7 +469,7 @@ const GenerateMealPlanScreen: React.FC<
                   yourPlannedCalorieIntake: getPlannedCalorieIntakeByMealType(),
                 }}
               />
-            </>
+            </Box>
           }
           renderItem={({ item }) => {
             const {
@@ -518,8 +528,9 @@ const GenerateMealPlanScreen: React.FC<
           Calorie Intake Warning
         </Text>
         <Text variant="lgBold" mb="md">
-          Calorie intake for this meal type is out of bounds. Are you sure you
-          want to continue?
+          {selectedMealType === MealType.Dinner && handleTotalWarnPopUp()
+            ? "Total daily calorie intake is out of bounds. Are you sure you want to continue?"
+            : "Calorie intake for this meal type is out of bounds. Are you sure you want to continue?"}
         </Text>
 
         <Box flexDirection="row" justifyContent="space-between" mt="md">

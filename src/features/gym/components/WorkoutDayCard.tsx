@@ -17,7 +17,7 @@ const WorkoutDayCard: React.FC<Props> = ({ title, description, onPress }) => {
   return (
     <TouchableOpacity activeOpacity={constants.activeOpacity} onPress={onPress}>
       <Box
-        mb="xs"
+        mb="sm"
         height={80}
         borderRadius="sm"
         overflow="hidden"
@@ -47,7 +47,7 @@ const WorkoutDayCard: React.FC<Props> = ({ title, description, onPress }) => {
         >
           <ArrowRight
             size={23}
-            color={theme.colors.PrimaryWhite}
+            color={theme.colors.PrimaryBlack}
           />
         </Box>
       </Box>

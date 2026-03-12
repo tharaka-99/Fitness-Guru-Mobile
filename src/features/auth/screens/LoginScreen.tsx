@@ -129,18 +129,20 @@ const LoginScreen: React.FC<MyAuthStackNavigatorScreenProps<"Login">> = ({
               />
             </Box>
 
-            <Box
-              gap="sm"
-              mt="md"
-              flexDirection="row"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Text color="textSecondary">Not a member yet ?</Text>
-              <Text onPress={() => navigation.navigate("Register")} py="md">
-                Sign in
-              </Text>
-            </Box>
+            {new Date() >= new Date("2026-03-28T17:00:00") && (
+              <Box
+                gap="sm"
+                mt="md"
+                flexDirection="row"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text color="textSecondary">Not a member yet ?</Text>
+                <Text onPress={() => navigation.navigate("Register")} py="md">
+                  Sign in
+                </Text>
+              </Box>
+            )}
           </Box>
         </Box>
       </KeyboardAwareScrollView>

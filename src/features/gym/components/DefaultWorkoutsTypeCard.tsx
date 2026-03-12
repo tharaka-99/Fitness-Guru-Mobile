@@ -23,7 +23,7 @@ const DefaultWorkoutsTypeCard: React.FC<Props> = ({
   return (
     <TouchableOpacity activeOpacity={constants.activeOpacity} onPress={onPress}>
       <Box
-        mb="xs"
+        mb="sm"
         height={90}
         borderRadius="sm"
         overflow="hidden"
@@ -58,7 +58,7 @@ const DefaultWorkoutsTypeCard: React.FC<Props> = ({
         >
           <ArrowRight
             size={23}
-            color={theme.colors.PrimaryWhite}
+            color={theme.colors.PrimaryBlack}
           />
         </Box>
       </Box>

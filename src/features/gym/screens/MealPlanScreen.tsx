@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList } from "react-native";
+import { FlatList, TouchableOpacity } from "react-native";
 
 import PageHeader from "@components/app/header/PageHeader";
 import PageWrapper from "@components/app/PageWrapper";
@@ -12,22 +12,36 @@ import { store } from "@/store";
 import { MealPlanType, MealType } from "@utils/types/mealPlanTypes";
 import { gymActions } from "../context/slice";
 import { Icon } from "react-native-paper";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { WorkoutType } from "@utils/types/types";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
 import { ArrowLeft, Plus } from "lucide-react-native";
+import Toast from "react-native-toast-message";
+import useSubscription from "@features/subscription/hooks/useSubscription";
 
 const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
   navigation,
 }) => {
-  const { selectedMealPlanType, selectedMealPlan } =
-    store.getState()["feature/gym"];
+  const { isSubscribed } = useSubscription();
+  const { selectedMealPlanType } = store.getState()["feature/gym"];
   const {
     isLoading: isMealPlanLoading,
     data: mealPlan,
     refetch: mealPlanRefetch,
   } = useQuery("mealPlan", getMealPlan);
+
+  const handleAddMealPlan = () => {
+    if (!isSubscribed) {
+      Toast.show({
+        type: "info",
+        text1: "Subscription Required",
+        text2: "Please subscribe to save your meal plans.",
+      });
+      navigation.push("PricingPackages");
+      return;
+    }
+    navigation.navigate("GenerateMealPlan");
+  };
 
   let selectedMeal;
 
@@ -45,13 +59,9 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
     <PageWrapper>
       <PageHeader
         rightComponent={
-          selectedMealPlanType === MealPlanType.SelfCreated && (
-            <TouchableOpacity
-              onPress={() => navigation.navigate("GenerateMealPlan")}
-            >
-              <Plus size={30} color={theme.colors.PrimaryGreen} />
-            </TouchableOpacity>
-          )
+          <TouchableOpacity onPress={handleAddMealPlan}>
+            <Plus size={30} color={theme.colors.PrimaryGreen} />
+          </TouchableOpacity>
         }
         title="Meal Plan"
         leftComponent={
@@ -69,7 +79,18 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
       <FlatList
         data={selectedMeal}
         keyExtractor={({ _id }) => String(_id)}
-        contentContainerStyle={{ gap: theme.spacing.sm }}
+        contentContainerStyle={{ gap: theme.spacing.sm, flexGrow: 1 }}
+        ListEmptyComponent={
+          <Box flex={1} justifyContent="center" alignItems="center" px="xl">
+            <Text variant="lgBold" color="textSecondary" textAlign="center">
+              No meal plans found
+            </Text>
+            <Text variant="md" color="textSecondary" textAlign="center" mt="sm">
+              It looks like you don't have any meal plans for this category.
+              Tap the "+" button to create one!
+            </Text>
+          </Box>
+        }
         renderItem={({ item }) => {
           const { breakfast, dinner, lunch, snack } = item;
 
