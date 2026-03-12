@@ -116,7 +116,7 @@ const GeneralWorkoutRoutineScreen: React.FC<
       <FlatList
         data={generalWorkoutsInfo}
         keyExtractor={({ name }) => String(name)}
-        contentContainerStyle={{ gap: theme.spacing.sm }}
+
         renderItem={({ item }) => {
           const { name, description, image, id } = item;
 

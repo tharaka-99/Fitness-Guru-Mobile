@@ -92,30 +92,47 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
         >
           <Box flex={1} gap="md">
             <Box flexDirection="row" alignItems="center" gap="md" px="xs" mb="sm">
-              <Box position="relative">
-                {user?.profileImageFileUrl ? (
+              <Box flexDirection="row" alignItems="center">
+                <Box>
+                  {user?.profileImageFileUrl ? (
+                    <Image
+                      source={{ uri: user.profileImageFileUrl }}
+                      style={{ width: 60, height: 60, borderRadius: 30 }}
+                    />
+                  ) : (
+                    <Box
+                      width={60}
+                      height={60}
+                      borderRadius="full"
+                      backgroundColor="SecondaryGrey"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text variant="lgBold" color="PrimaryWhite">
+                        {(user?.firstName?.[0] || "") + (user?.lastName?.[0] || "")}
+                      </Text>
+                    </Box>
+                  )}
+                </Box>
+                <Box
+                  style={{ marginLeft: -10 }}
+                  width={60}
+                  height={60}
+                  borderRadius="full"
+                  backgroundColor="PrimaryGreen"
+                  alignItems="center"
+                  justifyContent="center"
+                >
                   <Image
-                    source={{ uri: user.profileImageFileUrl }}
-                    style={{ width: 60, height: 60, borderRadius: 30 }}
+                    source={require("assets/images/green_logo_icon.png")}
+                    style={{ width: 35, height: 35 }}
+                    resizeMode="contain"
                   />
-                ) : (
-                  <Box
-                    width={60}
-                    height={60}
-                    borderRadius="full"
-                    backgroundColor="SecondaryGrey"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text variant="lgBold" color="PrimaryWhite">
-                      {(user?.firstName?.[0] || "") + (user?.lastName?.[0] || "")}
-                    </Text>
-                  </Box>
-                )}
+                </Box>
               </Box>
               <Box>
                 <Text variant="lgBold">
-                  Welcome Back, {user?.firstName || "User"}
+                  Welcome back, {user?.firstName || "User"}
                 </Text>
                 <Text variant="md" color="textSecondary">
                   {formattedDate}
@@ -203,8 +220,8 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                 />
               ) : (
                 <InfoCard
-                  title="Need Assistance in Your Training?"
-                  description="Get yourself a personal trainer at your fingertips."
+                  title="Train with Fitness Guru"
+                  description="Start your journey with guided workouts, progress tracking, and personalized plans designed to support your fitness goals."
                   imageSource={require("assets/images/trainer-with-form.png")}
                   buttonTitle="Invest in Yourself"
                   buttonOnPress={() => navigation.navigate("PricingPackages")}
@@ -223,7 +240,7 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
 
             {((filteredWorkout?.length ?? 0) > 0 || (filteredMeal?.length ?? 0) > 0) && (
               <>
-                <Box gap="md">
+                <Box gap="sm">
                   {filteredWorkout && filteredWorkout.length > 0 && (
                     <TouchableOpacity
                       activeOpacity={constants.activeOpacity}
@@ -288,7 +305,7 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                   )}
                 </Box>
 
-                {/* <Box mb="sm">
+                <Box mb="sm">
                   <Text variant="lgBold">Request new schedules</Text>
                   <Box flexDirection="row" justifyContent="space-between" gap="sm" mt="sm">
                     <TouchableOpacity
@@ -323,7 +340,7 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                       </Box>
                     </TouchableOpacity>
                   </Box>
-                </Box> */}
+                </Box>
               </>
             )}
           </Box>

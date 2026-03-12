@@ -129,12 +129,7 @@ const PricingPackagesScreen: React.FC<
 
     try {
       await purchasePackage(selectedPackage);
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Activated subscription successfully!",
-      });
-
+      console.log("isSubscribed", isSubscribed);
 
       if (user?.isInjured) {
         store.dispatch(authActions.setIsInjured(true));
@@ -152,6 +147,15 @@ const PricingPackagesScreen: React.FC<
       console.log("check has subscriptions", currentUser?.subscription?.status);
       const hasSubscription = hasPremiumAccess(currentUser);
       console.log("hasSubscription......", hasSubscription);
+
+      if (hasSubscription) {
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Activated subscription successfully!",
+        });
+      }
+
 
       if (!hasSubscription) {
         console.log(
@@ -265,10 +269,6 @@ const PricingPackagesScreen: React.FC<
   useEffect(() => {
     const getPackages = async () => {
       const cilentPackages = await getClientPackages();
-      console.log(
-        "cilentPackages ........./////",
-        JSON.stringify(cilentPackages, null, 2),
-      );
       setPackages(cilentPackages);
     };
 

@@ -33,7 +33,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
         backgroundColor="backgroundSecondary"
       >
         <Image
-          source={require('../../../../assets/images/logo-3.png')}
+          source={require('../../../../assets/logo-Icon-new.png')}
           style={styles.image}
         />
 

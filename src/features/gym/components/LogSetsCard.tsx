@@ -10,6 +10,9 @@ import Button from "@components/atoms/Button";
 import SelectDropdown from "react-native-select-dropdown";
 import { Unit } from "@utils/types/types";
 import { LogSetDto } from "@utils/types/analyticsTypes";
+import useSubscription from "@features/subscription/hooks/useSubscription";
+import { useNavigation } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
 
 interface Props {
   sets: number;
@@ -25,6 +28,8 @@ const LogSetsCard: React.FC<Props> = ({
   isLoading,
   alreadyLogged,
 }) => {
+  const { isSubscribed } = useSubscription();
+  const navigation = useNavigation<any>();
   const today = new Date();
   const dateStr = today
     .toLocaleDateString("en-US", {
@@ -69,8 +74,16 @@ const LogSetsCard: React.FC<Props> = ({
     );
   };
 
-  // Handle record button click
   const handleRecord = () => {
+    if (!isSubscribed) {
+      Toast.show({
+        type: "info",
+        text1: "Subscription Required",
+        text2: "Please subscribe to save your workouts.",
+      });
+      navigation.push("PricingPackages");
+      return;
+    }
     submitRecord(logSets);
   };
 

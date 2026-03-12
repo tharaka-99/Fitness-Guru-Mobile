@@ -1,4 +1,4 @@
-import { MapPin, Dumbbell, CreditCard, ChevronRight } from 'lucide-react-native';
+import { MapPin, Dumbbell, CreditCard, ChevronRight, Phone } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
 import { TouchableOpacity, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -67,7 +67,7 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
           },
           {
             icon: ({ color, size }) => (
-              <Dumbbell color={color} size={size - 4} />
+              <Phone color={color} size={size - 4} />
             ),
             value: profile?.mobileNumber ?? 'not set yet',
           },
@@ -91,7 +91,11 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
                 <Box flexDirection="row" justifyContent="space-between" mb="xs">
                   <Text variant="sm" color="textSecondary">Plan</Text>
                   <Text variant="sm" fontWeight="500">
-                    {customerInfo?.entitlements.active['Premium access']?.productIdentifier.includes('monthly') ? 'Premium Monthly' : 'Premium'}
+                    {customerInfo?.entitlements.active['Premium access']?.periodType === 'TRIAL'
+                      ? 'Free Trial'
+                      : customerInfo?.entitlements.active['Premium access']?.productIdentifier.includes('monthly')
+                        ? 'Premium Monthly'
+                        : 'Premium'}
                   </Text>
                 </Box>
 

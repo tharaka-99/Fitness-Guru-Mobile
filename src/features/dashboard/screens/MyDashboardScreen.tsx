@@ -160,15 +160,12 @@ const MyDashboardScreen: React.FC<
                     <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
                   </TouchableOpacity>
                   <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
-                    My Dashboard
+                    Workout Analytics
                   </Text>
                 </Box>
               }
             />
 
-            <Text style={{ fontSize: 18, marginBottom: 10, fontWeight: "700" }}>
-              Workout Analytics
-            </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <Box
                 flexDirection="row"
@@ -188,7 +185,7 @@ const MyDashboardScreen: React.FC<
                       selectedTrainer === "All" ? styles.activeTag : styles.tag
                     }
                   >
-                    <Text>All</Text>
+                    <Text color={selectedTrainer === "All" ? "PrimaryBlack" : "PrimaryWhite"}>All</Text>
                   </Box>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -202,7 +199,7 @@ const MyDashboardScreen: React.FC<
                         : styles.tag
                     }
                   >
-                    <Text>My Workouts</Text>
+                    <Text color={selectedTrainer === "myWorkouts" ? "PrimaryBlack" : "PrimaryWhite"}>My Workouts</Text>
                   </Box>
                 </TouchableOpacity>
                 {myTrainers?.map((trainer) => (
@@ -217,7 +214,7 @@ const MyDashboardScreen: React.FC<
                           : styles.tag
                       }
                     >
-                      <Text>{`${trainer?.firstName || ""} ${trainer?.lastName || ""
+                      <Text color={trainer?._id === selectedTrainer ? "PrimaryBlack" : "PrimaryWhite"}>{`${trainer?.firstName || ""} ${trainer?.lastName || ""
                         }`}</Text>
                     </Box>
                   </TouchableOpacity>

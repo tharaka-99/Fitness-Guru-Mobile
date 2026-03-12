@@ -46,17 +46,24 @@ const PricingPackageCard: React.FC<Props> = ({
   const filteredPackages = packages?.filter(
     (p: any) => p.name === selectedPlan
   );
-  const getRevenueCatPrice = () => {
-    if (!offerings?.current?.availablePackages) return null;
+  const getPackageData = () => {
+    if (!offerings?.current?.availablePackages) return { price: null, hasTrial: false, trialDuration: null };
 
     const monthlyPackage = offerings.current.availablePackages.find(
       (pkg) => pkg.identifier === "$rc_monthly"
     );
 
-    return monthlyPackage?.product?.priceString || null;
+    const price = monthlyPackage?.product?.priceString || null;
+    const hasTrial = monthlyPackage?.product?.introPrice?.price === 0;
+    const trialDuration = monthlyPackage?.product?.introPrice?.period || null;
+
+    return { price, hasTrial, trialDuration };
   };
 
-  const revenueCatPrice = getRevenueCatPrice();
+  const { price: revenueCatPrice, hasTrial, trialDuration } = getPackageData();
+
+  // Helper to format trial duration if needed, though for now we know it's 14 days
+  const formattedTrialInfo = hasTrial ? "14 days free" : null;
 
   const openLink = (url: string) => {
     Linking.openURL(url).catch((err) =>
@@ -158,7 +165,10 @@ const PricingPackageCard: React.FC<Props> = ({
               Monthly
             </Text>
             <Text variant="sm" style={styles.planSubtitle}>
-              Full access for just {revenueCatPrice || `LKR ${filteredPackages[0]?.price}.00`}/month
+              {hasTrial
+                ? `${formattedTrialInfo}, then ${revenueCatPrice}/month`
+                : `Full access for just ${revenueCatPrice}/month`
+              }
             </Text>
           </Box>
         </Box>
@@ -168,7 +178,7 @@ const PricingPackageCard: React.FC<Props> = ({
       {/* Continue Button */}
       <Box mt="sm">
         <Button
-          title="Subscribe"
+          title={hasTrial ? "Start 14-Day Free Trial" : "Subscribe"}
           isLoading={false}
           onPress={() => onActionPress(selectedPlan)}
         />

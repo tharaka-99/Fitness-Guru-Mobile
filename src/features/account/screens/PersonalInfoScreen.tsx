@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Image, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import PageHeader from "@components/app/header/PageHeader";
 import PageWrapper from "@components/app/PageWrapper";
@@ -135,59 +135,69 @@ const PersonalInfoScreen: React.FC = () => {
           </Box>
         }
       />
-      <Box flex={1} alignItems="center" padding="sm">
-        {/* Profile Image Section */}
-        <TouchableOpacity
-          onPress={handleImagePick}
-          style={{ display: "flex", alignItems: "center", gap: 8 }}
-        >
-          <Image
-            source={profileImage ? { uri: profileImage } : defaultImage}
-            style={{ width: 140, height: 140, borderRadius: 100 }}
-          />
-          <Text mt="xs" color="PrimaryGreen">
-            Change Profile Picture
-          </Text>
-        </TouchableOpacity>
-
-        {newImageUri && (
-          <Box width={"50%"} height={"2%"} m="base">
-            <Button
-              onPress={handleSave}
-              title="Save Changes"
-              type="outline"
-              isLoading={loading}
+      <Box flex={1} paddingHorizontal="sm">
+        <ScrollView showsVerticalScrollIndicator={false} style={{ width: "100%" }} contentContainerStyle={{ alignItems: "center", paddingBottom: 30, paddingVertical: 10 }}>
+          {/* Profile Image Section */}
+          <TouchableOpacity
+            onPress={handleImagePick}
+            style={{ display: "flex", alignItems: "center", gap: 8 }}
+          >
+            <Image
+              source={profileImage ? { uri: profileImage } : defaultImage}
+              style={{ width: 140, height: 140, borderRadius: 100 }}
             />
+            <Text mt="xs" color="PrimaryGreen">
+              Change Profile Picture
+            </Text>
+          </TouchableOpacity>
+
+          {newImageUri && (
+            <Box width={"50%"} height={"2%"} m="base">
+              <Button
+                onPress={handleSave}
+                title="Save Changes"
+                type="outline"
+                isLoading={loading}
+              />
+            </Box>
+          )}
+
+          <Box width="100%" mt="2xl" mb="xl">
+            <Text variant="xl" fontWeight="bold" textAlign="center" mb="md">
+              Personal Information
+            </Text>
+
+            {[
+              { label: "User Name", value: capitalizeString(user?.firstName + " " + user?.lastName) },
+              { label: "Email", value: user?.email },
+              { label: "Mobile Number", value: user?.mobileNumber },
+              { label: "City", value: capitalizeString(user?.city || "Not provided") },
+              { label: "Gender", value: capitalizeString(user?.gender || "Not provided") },
+              { label: "User Goal", value: capitalizeString(user?.fitnessInfo?.goal ?? "Your goal") },
+              { label: "Injured", value: user?.isInjured ? "Yes" : "No" },
+              { label: "BMR", value: user?.calculatedMetrics?.bmr ? user.calculatedMetrics.bmr.toFixed(2) : "0.00" },
+              { label: "DCI", value: user?.calculatedMetrics?.dci ? user.calculatedMetrics.dci.toFixed(2) : "0.00" },
+            ].map((item, index) => (
+              <Box
+                key={index}
+                flexDirection="row"
+                justifyContent="space-between"
+                alignItems="center"
+                paddingVertical="md"
+                style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.SecondaryGrey + '20' }}
+              >
+                <Text color="SecondaryGrey" variant="md">
+                  {item.label}
+                </Text>
+                <Text variant="md" fontWeight="bold">
+                  {item.value}
+                </Text>
+              </Box>
+            ))}
           </Box>
-        )}
-
-        <Box width="100%" mt="2xl">
-          <Text variant="xl" fontWeight="bold" textAlign="center" mb="md">
-            Personal Information
-          </Text>
-
-          <Text
-            style={{ padding: 10, borderBottomWidth: 1 }}
-            color="SecondaryGrey"
-          >
-            User Name :{" "}
-            <Text variant="md">
-              {capitalizeString(user?.firstName + " " + user?.lastName)}
-            </Text>
-          </Text>
-
-          <Text
-            style={{ padding: 10, borderBottomWidth: 1 }}
-            color="SecondaryGrey"
-          >
-            User Goal :{" "}
-            <Text variant="md">
-              {capitalizeString(user?.fitnessInfo?.goal ?? "Your goal")}
-            </Text>
-          </Text>
-        </Box>
+        </ScrollView>
       </Box>
-    </PageWrapper>
+    </PageWrapper >
   );
 };
 
