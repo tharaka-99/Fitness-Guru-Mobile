@@ -83,7 +83,7 @@ const PricingPackageCard: React.FC<Props> = ({
         <Box style={styles.headerTextContainer}>
           <Text variant="2xlBold" style={styles.headerText} mt="base">
             Get started with our{"\n"}
-            {selectedPlan} plan
+            {selectedPlan} Plan
           </Text>
         </Box>
 
@@ -268,8 +268,6 @@ const styles = StyleSheet.create({
   headerText: {
     color: "white",
     textAlign: "center",
-    marginBottom: 16,
-    letterSpacing: 2,
   },
   toggleContainer: {
     flexDirection: "row",

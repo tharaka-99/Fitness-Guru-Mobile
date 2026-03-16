@@ -583,11 +583,11 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                           option: "Lean Gaining (100 - 250 Cal)",
                           value: Goal.LeanGaining,
                         },
-                        {
-                          id: "5",
-                          option: "Weight Loss (500 - 1000 Cal)",
-                          value: Goal.WeightLoss,
-                        },
+                        // {
+                        //   id: "5",
+                        //   option: "Weight Loss (500 - 1000 Cal)",
+                        //   value: Goal.WeightLoss,
+                        // },
                       ]}
                       onSelect={(value) => setGoal(value.value as Goal)}
                     />

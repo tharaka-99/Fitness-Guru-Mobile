@@ -80,20 +80,21 @@ const WorkoutRoutineScreen: React.FC<
           </Box>
         }
         rightComponent={
-          <TouchableOpacity onPress={handleAddWorkout}>
-            <Icon
-              size={30}
-              source={"plus"}
-              color={theme.colors.PrimaryGreen}
-            />
-          </TouchableOpacity>
-        }
+          selectedWorkout.WorkoutType === WorkoutType.SelfCreated ? (
+            <TouchableOpacity onPress={handleAddWorkout}>
+              <Icon
+                size={30}
+                source={"plus"}
+                color={theme.colors.PrimaryGreen}
+              />
+            </TouchableOpacity>
+          ) : null}
       />
       {selectedWorkout.WorkoutType === WorkoutType.Default ? (
         <FlatList
+          contentContainerStyle={{ flexGrow: 1 }}
           data={generalExerciseDays}
           keyExtractor={({ day }) => String(day)}
-
           ListEmptyComponent={
             <Box flex={1} justifyContent="center" alignItems="center" px="xl">
               <Text variant="lgBold" color="textSecondary" textAlign="center">
@@ -111,7 +112,7 @@ const WorkoutRoutineScreen: React.FC<
             const exerciseNames =
               exercises
                 ?.map((exercise) => exercise?.exercise?.name)
-                .filter(Boolean) // Remove null/undefined values
+                .filter(Boolean)
                 .join(", ") || "No exercises available";
             return (
               <WorkoutDayCard
@@ -124,20 +125,31 @@ const WorkoutRoutineScreen: React.FC<
         />
       ) : (
         <FlatList
-          //NOTE: need to clarify which workout plan get if they have multiple workouts
+          contentContainerStyle={{ flexGrow: 1 }}
           data={exerciseDays?.filter((item) => {
             const { exercises } = item;
             return (
               exercises?.some((exercise) => exercise?.exercise?.name) || false
             );
           })}
+          ListEmptyComponent={
+            <Box flex={1} justifyContent="center" alignItems="center" px="xl">
+              <Text variant="lgBold" color="textSecondary" textAlign="center">
+                No workouts available
+              </Text>
+              <Text variant="md" color="textSecondary" textAlign="center" mt="sm">
+                It looks like you don't have any workouts for this category.
+                Tap the "+" button to create one!
+              </Text>
+            </Box>
+          }
           keyExtractor={({ day }) => String(day)}
           renderItem={({ item }) => {
             const { day, exercises } = item;
             const exerciseNames =
               exercises
                 ?.map((exercise) => exercise?.exercise?.name)
-                .filter(Boolean) // Remove null/undefined values
+                .filter(Boolean)
                 .join(", ") || "No exercises available";
             return (
               <WorkoutDayCard

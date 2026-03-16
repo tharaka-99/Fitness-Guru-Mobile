@@ -175,10 +175,6 @@ const PersonalInfoScreen: React.FC = () => {
               { label: "Gender", value: capitalizeString(user?.gender || "Not provided") },
               { label: "User Goal", value: capitalizeString(user?.fitnessInfo?.goal ?? "Your goal") },
               { label: "Injured", value: user?.isInjured ? "Yes" : "No" },
-              { label: "Subscription", value: user?.subscription ? "Yes" : "No" },
-              { label: "Weight", value: user?.fitnessInfo?.weight },
-              { label: "Height", value: user?.fitnessInfo?.height },
-              { label: "BMI", value: user?.fitnessInfo?.bmi },
             ].map((item, index) => (
               <Box
                 key={index}
