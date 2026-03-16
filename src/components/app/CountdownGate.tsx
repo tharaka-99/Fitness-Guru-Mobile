@@ -48,6 +48,13 @@ const CountdownGate: React.FC<CountdownGateProps> = ({ launchDate, onLaunch, onB
         return () => clearInterval(timer);
     }, [launchDate, onLaunch]);
 
+    const openLink = (url: string) => {
+        Linking.openURL(url).catch((err) =>
+            console.error("Failed to open URL", err)
+        );
+    };
+
+
     const addLeadingZero = (value: number) => (value < 10 ? `0${value}` : value.toString());
 
     const handleInvite = async () => {
@@ -161,7 +168,11 @@ const CountdownGate: React.FC<CountdownGateProps> = ({ launchDate, onLaunch, onB
                         </TouchableOpacity>
                     </Box>
 
-                    <TouchableOpacity style={{ marginTop: 24, paddingBottom: 40 }} activeOpacity={0.7}>
+                    <TouchableOpacity style={{ marginTop: 24, paddingBottom: 40 }} activeOpacity={0.7}
+
+                        onPress={() =>
+                            openLink("https://www.fitnessgurulk.com/term-conditions")
+                        }>
                         <Text variant="xs" color="textSecondary" textAlign="center">Terms & Conditions</Text>
                     </TouchableOpacity>
                 </ScrollView>

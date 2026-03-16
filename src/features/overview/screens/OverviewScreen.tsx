@@ -346,7 +346,15 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                       ) : (
                         <TouchableOpacity
                           style={{ flex: 1 }}
-                          onPress={() => navigation.navigate("GenerateWorkout")}
+                          onPress={() => {
+                            navigation.navigate("WorkoutRoutine");
+                            store.dispatch(
+                              gymActions.setSelectedWorkout({
+                                WorkoutType: WorkoutType.SelfCreated,
+                                createdBy: "",
+                              })
+                            );
+                          }}
                         >
                           <Box
                             flex={1}

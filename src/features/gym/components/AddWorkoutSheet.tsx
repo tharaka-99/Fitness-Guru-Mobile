@@ -140,7 +140,7 @@ const AddWorkoutSheet: React.FC<Props> = ({
 
             <Box flexDirection="row" gap="sm" alignItems="center">
               <Box minWidth="25%">
-                <Text variant="md">Rest Time</Text>
+                <Text variant="md">Rest Time (s)</Text>
               </Box>
               <DropDown
                 data={[...Array(50).keys()].map((i) =>
