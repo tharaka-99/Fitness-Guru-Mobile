@@ -1,4 +1,4 @@
-import { MapPin, Dumbbell, CreditCard, ChevronRight, Phone } from 'lucide-react-native';
+import { MapPin, Dumbbell, CreditCard, ChevronRight, Phone, Mail } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
 import { TouchableOpacity, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,7 +33,6 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
 
   const handleSignOut = async () => {
     dispatch(authActions.clearAuth());
-    await Purchases.logOut();
   };
 
 
@@ -60,16 +59,7 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
         name={`${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`}
         details={[
           {
-            icon: ({ color, size }) => (
-              <MapPin color={color} size={size + 1} />
-            ),
-            value: profile?.city ?? 'location loading...',
-          },
-          {
-            icon: ({ color, size }) => (
-              <Phone color={color} size={size - 4} />
-            ),
-            value: profile?.mobileNumber ?? 'not set yet',
+            value: profile?.email ?? 'loading...',
           },
         ]}
         isEditLink={true}

@@ -103,7 +103,7 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
           const dinnerItems = dinner.map((meal) => {
             return meal.mealItemId.name;
           });
-          const snackItems = dinner.map((meal) => {
+          const snackItems = snack.map((meal) => {
             return meal.mealItemId.name;
           });
 

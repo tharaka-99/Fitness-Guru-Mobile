@@ -130,8 +130,8 @@ const MyDashboardScreen: React.FC<
     return (
       <PageWrapper>
         <FullScreenLoader
-          message="Loading your workouts..."
-          header="My Dashboard"
+          message="Loading..."
+          header="Workout Analytics"
         />
       </PageWrapper>
     );

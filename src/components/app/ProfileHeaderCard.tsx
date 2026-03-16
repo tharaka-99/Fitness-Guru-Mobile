@@ -14,7 +14,7 @@ interface ProfileHeaderCardProps {
   image: string | number; // Allow both string URIs and require() images
   name: string;
   details?: {
-    icon: ({ color, size }: { color: string; size: number }) => React.ReactNode;
+    icon?: ({ color, size }: { color: string; size: number }) => React.ReactNode;
     value: string;
   }[];
   nameTextColor?: "PrimaryGreen" | "textPrimary";
@@ -76,7 +76,7 @@ const ProfileHeaderCard: React.FC<ProfileHeaderCardProps> = ({
               flexDirection="row"
               alignItems="center"
             >
-              {icon({ color: theme.colors.textSecondary, size: 20 })}
+              {icon && icon({ color: theme.colors.textSecondary, size: 20 })}
               <Text numberOfLines={1} color="textSecondary" fontWeight="600">
                 {value}
               </Text>
