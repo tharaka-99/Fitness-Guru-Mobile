@@ -135,12 +135,12 @@ const PersonalInfoScreen: React.FC = () => {
           </Box>
         }
       />
-      <Box flex={1} paddingHorizontal="sm">
-        <ScrollView showsVerticalScrollIndicator={false} style={{ width: "100%" }} contentContainerStyle={{ alignItems: "center", paddingBottom: 30, paddingVertical: 10 }}>
+      <Box flex={1}>
+        <ScrollView showsVerticalScrollIndicator={false} style={{ width: "100%" }} contentContainerStyle={{ alignItems: "center", paddingBottom: 30 }}>
           {/* Profile Image Section */}
           <TouchableOpacity
             onPress={handleImagePick}
-            style={{ display: "flex", alignItems: "center", gap: 8 }}
+            style={{ display: "flex", alignItems: "center" }}
           >
             <Image
               source={profileImage ? { uri: profileImage } : defaultImage}
@@ -175,8 +175,10 @@ const PersonalInfoScreen: React.FC = () => {
               { label: "Gender", value: capitalizeString(user?.gender || "Not provided") },
               { label: "User Goal", value: capitalizeString(user?.fitnessInfo?.goal ?? "Your goal") },
               { label: "Injured", value: user?.isInjured ? "Yes" : "No" },
-              { label: "BMR", value: user?.calculatedMetrics?.bmr ? user.calculatedMetrics.bmr.toFixed(2) : "0.00" },
-              { label: "DCI", value: user?.calculatedMetrics?.dci ? user.calculatedMetrics.dci.toFixed(2) : "0.00" },
+              { label: "Subscription", value: user?.subscription ? "Yes" : "No" },
+              { label: "Weight", value: user?.fitnessInfo?.weight },
+              { label: "Height", value: user?.fitnessInfo?.height },
+              { label: "BMI", value: user?.fitnessInfo?.bmi },
             ].map((item, index) => (
               <Box
                 key={index}

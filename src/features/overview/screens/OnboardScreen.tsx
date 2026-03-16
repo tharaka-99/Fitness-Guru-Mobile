@@ -51,12 +51,12 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   const [unit, setUnit] = useState(Unit.Metric);
   const [weight, setWeight] = useState<number>(0);
   const [height, setHeight] = useState<number>(0);
-  const [activityLevel, setActivityLevel] = useState<ActivityLevel>(
-    ActivityLevel.Active,
+  const [activityLevel, setActivityLevel] = useState<ActivityLevel | undefined>(
+    undefined,
   );
-  const [goal, setGoal] = useState<Goal>(Goal.FatLoss);
-  const [expertiseLevel, setExpertiseLevel] = useState<ExpertiseLevel>(
-    ExpertiseLevel.Beginner,
+  const [goal, setGoal] = useState<Goal | undefined>(undefined);
+  const [expertiseLevel, setExpertiseLevel] = useState<ExpertiseLevel | undefined>(
+    undefined,
   );
   const [isProfileSaved, setIsProfileSaved] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -272,23 +272,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
           break;
       }
 
-      // ✅ Debugging logs
-      console.log("=== Profile Submission Check ===");
-      console.log("Age:", age);
-      console.log("Unit:", unit);
-      console.log("Weight:", weight);
-      console.log("Height:", height);
-      console.log("Activity Level:", activityLevel);
-      console.log("Goal:", goal);
-      console.log("Expertise Level:", expertiseLevel);
-      console.log("Calculated BMR:", bmr);
-      console.log("Calculated DCI:", dci);
-      console.log("Per Meal Requirement:", perMealRequirement);
-      console.log("Per Meal Lower Limit:", perMealLowerLimit);
-      console.log("Per Meal Upper Limit:", perMealUpperLimit);
-      console.log("================================");
-
-      // Dispatch the updated calorie requirements to Redux store
       store.dispatch(
         gymActions.updateCaloriesRequirenment({
           perMealRequirement,
@@ -310,7 +293,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   };
   //
   const handleSubmit = async () => {
-    console.log("handleSubmit");
     if (currentStep === 2 && !isProfileSaved) {
       saveProfileInfo();
       goToNextStep();

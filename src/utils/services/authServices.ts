@@ -23,13 +23,6 @@ export const clientUserLogin = async (credentials: Credentials) => {
     store.dispatch(gymActions.resetWorkouts());
     store.dispatch(gymActions.resetMeals());
 
-    try {
-      await Purchases.logIn(clientData._id);
-      console.log("RevenueCat login success  >>>>>> ", clientData._id);
-    } catch (rcError) {
-      console.error("RevenueCat login error:", rcError);
-    }
-
     return response.data;
   } catch (error) {
     throw error;
@@ -53,12 +46,6 @@ export const clientUserRegister = async (userData: UserData): Promise<any> => {
     store.dispatch(gymActions.resetWorkouts());
     store.dispatch(gymActions.resetMeals());
 
-    try {
-      await Purchases.logIn(clientData._id);
-    } catch (rcError) {
-      console.error("RevenueCat login error:", rcError);
-    }
-
     return response.data;
   } catch (error) {
     console.log(error);
@@ -79,6 +66,7 @@ export const setClientProfileInfo = async (
   clientInfo: ClientInfo
 ): Promise<Profile> => {
   try {
+
     const response = await api.post("client/add-info", clientInfo);
     const updatedClientInfo = {
       personalInfo: response?.data?.data?.personalInfo,

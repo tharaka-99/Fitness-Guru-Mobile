@@ -34,7 +34,6 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
   navigation,
 }) => {
   const { user } = store.getState()["feature/auth"];
-  console.log("user?.isInjured", user?.isInjured);
   const greetingMessage: string = greetingTime(new Date());
 
   const {
@@ -89,13 +88,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
 
   // Dispatch workouts to store when data is available
   React.useEffect(() => {
-    console.log("🏠 Overview - Workout data received:", workout);
     if (workout) {
-      console.log(
-        "📝 Overview - Dispatching workouts to store:",
-        workout.length,
-        "workouts"
-      );
       store.dispatch(gymActions.setWorkouts(workout));
     }
   }, [workout]);
@@ -109,10 +102,6 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     const dci = profile.calculatedMetrics.dci;
     const perMealRequirement = dci;
     const goal = profile.fitnessInfo.goal;
-
-    console.log("goal", goal);
-
-    // Calculate per meal limits based on goal
     let perMealLowerLimit: number;
     let perMealUpperLimit: number;
 
@@ -176,26 +165,11 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
           perMealUpperLimit,
         })
       );
-
-      // Log the calculated values for debugging
-      console.log("=== Overview Screen - Calorie Requirements ===");
-      console.log("DCI (Daily Calorie Intake):", dci);
-      console.log("Per Meal Requirement (DCI):", perMealRequirement);
-      console.log("Calculated perMealLowerLimit:", perMealLowerLimit);
-      console.log("Calculated perMealUpperLimit:", perMealUpperLimit);
-      console.log("Goal:", goal);
-      console.log("=============================================");
     }
   }, [calorieRequirements]);
 
   React.useEffect(() => {
-    console.log("🏠 Overview - Default workout data received:", defaultWorkout);
     if (defaultWorkout) {
-      console.log(
-        "📝 Overview - Dispatching default workouts to store:",
-        defaultWorkout.length,
-        "workouts"
-      );
       store.dispatch(gymActions.setDefaultWorkouts(defaultWorkout));
     }
   }, [defaultWorkout]);
@@ -207,10 +181,15 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     return (
       <FullScreenLoader
         message="Loading your profile..."
-        header={capitalizeString(greetingMessage)}
       />
     );
   }
+
+  const isProfileComplete =
+    (profile?.personalInfo?.weight ?? 0) > 0 &&
+    (profile?.personalInfo?.height ?? 0) > 0 &&
+    (profile?.personalInfo?.age ?? 0) > 0 &&
+    !!profile?.fitnessInfo?.goal;
 
   return (
     <Box flex={1} >
@@ -269,10 +248,15 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                     overflow="hidden"
                   >
                     <Box flex={1} p="sm">
-                      <Text variant="sm" color="textSecondary">Goal</Text>
+                      <Text variant="sm" color="textSecondary">
+                        Goal
+                      </Text>
                       <Text variant="md" numberOfLines={1}>
                         {profile?.fitnessInfo?.goal
-                          ? profile.fitnessInfo.goal.replace(/([a-z])([A-Z])/g, "$1 $2")
+                          ? profile.fitnessInfo.goal.replace(
+                            /([a-z])([A-Z])/g,
+                            "$1 $2"
+                          )
                           : "Not Set"}
                       </Text>
                     </Box>
@@ -288,7 +272,9 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                     mx="sm"
                   >
                     <Box flex={1} p="sm">
-                      <Text variant="sm" color="textSecondary">DCI</Text>
+                      <Text variant="sm" color="textSecondary">
+                        DCI
+                      </Text>
                       <Text variant="md" numberOfLines={1}>
                         {profile?.calculatedMetrics?.dci
                           ? `${Math.round(profile.calculatedMetrics.dci)} Cal`
@@ -306,7 +292,9 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                     overflow="hidden"
                   >
                     <Box flex={1} p="sm">
-                      <Text variant="sm" color="textSecondary">BMR</Text>
+                      <Text variant="sm" color="textSecondary">
+                        BMR
+                      </Text>
                       <Text variant="md" numberOfLines={1}>
                         {profile?.calculatedMetrics?.bmr
                           ? `${Math.round(profile.calculatedMetrics.bmr)} Cal`

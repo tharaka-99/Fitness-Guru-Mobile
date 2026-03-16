@@ -214,12 +214,7 @@ const GenerateWorkoutScreen: React.FC<
         });
       }
     } else {
-      Toast.show({
-        type: 'info',
-        text1: 'Subscription Required',
-        text2: 'Please subscribe to save your workouts.',
-      });
-      navigation.push("PricingPackages");
+      navigation.push("GenerateMealPlan");
     }
   };
 

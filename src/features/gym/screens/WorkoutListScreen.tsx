@@ -115,7 +115,7 @@ const WorkoutListScreen: React.FC<
           contentContainerStyle={{ gap: theme.spacing.sm }}
           renderItem={({ item }) => {
             const { exercise, order, reps, rest, sets, _id, imageUrl } = item;
-            console.log(imageUrl);
+
             const description = `${sets} Sets | ${reps} Reps | ${rest} Rest`;
             return (
               <TouchableOpacity

@@ -30,7 +30,7 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = React.memo(({
         width={IMAGE_SIZE}
         height={IMAGE_SIZE}
         overflow="hidden"
-        borderBottomWidth={isThemeGreen ? 0.5 : 0}
+        // borderBottomWidth={isThemeGreen ? 0.5 : 0}
         borderWidth={isThemeGreen ? 1 : undefined}
       >
         {image ? (

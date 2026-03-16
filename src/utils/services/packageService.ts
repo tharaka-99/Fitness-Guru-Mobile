@@ -4,7 +4,6 @@ import { SubscriptionPlans } from '@utils/types/subscriptionTypes';
 //
 export const getClientPackages = async (): Promise<SubscriptionPlans> => {
   try {
-    console.log('calling package service');
     const response = await api.get('/client-subscription-plan');
     return response.data.data;
   } catch (error) {

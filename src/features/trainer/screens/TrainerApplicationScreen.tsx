@@ -168,7 +168,7 @@ const TrainerApplicationScreen: React.FC<
   };
   //
   const handleBackStep = (index: number) => {
-    console.log(index);
+
     pageViewRef.current?.setPage(index);
   };
   //
@@ -194,14 +194,7 @@ const TrainerApplicationScreen: React.FC<
       [name]: value,
     }));
   };
-  //
-  const logFormData = (formData: FormData) => {
-    // Type-cast formData to any to access entries() method
-    for (let [key, value] of (formData as any).entries()) {
-      console.log(`${key}:`, value);
-    }
-  };
-  //
+
   const appendTrainerRequestData = (
     formValues: CreateTrainerRequestDto,
     imageUploads: any,

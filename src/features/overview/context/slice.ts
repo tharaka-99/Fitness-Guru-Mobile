@@ -15,9 +15,9 @@ export interface InitialState {
 export const initialState: InitialState = {
   profile: {
     fitnessInfo: {
-      activityLevel: ActivityLevel.Active,
-      expertiseLevel: ExpertiseLevel.Beginner,
-      goal: Goal.FatLoss,
+      activityLevel: undefined,
+      expertiseLevel: undefined,
+      goal: undefined,
     },
     personalInfo: { age: 0, height: 0, unit: Unit.Imperial, weight: 0 },
     isInjured: false

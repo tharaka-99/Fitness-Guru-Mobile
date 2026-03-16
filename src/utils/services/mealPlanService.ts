@@ -28,7 +28,7 @@ export const createMealPlan = async (
   mealPlan: CreateMealPlanDto
 ): Promise<MealPlan> => {
   try {
-    console.log('calling meal plan creation');
+
     const response = await api.post('/meal-plan', mealPlan);
     return response.data.data;
   } catch (error) {

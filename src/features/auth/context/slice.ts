@@ -68,9 +68,9 @@ export const initialState: InitialState = {
     profileImageFileUrl: "",
     personalInfo: { age: 0, height: 0, unit: Unit.Imperial, weight: 0 },
     fitnessInfo: {
-      activityLevel: ActivityLevel.Active,
-      expertiseLevel: ExpertiseLevel.Advanced,
-      goal: Goal.FatLoss,
+      activityLevel: undefined,
+      expertiseLevel: undefined,
+      goal: undefined,
     },
     isInjured: false,
     isTrialActive: false,

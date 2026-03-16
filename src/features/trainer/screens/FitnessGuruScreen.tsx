@@ -19,6 +19,7 @@ import InfoCard from "@components/app/InfoCard";
 import greetingTime from "greeting-time";
 import { capitalizeString } from "@utils/helpers";
 import PageHeader from "@components/app/header/PageHeader";
+import Toast from "react-native-toast-message";
 
 const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   navigation,
@@ -77,6 +78,11 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   if (isLoading) {
     return <FullScreenLoader />;
   }
+
+  const isProfileComplete =
+    (user?.personalInfo?.weight ?? 0) > 0 &&
+    (user?.personalInfo?.height ?? 0) > 0 &&
+    (user?.personalInfo?.age ?? 0) > 0 && !user?.fitnessInfo?.goal;
 
   return (
     <Box flex={1}>
@@ -141,69 +147,67 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
             </Box>
 
 
-            {(user?.fitnessInfo?.goal ||
-              (user?.calculatedMetrics?.dci && Math.round(user.calculatedMetrics.dci) > 0) ||
-              (user?.calculatedMetrics?.bmr && Math.round(user.calculatedMetrics.bmr) > 0)) && (
-                <Box flexDirection="row" justifyContent="space-between" mb="sm">
-                  <Box
-                    flex={1}
-                    borderRadius="sm"
-                    borderWidth={1}
-                    borderColor="borderSecondary"
-                    flexDirection="row"
-                    overflow="hidden"
-                  >
-                    <Box flex={1} p="sm">
-                      <Text variant="sm" color="textSecondary">Goal</Text>
-                      <Text variant="md" numberOfLines={1}>
-                        {user?.fitnessInfo?.goal
-                          ? user.fitnessInfo.goal.replace(/([a-z])([A-Z])/g, "$1 $2")
-                          : "Not Set"}
-                      </Text>
-                    </Box>
-                    <Box width={8} backgroundColor="PrimaryGreen" />
+            {isProfileComplete && (
+              <Box flexDirection="row" justifyContent="space-between" mb="sm">
+                <Box
+                  flex={1}
+                  borderRadius="sm"
+                  borderWidth={1}
+                  borderColor="borderSecondary"
+                  flexDirection="row"
+                  overflow="hidden"
+                >
+                  <Box flex={1} p="sm">
+                    <Text variant="sm" color="textSecondary">Goal</Text>
+                    <Text variant="md" numberOfLines={1}>
+                      {user?.fitnessInfo?.goal
+                        ? user.fitnessInfo.goal.replace(/([a-z])([A-Z])/g, "$1 $2")
+                        : "Not Set"}
+                    </Text>
                   </Box>
-
-                  <Box
-                    flex={1}
-                    borderRadius="sm"
-                    borderWidth={1}
-                    borderColor="borderSecondary"
-                    flexDirection="row"
-                    overflow="hidden"
-                    mx="sm"
-                  >
-                    <Box flex={1} p="sm">
-                      <Text variant="sm" color="textSecondary">DCI</Text>
-                      <Text variant="md" numberOfLines={1}>
-                        {user?.calculatedMetrics?.dci
-                          ? `${Math.round(user.calculatedMetrics.dci)} Cal`
-                          : "0 Cal"}
-                      </Text>
-                    </Box>
-                    <Box width={8} backgroundColor="PrimaryGreen" />
-                  </Box>
-
-                  <Box
-                    flex={1}
-                    borderRadius="sm"
-                    borderWidth={1}
-                    borderColor="borderSecondary"
-                    flexDirection="row"
-                    overflow="hidden"
-                  >
-                    <Box flex={1} p="sm">
-                      <Text variant="sm" color="textSecondary">BMR</Text>
-                      <Text variant="md" numberOfLines={1}>
-                        {user?.calculatedMetrics?.bmr
-                          ? `${Math.round(user.calculatedMetrics.bmr)} Cal`
-                          : "0 Cal"}
-                      </Text>
-                    </Box>
-                    <Box width={8} backgroundColor="PrimaryGreen" />
-                  </Box>
+                  <Box width={8} backgroundColor="PrimaryGreen" />
                 </Box>
-              )}
+
+                <Box
+                  flex={1}
+                  borderRadius="sm"
+                  borderWidth={1}
+                  borderColor="borderSecondary"
+                  flexDirection="row"
+                  overflow="hidden"
+                  mx="sm"
+                >
+                  <Box flex={1} p="sm">
+                    <Text variant="sm" color="textSecondary">DCI</Text>
+                    <Text variant="md" numberOfLines={1}>
+                      {user?.calculatedMetrics?.dci
+                        ? `${Math.round(user.calculatedMetrics.dci)} Cal`
+                        : "0 Cal"}
+                    </Text>
+                  </Box>
+                  <Box width={8} backgroundColor="PrimaryGreen" />
+                </Box>
+
+                <Box
+                  flex={1}
+                  borderRadius="sm"
+                  borderWidth={1}
+                  borderColor="borderSecondary"
+                  flexDirection="row"
+                  overflow="hidden"
+                >
+                  <Box flex={1} p="sm">
+                    <Text variant="sm" color="textSecondary">BMR</Text>
+                    <Text variant="md" numberOfLines={1}>
+                      {user?.calculatedMetrics?.bmr
+                        ? `${Math.round(user.calculatedMetrics.bmr)} Cal`
+                        : "0 Cal"}
+                    </Text>
+                  </Box>
+                  <Box width={8} backgroundColor="PrimaryGreen" />
+                </Box>
+              </Box>
+            )}
             {fitnessGuruRequest?.status !== "Pending" ? (
               ((subscription && subscription?.status === true) ||
                 user?.isTrialActive === true) ? (
@@ -311,7 +315,11 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                     <TouchableOpacity
                       style={{ flex: 1 }}
                       onPress={() => {
-                        // Navigate or handle request
+                        Toast.show({
+                          type: "info",
+                          text1: "Request New Schedule",
+                          text2: "You can request a new schedule in 25 days",
+                        });
                       }}
                     >
                       <Box
@@ -327,7 +335,11 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                     <TouchableOpacity
                       style={{ flex: 1 }}
                       onPress={() => {
-                        // Navigate or handle request
+                        Toast.show({
+                          type: "info",
+                          text1: "Request New Schedule",
+                          text2: "You can request a new schedule in 25 days",
+                        });
                       }}
                     >
                       <Box
