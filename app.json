@@ -2,7 +2,7 @@
   "expo": {
     "name": "fitness-guru",
     "slug": "fitness-guru",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/logo-Icon-new.png",
     "userInterfaceStyle": "light",
@@ -25,6 +25,7 @@
         "light": "./assets/logo-Icon-new.png",
         "tinted": "./assets/logo-Icon-new.png"
       },
+      "buildNumber": "2",
       "entitlements": {
         "com.apple.developer.networking.wifi-info": true
       }
@@ -40,7 +41,7 @@
         "com.google.android.gms.permission.AD_ID"
       ],
       "package": "com.fitnessguru.mobile",
-      "versionCode": 23,
+      "versionCode": 24,
       "targetSdkVersion": 35
     },
     "web": {
