@@ -18,6 +18,11 @@ import {
   refreshAccessTokenFn,
 } from '@utils/authhelpers';
 import { theme } from '@utils/styles/theme';
+import {
+  ensurePushTokenRegistered,
+  subscribeToForegroundFCM,
+  subscribeToTokenRefresh,
+} from '@utils/services/notificationService';
 
 const { width } = Dimensions.get('window');
 
@@ -45,6 +50,8 @@ const AppInitializer = () => {
         if (!refreshTokenIsExpired) {
           if (!accessTokenIsExpired && !accessTokenIsAboutToExpire) {
             setAuthencaticated(true);
+            // User is authenticated and tokens are valid; ensure push token is registered
+            ensurePushTokenRegistered();
             return;
           }
 
@@ -54,6 +61,8 @@ const AppInitializer = () => {
               if (!!data?.accessToken || !!data?.refreshToken) {
                 dispatch(authActions.setAuthTokens(data));
                 setAuthencaticated(true);
+                // After refreshing tokens, also ensure push token is registered
+                ensurePushTokenRegistered();
                 return;
               } else {
                 setAuthencaticated(false);
@@ -63,6 +72,8 @@ const AppInitializer = () => {
                 setAuthencaticated(false);
               } else {
                 setAuthencaticated(true);
+                // Even if refresh failed but access token is still valid, try registering push
+                ensurePushTokenRegistered();
               }
             }
           }
@@ -77,6 +88,18 @@ const AppInitializer = () => {
       setAuthencaticated(false);
     }
   };
+
+  // Subscribe to FCM token refresh once for the app lifecycle
+  useEffect(() => {
+    const unsubscribe = subscribeToTokenRefresh();
+    return () => unsubscribe();
+  }, []);
+
+  // Foreground: FCM does not show system trays — show in-app toast instead
+  useEffect(() => {
+    const unsubscribe = subscribeToForegroundFCM();
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (netInfo.isConnected) {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "569867971903",
+    "project_id": "fitnessguru-ea08c",
+    "storage_bucket": "fitnessguru-ea08c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569867971903:android:7052fc282894af8a4d378a",
+        "android_client_info": {
+          "package_name": "com.fitnessguru.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAALIl7CDGob491nOZTU9msRSbEr7UYFec"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
