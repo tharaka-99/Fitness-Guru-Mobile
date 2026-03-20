@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { TouchableOpacity, StyleSheet, Linking } from "react-native";
+import { TouchableOpacity, StyleSheet, Linking, Platform } from "react-native";
 import { Check, CheckCircle2 } from "lucide-react-native";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
@@ -54,8 +54,17 @@ const PricingPackageCard: React.FC<Props> = ({
     );
 
     const price = monthlyPackage?.product?.priceString || null;
-    const hasTrial = monthlyPackage?.product?.introPrice?.price === 0;
     const trialDuration = monthlyPackage?.product?.introPrice?.period || null;
+
+    const hasAndroidTrial = Platform.OS === 'android' && !!monthlyPackage?.product?.defaultOption?.freePhase || monthlyPackage?.product?.introPrice?.price === 0;
+    const hasiOSIntroTrial = Platform.OS === 'ios' && monthlyPackage?.product?.introPrice?.price === 0;
+    const hasiOSPromoOffer = Platform.OS === 'ios' &&
+      monthlyPackage?.product?.discounts &&
+      monthlyPackage.product.discounts.length > 0;
+
+    const hasTrial = hasAndroidTrial || hasiOSIntroTrial || hasiOSPromoOffer;
+
+    console.log("discounts", JSON.stringify(hasAndroidTrial, null, 2));
 
     return { price, hasTrial, trialDuration };
   };
