@@ -60,7 +60,7 @@ const CountdownGate: React.FC<CountdownGateProps> = ({ launchDate, onLaunch, onB
     const handleInvite = async () => {
         try {
             await Share.share({
-                message: 'Join me on Fitness Guru! The next evolution of fitness in Sri Lanka is launching soon. Check it out: https://fitnessguru.lk',
+                message: 'Join me on Fitness Guru! The next evolution of fitness in Sri Lanka is launching soon. Check it out: https://fitnessgurulk.com',
             });
         } catch (error) {
             console.log(error);
@@ -92,46 +92,35 @@ const CountdownGate: React.FC<CountdownGateProps> = ({ launchDate, onLaunch, onB
                         <Text variant="md" color="textPrimary" mt="xs">Unlocks in</Text>
                     </Box>
 
-                    <View style={{
-                        shadowColor: "#000",
-                        shadowOffset: { width: 0, height: 0 },
-                        shadowOpacity: 0.8,
-                        shadowRadius: 15,
-                        elevation: 15,
-                        overflow: 'visible',
-                    }}>
 
-                        <Box
-                            borderRadius="lg"
-                            p="md"
-                            mt="md"
-                            flexDirection="row"
-                            justifyContent="space-around"
-                            style={styles.countdownContainer}
-                        >
-                            <Box alignItems="center" flex={1}>
-                                <Text variant="2xlBold" color="PrimaryGreen">{addLeadingZero(timeLeft.days)}</Text>
-                                <Text variant="xs" color="textSecondary">Days</Text>
-                            </Box>
-                            <Box width={1} backgroundColor="PrimaryGreyDark" height="100%" />
-                            <Box alignItems="center" flex={1}>
-                                <Text variant="2xlBold" color="PrimaryGreen">{addLeadingZero(timeLeft.hours)}</Text>
-                                <Text variant="xs" color="textSecondary">Hours</Text>
-                            </Box>
-                            <Box width={1} backgroundColor="PrimaryGreyDark" height="100%" />
-                            <Box alignItems="center" flex={1}>
-                                <Text variant="2xlBold" color="PrimaryGreen">{addLeadingZero(timeLeft.minutes)}</Text>
-                                <Text variant="xs" color="textSecondary">Mins</Text>
-                            </Box>
-                            <Box width={1} backgroundColor="PrimaryGreyDark" height="100%" />
-                            <Box alignItems="center" flex={1}>
-                                <Text variant="2xlBold" color="PrimaryGreen">{addLeadingZero(timeLeft.seconds)}</Text>
-                                <Text variant="xs" color="textSecondary">Secs</Text>
-                            </Box>
+                    <Box
+                        borderRadius="lg"
+                        p="md"
+                        mt="xl"
+                        flexDirection="row"
+                        justifyContent="space-around"
+                        style={styles.countdownContainer}
+                    >
+                        <Box alignItems="center" flex={1}>
+                            <Text variant="2xlBold" color="PrimaryGreen">{addLeadingZero(timeLeft.days)}</Text>
+                            <Text variant="xs" color="textSecondary">Days</Text>
                         </Box>
-                    </View>
-
-
+                        <Box width={1} backgroundColor="PrimaryGreyDark" height="100%" />
+                        <Box alignItems="center" flex={1}>
+                            <Text variant="2xlBold" color="PrimaryGreen">{addLeadingZero(timeLeft.hours)}</Text>
+                            <Text variant="xs" color="textSecondary">Hours</Text>
+                        </Box>
+                        <Box width={1} backgroundColor="PrimaryGreyDark" height="100%" />
+                        <Box alignItems="center" flex={1}>
+                            <Text variant="2xlBold" color="PrimaryGreen">{addLeadingZero(timeLeft.minutes)}</Text>
+                            <Text variant="xs" color="textSecondary">Mins</Text>
+                        </Box>
+                        <Box width={1} backgroundColor="PrimaryGreyDark" height="100%" />
+                        <Box alignItems="center" flex={1}>
+                            <Text variant="2xlBold" color="PrimaryGreen">{addLeadingZero(timeLeft.seconds)}</Text>
+                            <Text variant="xs" color="textSecondary">Secs</Text>
+                        </Box>
+                    </Box>
 
                     <Box alignItems="center" mt="md">
                         <Text variant="lgBold" color="PrimaryGreen">Launching March 28</Text>
@@ -141,20 +130,20 @@ const CountdownGate: React.FC<CountdownGateProps> = ({ launchDate, onLaunch, onB
                     <TouchableOpacity
                         onPress={onBypass}
                         activeOpacity={0.8}
-                        style={{ borderWidth: 1, borderColor: theme.colors.PrimaryGreen, borderRadius: theme.borderRadii.md, marginTop: theme.spacing.md, alignSelf: 'center', paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm }}
+                        style={{ borderWidth: 1, borderColor: theme.colors.PrimaryGreen, borderRadius: theme.borderRadii.md, marginTop: theme.spacing.xl, alignSelf: 'center', paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm }}
                     >
 
                         <Text variant="sm" color="textPrimary">Early Member Access</Text>
 
                     </TouchableOpacity>
 
-                    <Box px="xl" mt="md">
+                    <Box px="md" mt="md">
                         <Text variant="sm" color="textSecondary" textAlign="center" lineHeight={22}>
                             Be among the first to experience the next evolution of fitness in Sri Lanka. A smarter way to train, eat, and transform your body.
                         </Text>
                     </Box>
 
-                    <Box mt="md" px="md">
+                    <Box mt="3xl" px="md">
                         <TouchableOpacity style={styles.primaryButton} activeOpacity={0.8} onPress={handleInvite}>
                             <Text variant="md" color="textPrimaryBlack">Invite a Friend</Text>
                         </TouchableOpacity>
@@ -162,7 +151,7 @@ const CountdownGate: React.FC<CountdownGateProps> = ({ launchDate, onLaunch, onB
                         <TouchableOpacity
                             style={styles.outlineButton}
                             activeOpacity={0.7}
-                            onPress={() => Linking.openURL('https://instagram.com/fitnessguru.sl')}
+                            onPress={() => Linking.openURL('https://www.instagram.com/fitnessguruapp')}
                         >
                             <Text variant="md" color="textPrimary">Follow Us on Instagram</Text>
                         </TouchableOpacity>
@@ -202,19 +191,18 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
     countdownContainer: {
-        backgroundColor: 'rgba(29,29,29,0.09)',
+        backgroundColor: 'rgba(29,29,29,0.8)',
         borderWidth: 0.5,
         borderColor: 'rgba(255,255,255,0.5)',
         marginHorizontal: 10,
-        shadowColor: "#0000",
+        shadowColor: "#000",
         shadowOffset: {
             width: 0,
             height: 4,
         },
-        shadowOpacity: 0.4,
-        shadowRadius: 5,
-        elevation: 20,
-        overflow: 'visible',
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
+        elevation: 5,
     },
     primaryButton: {
         backgroundColor: theme.colors.PrimaryGreen,

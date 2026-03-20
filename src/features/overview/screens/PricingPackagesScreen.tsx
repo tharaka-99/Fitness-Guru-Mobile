@@ -157,13 +157,13 @@ const PricingPackagesScreen: React.FC<
 
 
         try {
-
-          await Promise.all([
-            setClientProfileInfo(profile),
-            createWorkout(transformedDays),
-            createMealPlan(mealDetailsWithoutCalPerUnit),
-          ]);
-          // await setClientProfileInfo(profile);
+          if (user?.subscription?.status) {
+            await Promise.all([
+              createWorkout(transformedDays),
+              createMealPlan(mealDetailsWithoutCalPerUnit),
+            ]);
+          }
+          await setClientProfileInfo(profile);
           // await createWorkout(transformedDays);
           // await createMealPlan(mealDetailsWithoutCalPerUnit);
           store.dispatch(gymActions.resetWorkouts());
