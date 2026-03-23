@@ -195,6 +195,13 @@ const TrainerApplicationScreen: React.FC<
     }));
   };
 
+  const logFormData = (formData: FormData) => {
+    for (let [key, value] of (formData as any).entries()) {
+      console.log(`${key}:`, value);
+    }
+  };
+
+
   const appendTrainerRequestData = (
     formValues: CreateTrainerRequestDto,
     imageUploads: any,
@@ -330,7 +337,7 @@ const TrainerApplicationScreen: React.FC<
       }
 
       setIsLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       Toast.show({
         type: "error",
         text1: "Error",

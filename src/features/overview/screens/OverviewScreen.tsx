@@ -197,7 +197,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
   if (isProfileLoading && isDataMissing) {
     return (
       <FullScreenLoader
-        message="Loading your profile..."
+        message="Loading..."
       />
     );
   }

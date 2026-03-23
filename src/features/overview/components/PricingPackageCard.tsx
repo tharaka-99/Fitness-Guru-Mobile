@@ -64,7 +64,7 @@ const PricingPackageCard: React.FC<Props> = ({
 
     const hasTrial = hasAndroidTrial || hasiOSIntroTrial || hasiOSPromoOffer;
 
-    console.log("discounts", JSON.stringify(hasAndroidTrial, null, 2));
+    console.log("hasTrial", JSON.stringify(hasTrial, null, 2));
 
     return { price, hasTrial, trialDuration };
   };
