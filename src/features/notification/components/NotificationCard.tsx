@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Trash2 } from 'lucide-react-native';
 
 import { PAGE_WIDTH } from '@components/app/PageWrapper';
 import Box from '@components/atoms/Box';
@@ -13,6 +14,7 @@ interface NotificationCardProps {
   image?: string;
   date: Date;
   read?: boolean;
+  onDelete?: () => void;
 }
 
 const IMAGE_SIZE = 60;
@@ -25,19 +27,19 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   image: _image,
   date,
   read = true,
+  onDelete,
 }) => {
   return (
-    <TouchableOpacity activeOpacity={constants.activeOpacity}>
-      <Box
-        px="base"
-        gap="md"
-        py="base"
-        borderRadius="sm"
-        width={PAGE_WIDTH}
-        flexDirection="row"
-        backgroundColor={read ? 'backgroundSecondary' : 'PrimaryBlack'}
-        opacity={read ? 1 : 0.95}
-      >
+    <Box
+      px="base"
+      gap="md"
+      py="base"
+      borderRadius="sm"
+      width={PAGE_WIDTH}
+      flexDirection="row"
+      backgroundColor={read ? 'backgroundSecondary' : 'PrimaryBlack'}
+      opacity={read ? 1 : 0.95}
+    >
         <Image
           source={require('../../../../assets/logo-Icon-new.png')}
           style={styles.image}
@@ -78,8 +80,18 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
             alignSelf="center"
           />
         ) : null}
-      </Box>
-    </TouchableOpacity>
+
+        {onDelete ? (
+          <TouchableOpacity
+            onPress={onDelete}
+            activeOpacity={constants.activeOpacity}
+            hitSlop={8}
+            accessibilityRole="button"
+          >
+            <Trash2 color={theme.colors.PrimaryRed} size={18} />
+          </TouchableOpacity>
+        ) : null}
+    </Box>
   );
 };
 

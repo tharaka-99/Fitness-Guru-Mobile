@@ -59,4 +59,7 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Firebase
+android/app/google-services.json
+
 # @end expo-cli

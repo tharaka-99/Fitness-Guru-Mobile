@@ -18,7 +18,12 @@ const IN_APP_PUSH_RECEIVED_EVENT = 'notifications.in_app_push_received';
 export const requestNotificationPermission = async (): Promise<boolean> => {
   try {
     if (Platform.OS === 'ios') {
-      const authStatus = await messaging().requestPermission();
+      // Request explicit permissions so iOS can show banners + sounds + badge.
+      const authStatus = await messaging().requestPermission({
+        alert: true,
+        badge: true,
+        sound: true,
+      });
       const enabled =
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
@@ -92,6 +97,13 @@ export const ensurePushTokenRegistered = async () => {
   const permissionGranted = await requestNotificationPermission();
   if (!permissionGranted) {
     return;
+  }
+
+  // Ensure the device is registered for remote messages on iOS.
+  try {
+    await messaging().registerDeviceForRemoteMessages();
+  } catch {
+    // Non-fatal; token registration can still work on many setups.
   }
 
   const token = await getFcmToken();

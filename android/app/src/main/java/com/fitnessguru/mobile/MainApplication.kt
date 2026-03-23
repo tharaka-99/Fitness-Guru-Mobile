@@ -1,7 +1,10 @@
 package com.fitnessguru.mobile
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.res.Configuration
+import android.os.Build
 
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
@@ -48,6 +51,23 @@ class MainApplication : Application(), ReactApplication {
       load()
     }
     ApplicationLifecycleDispatcher.onApplicationCreate(this)
+
+    // Create a high-importance notification channel so FCM can show heads-up popups.
+    // Channel ID must match the backend: `fitness-guru-notifications`.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      val channelId = "fitness-guru-notifications"
+      val name = "Fitness Guru Notifications"
+      val importance = NotificationManager.IMPORTANCE_HIGH
+      val channel = NotificationChannel(channelId, name, importance)
+
+      channel.description = "Workout and meal plan updates"
+      channel.enableVibration(true)
+      channel.setShowBadge(true)
+
+      val notificationManager =
+        getSystemService(NotificationManager::class.java) as NotificationManager
+      notificationManager.createNotificationChannel(channel)
+    }
   }
 
   override fun onConfigurationChanged(newConfig: Configuration) {

@@ -19,6 +19,7 @@ import type { InAppNotificationDTO } from '../types';
 
 const IN_APP_PUSH_RECEIVED_EVENT = 'notifications.in_app_push_received';
 const IN_APP_MARKED_READ_EVENT = 'notifications.in_app_marked_read';
+const IN_APP_DELETED_EVENT = 'notifications.in_app_deleted';
 
 /** API returns { success, statusCode, message, data: InAppNotificationDTO[] } */
 function extractInAppList(payload: unknown): InAppNotificationDTO[] {
@@ -102,6 +103,17 @@ const NotificationScreen: React.FC<
     }
   }, []);
 
+  const deleteNotification = useCallback(async (notificationId: string) => {
+    try {
+      await Request.delete(`/notification/in-app/${notificationId}`);
+      const list = await fetchInAppNotifications();
+      setItems(list);
+      DeviceEventEmitter.emit(IN_APP_DELETED_EVENT);
+    } catch (e) {
+      console.warn('Failed to delete notification', e);
+    }
+  }, []);
+
   if (loading && items.length === 0) {
     return (
       <PageWrapper>
@@ -151,6 +163,7 @@ const NotificationScreen: React.FC<
               body={item.body}
               date={createdAt}
               read={item.read}
+              onDelete={() => deleteNotification(item.id)}
             />
           );
         }}

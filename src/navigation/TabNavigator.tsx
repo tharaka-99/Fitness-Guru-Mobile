@@ -14,6 +14,7 @@ import { theme } from "@utils/styles/theme";
 
 const IN_APP_PUSH_RECEIVED_EVENT = 'notifications.in_app_push_received';
 const IN_APP_MARKED_READ_EVENT = 'notifications.in_app_marked_read';
+const IN_APP_DELETED_EVENT = 'notifications.in_app_deleted';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -51,9 +52,15 @@ const TabNavigator = () => {
       () => refreshUnreadCount(),
     );
 
+    const sub3 = DeviceEventEmitter.addListener(
+      IN_APP_DELETED_EVENT,
+      () => refreshUnreadCount(),
+    );
+
     return () => {
       sub.remove();
       sub2.remove();
+      sub3.remove();
     };
   }, [refreshUnreadCount]);
 
