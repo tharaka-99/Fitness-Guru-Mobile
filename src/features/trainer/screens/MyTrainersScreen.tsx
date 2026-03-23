@@ -47,7 +47,7 @@ const MyTrainersScreen: React.FC<MyTabNavigatorScreenProps<'MyTrainer'>> = ({
   if (isTrainersLoading) {
     return (
       <FullScreenLoader
-        message="Loading fitnessguru trainers..."
+        message="Loading..."
         header="My Trainers"
       />
     );

@@ -249,9 +249,10 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                       borderRadius="md"
                       borderWidth={1}
                       borderColor="borderSecondary"
+                      p="lg"
                       alignItems="center"
                       justifyContent="center"
-                      gap="sm"
+                      gap="xs"
 
                     >
                       <BicepsFlexed color={theme.colors.PrimaryGreen} size={40} strokeWidth={1} />
@@ -283,9 +284,11 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                       borderRadius="md"
                       borderWidth={1}
                       borderColor="borderSecondary"
+                      p="lg"
                       alignItems="center"
                       justifyContent="center"
-                      gap="sm"
+                      gap="xs"
+
 
                     >
                       <Utensils color={theme.colors.PrimaryGreen} size={40} strokeWidth={1} />
