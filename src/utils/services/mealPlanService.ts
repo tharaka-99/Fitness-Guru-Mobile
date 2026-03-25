@@ -5,6 +5,12 @@ import {
   MealPlan,
 } from '@utils/types/mealPlanTypes';
 
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
 //
 export const getMealItems = async (): Promise<MealItem[]> => {
   try {
@@ -26,11 +32,11 @@ export const getMealPlan = async (): Promise<MealPlan[]> => {
 //
 export const createMealPlan = async (
   mealPlan: CreateMealPlanDto
-): Promise<MealPlan> => {
+): Promise<ApiResponse<MealPlan>> => {
   try {
-    console.log('calling meal plan creation');
+
     const response = await api.post('/meal-plan', mealPlan);
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.log(error);
     throw error;
@@ -40,11 +46,11 @@ export const createMealPlan = async (
 export const updateMealPlan = async (
   id: string,
   mealPlan: CreateMealPlanDto
-): Promise<MealPlan> => {
+): Promise<ApiResponse<MealPlan>> => {
   try {
     const response = await api.put(`/meal-plan/${id}`, mealPlan);
 
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.log(error);
     throw error;

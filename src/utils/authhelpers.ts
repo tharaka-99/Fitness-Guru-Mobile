@@ -24,7 +24,6 @@ export function getDecodedTokens({ accessToken, refreshToken }: IAuthTokens) {
     decodedTokens.accessToken = jwtDecode<JwtPayload>(accessToken);
     decodedTokens.refreshToken = jwtDecode<JwtPayload>(refreshToken);
   } catch (error) {
-    console.log("Error decoding tokens:", error);
     decodedTokens.tokenAvailable = false;
   }
 

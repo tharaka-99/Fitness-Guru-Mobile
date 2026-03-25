@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { ThemeProvider } from "@shopify/restyle";
 import { StatusBar } from "expo-status-bar";
@@ -22,17 +22,12 @@ import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from "react-native-reanimated";
-import { useEffect } from "react";
-import Purchases, { LOG_LEVEL } from "react-native-purchases";
-import { authActions } from "@features/auth/context/slice";
 import { SubscriptionProvider } from "@features/subscription/context/SubscriptionProvider";
 import { enableScreens } from "react-native-screens";
-import env from "./src/utils/env";
 enableScreens();
 
 
 const queryClient = new QueryClient();
-
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.error,
@@ -41,102 +36,6 @@ configureReanimatedLogger({
 
 
 export default function App() {
-  //configure revenue cat
-  useEffect(() => {
-    Purchases.setLogLevel(LOG_LEVEL.DEBUG);
-
-
-    // Get user from Redux store to check if already logged in
-    const state = store.getState();
-    const user = state['feature/auth']?.user;
-    const appUserID = user?._id || undefined;
-
-
-    console.log("Configuring RevenueCat with user ID:", appUserID);
-
-
-    try {
-      if (Platform.OS === "ios") {
-        Purchases.configure({
-          //apiKey: "appl_xaIghnPYoNgfePDjSrzcubzjzqw",
-          apiKey: env.EXPO_PUBLIC_RC_IOS,
-          appUserID: appUserID,
-        });
-      } else if (Platform.OS === "android") {
-        Purchases.configure({
-          //apiKey: "goog_oyzmPsavutQJnKUwqqOOEiSLioN",
-          apiKey: env.EXPO_PUBLIC_RC_ANDROID,
-          appUserID: appUserID,
-        });
-      }
-      console.log("customerInfoListener.................");
-
-
-
-
-      const customerInfoListener = (customerInfo: any) => {
-        console.log("customerInfoListener.................", customerInfo);
-        const isSubscribed =
-          customerInfo.entitlements.active["Premium access"] !== undefined ||
-          customerInfo.activeSubscriptions.length > 0;
-
-
-        store.dispatch(authActions.setSubscription({ status: isSubscribed }));
-        console.log("customerInfoListener_____isSubscribed", isSubscribed);
-      };
-
-
-      Purchases.addCustomerInfoUpdateListener(customerInfoListener);
-      console.log("customerInfoListener____", customerInfoListener);
-
-
-      fetchProducts();
-      getCustomerInfo();
-    } catch (error) {
-      console.error("RevenueCat configuration error:", error);
-    }
-  }, []);
-
-
-  async function getCustomerInfo() {
-    const customerInfo = await Purchases.getCustomerInfo();
-    console.log("CUSTOMER INFO", JSON.stringify(customerInfo, null, 2));
-  }
-
-
-  const fetchProducts = async () => {
-    try {
-      const products = await Purchases.getProducts(["premium_monthly"]);
-      const offerings = await Purchases.getOfferings();
-      console.log(
-        "PRODUCTSSSSSS",
-        JSON.stringify(offerings.current?.availablePackages, null, 2)
-      );
-      if (offerings) {
-        const customerInfo = await Purchases.getCustomerInfo();
-        if (customerInfo.activeSubscriptions.length > 0) {
-          store.dispatch(authActions.setSubscription({ status: true }));
-        } else {
-          store.dispatch(authActions.setSubscription({ status: false }));
-        }
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Revenuecat issue",
-          text2: "No offerings found!",
-        });
-      }
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Revenuecat issue",
-        text2: (error as Error)?.message || "Error configure Revenuecat",
-      });
-      console.error("Error fetching offerings:", JSON.stringify(error));
-    }
-  };
-
-
   return (
     <GestureHandlerRootView style={styles.container}>
       <ThemeProvider theme={theme}>

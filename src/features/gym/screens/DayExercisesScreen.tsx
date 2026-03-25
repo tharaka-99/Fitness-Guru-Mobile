@@ -29,7 +29,7 @@ import AddWorkoutSheet from "../components/AddWorkoutSheet";
 import WorkoutListItem from "../components/WorkoutListItem";
 import WorkoutSuggestionCard from "../components/WorkoutSuggestionCard";
 import { gymActions } from "../context/slice";
-import { ArrowLeft, Trash2, X, GripVertical } from "lucide-react-native";
+import { ArrowLeft, Trash2, CircleX } from "lucide-react-native";
 
 // const sampleImage = "https://gymvisual.com/img/p/2/0/3/0/7/20307.gif";
 const sampleImage =
@@ -99,19 +99,17 @@ const ExerciseItem = memo(
               hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
               style={{
                 position: "absolute",
-                top: 8,
-                right: 8,
+                top: 5,
+                right: 5,
                 zIndex: 1,
               }}
             >
               <Box
-                bg="PrimaryWhite"
                 borderRadius="full"
-                p="xs"
                 justifyContent="center"
                 alignItems="center"
               >
-                <X size={14} color={theme.colors.PrimaryRed} />
+                <CircleX size={20} color={theme.colors.PrimaryRed} />
               </Box>
             </TouchableOpacity>
           </Box>

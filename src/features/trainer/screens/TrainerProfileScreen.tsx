@@ -91,7 +91,7 @@ const TrainerProfileScreen: React.FC<
   if (isTrainerPackagesLoading || isWorkoutLoading) {
     return (
       <FullScreenLoader
-        message="Loading your trainer's profile..."
+        message="Loading..."
         header={capitalizeString(trainer?.firstName) + " " + trainer?.lastName}
       />
     );

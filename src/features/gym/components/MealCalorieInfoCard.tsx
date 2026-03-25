@@ -12,7 +12,7 @@ interface Props {
     dailyCalorieIntake: string;
   };
   totalIntakeData: {
-    maxCalarieIntake: number;
+    maxCalorieIntake: number;
     minCalorieIntake: number;
     yourPlannedCalorieIntake: number;
   };
@@ -69,7 +69,7 @@ const MealCalorieInfoCard: React.FC<Props> = ({ summary, totalIntakeData }) => {
 
   const backgroundColor = getBackgroundColor(
     totalIntakeData.minCalorieIntake,
-    totalIntakeData.maxCalarieIntake,
+    totalIntakeData.maxCalorieIntake,
     totalIntakeData.yourPlannedCalorieIntake
   );
 
@@ -82,7 +82,7 @@ const MealCalorieInfoCard: React.FC<Props> = ({ summary, totalIntakeData }) => {
               <Text variant="md" fontWeight="600">
                 Total Calorie Intake
               </Text>
-
+              
               <Box
                 gap="sm"
                 alignItems="center"
@@ -135,7 +135,7 @@ const MealCalorieInfoCard: React.FC<Props> = ({ summary, totalIntakeData }) => {
                     Max
                   </Text>
                   <Text variant="mdBold">
-                    {Number(totalIntakeData.maxCalarieIntake.toFixed(2))}
+                    {Number(totalIntakeData.maxCalorieIntake.toFixed(2))}
                   </Text>
                 </Box>
               </Box>

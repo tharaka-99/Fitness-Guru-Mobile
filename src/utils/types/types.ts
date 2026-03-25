@@ -57,9 +57,9 @@ export interface UserData {
 }
 //
 export interface FitnessInfo {
-  activityLevel: ActivityLevel;
-  goal: Goal;
-  expertiseLevel: ExpertiseLevel;
+  activityLevel?: string;
+  goal?: string;
+  expertiseLevel?: string;
 }
 //
 export interface PersonalInfo {

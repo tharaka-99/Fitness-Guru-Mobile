@@ -75,13 +75,9 @@ const PricingPackagesScreen: React.FC<
 
 
   const onActionPress = async (id: string) => {
-    console.log("onActionPress called with id:", id);
-    console.log("offerings:", offerings?.current);
-    console.log("availablePackages:", offerings?.current?.availablePackages);
 
 
     if (!offerings?.current || !offerings.current.availablePackages.length) {
-      console.log("No offerings available");
       Toast.show({
         type: "error",
         text1: "Error",
@@ -93,31 +89,9 @@ const PricingPackagesScreen: React.FC<
 
     const packageIdentifier = id === "Premium" ? "$rc_monthly" : "";
 
-
-    console.log("Looking for package with identifier:", packageIdentifier);
-    console.log(
-      "Available packages:",
-      offerings.current.availablePackages.map((pkg) => ({
-        identifier: pkg.identifier,
-        packageType: pkg.packageType,
-        productIdentifier: pkg.product.identifier,
-        productTitle: pkg.product.title,
-        productPrice: pkg.product.priceString,
-      })),
-    );
-
-
     const selectedPackage = offerings.current.availablePackages.find(
       (pkg) => pkg.identifier === packageIdentifier,
     );
-
-
-    console.log(
-      "selectedPackage .........>>>>>>>>>>",
-      JSON.stringify(selectedPackage),
-    );
-
-
     if (!selectedPackage) {
       Toast.show({
         type: "error",
@@ -129,8 +103,6 @@ const PricingPackagesScreen: React.FC<
 
     try {
       await purchasePackage(selectedPackage);
-      console.log("isSubscribed", isSubscribed);
-
       if (user?.isInjured) {
         store.dispatch(authActions.setIsInjured(true));
         navigation.navigate("Tab", { screen: "FitnessGuru" });
@@ -144,9 +116,7 @@ const PricingPackagesScreen: React.FC<
       }
 
       const currentUser = (store.getState() as any)["feature/auth"].user;
-      console.log("check has subscriptions", currentUser?.subscription?.status);
       const hasSubscription = hasPremiumAccess(currentUser);
-      console.log("hasSubscription......", hasSubscription);
 
       if (hasSubscription) {
         Toast.show({
@@ -158,12 +128,6 @@ const PricingPackagesScreen: React.FC<
 
 
       if (!hasSubscription) {
-        console.log(
-          "User does not have an active subscription. Proceeding with setup.",
-        );
-
-
-        console.log("Transforming workout data...");
         const transformedDays: Workout = {
           type: WorkoutType.SelfCreated,
           exerciseDays: days.exerciseDays.map((exerciseDay: ExerciseDay) => ({
@@ -180,10 +144,6 @@ const PricingPackagesScreen: React.FC<
             })),
           })),
         };
-        console.log("Transformed workout data:", transformedDays);
-
-
-        console.log("Omitting calPerUnit from meal details...");
         const omitCalPerUnit = (mealArray: MealItemDto[]) => {
           return mealArray.map(({ calPerUnit, ...rest }) => rest);
         };
@@ -194,38 +154,26 @@ const PricingPackagesScreen: React.FC<
           snack: omitCalPerUnit(mealDetails.snack),
           dinner: omitCalPerUnit(mealDetails.dinner),
         };
-        console.log(
-          "Meal details without calPerUnit:",
-          mealDetailsWithoutCalPerUnit,
-        );
 
 
         try {
-          console.log("Making API calls...");
-          await Promise.all([
-            setClientProfileInfo(profile),
-            createWorkout(transformedDays),
-            createMealPlan(mealDetailsWithoutCalPerUnit),
-          ]);
-          // console.log("Calling setClientProfileInfo...");
-          // await setClientProfileInfo(profile);
-          // console.log("Calling createWorkout...");
+          if (user?.subscription?.status) {
+            await Promise.all([
+              createWorkout(transformedDays),
+              createMealPlan(mealDetailsWithoutCalPerUnit),
+            ]);
+          }
+          await setClientProfileInfo(profile);
           // await createWorkout(transformedDays);
-          // console.log("Calling createMealPlan...");
           // await createMealPlan(mealDetailsWithoutCalPerUnit);
-          console.log("API calls completed successfully.");
-
-
           store.dispatch(gymActions.resetWorkouts());
           store.dispatch(gymActions.resetMeals());
-          console.log("Redux store reset for workouts and meals.");
-
-
           Toast.show({
             type: "success",
             text1: "Success",
             text2: "Profile setup and workout created successfully!",
           });
+          navigation.navigate("Home");
         } catch (error) {
           console.error("Error during API calls:", error);
           Toast.show({
@@ -235,14 +183,12 @@ const PricingPackagesScreen: React.FC<
           });
         }
       } else {
-        console.log("User already has an active subscription. Skipping setup.");
         Toast.show({
           type: "info",
           text1: "Info",
           text2: "Subscription already active.",
         });
       }
-
       navigation.navigate("Home");
     } catch (error: any) {
       if (!error.userCancelled) {
@@ -255,16 +201,6 @@ const PricingPackagesScreen: React.FC<
       }
     }
   };
-
-
-  // const onActionPress = async (id: string) => {
-  //   console.log('-------------in pricing page-------------');
-  //   console.log(profile);
-  //   console.log(days);
-  //   console.log(mealDetails);
-  //   console.log(days.type);
-  // };
-
 
   useEffect(() => {
     const getPackages = async () => {
@@ -279,17 +215,8 @@ const PricingPackagesScreen: React.FC<
 
   useEffect(() => {
     if (offerings?.current?.availablePackages) {
-      console.log("=== ITERATING OVER OFFERINGS ===");
       offerings.current.availablePackages.forEach((pkg, index) => {
-        console.log(`\nPackage ${index + 1}:`);
-        console.log(`  Identifier: ${pkg.identifier}`);
-        console.log(`  Package Type: ${pkg.packageType}`);
-        console.log(`  Product Identifier: ${pkg.product.identifier}`);
-        console.log(`  Product Title: ${pkg.product.title}`);
-        console.log(`  Product Description: ${pkg.product.description}`);
-        console.log(`  Product Price: ${pkg.product.priceString}`);
       });
-      console.log("=== END OF OFFERINGS ===");
     }
   }, [offerings]);
 

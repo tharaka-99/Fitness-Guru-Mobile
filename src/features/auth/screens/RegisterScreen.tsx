@@ -236,24 +236,24 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
           <Box gap="base">
             <TextInput
               label="First Name"
-              placeholder="John"
+              placeholder="Enter Your First Name"
               onChangeText={(t) => handleInputChange("firstName", t)}
             />
             <TextInput
               label="Last Name"
-              placeholder="Doe"
+              placeholder="Enter Your Last Name"
               onChangeText={(t) => handleInputChange("lastName", t)}
             />
             <TextInput
               label="Email"
               keyboardType="email-address"
-              placeholder="example@mail.com"
+              placeholder="Enter Your Email"
               onChangeText={(t) => handleInputChange("email", t)}
             />
             <TextInput
               secureTextEntry
               label="Password"
-              placeholder="********"
+              placeholder="Enter Your Password"
               onChangeText={(t) => {
                 handleInputChange("password", t);
                 validatePasswordRealtime(t);
@@ -309,7 +309,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
             <TextInput
               secureTextEntry
               label="Confirm Password"
-              placeholder="********"
+              placeholder="Enter Your Confirm Password"
               onChangeText={(t) => handleInputChange("confirmPassword", t)}
             />
             {(userData.confirmPassword?.length ?? 0) > 0 && (

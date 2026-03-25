@@ -1,7 +1,7 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, Keyboard, TouchableOpacity, View } from "react-native";
-import { ArrowLeft, ArrowRight, Search } from "lucide-react-native";
+import { ArrowLeft, ArrowRight, Check, Search, ChevronLeft, ChevronRight, CircleX } from "lucide-react-native";
 
 import { store } from "@/store";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
@@ -38,8 +38,8 @@ import Text from "@components/atoms/Text";
 const GenerateMealPlanScreen: React.FC<
   MyStackNavigatorScreenProps<"GenerateMealPlan">
 > = ({ navigation }) => {
-  const { user } = store.getState()["feature/auth"];
-  const { profile } = store.getState()["feature/overview"];
+  const { user } = useSelector((state: any) => state["feature/auth"]);
+  const { profile } = useSelector((state: any) => state["feature/overview"]);
   const goal = profile?.fitnessInfo?.goal;
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
@@ -47,7 +47,7 @@ const GenerateMealPlanScreen: React.FC<
   const [selectedMealItem, setSelectedMealItem] = useState<MealItem>();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [nextMealType, setNextMealType] = useState<MealType>(
-    MealType.Breakfast,
+    MealType.Breakfast
   );
   const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
 
@@ -67,20 +67,19 @@ const GenerateMealPlanScreen: React.FC<
     data: mealItems,
     refetch: mealItemsRefetch,
   } = useQuery("mealItems", getMealItems);
-  //
+
   const {
     isLoading: isCurrentMealPlan,
     data: currentMealPlan,
     refetch: currentMealPlanRefetch,
   } = useQuery("currentMealPlan", getCurrentMealPlan);
-  //
+
   useEffect(() => {
-    if (currentMealPlan?.length) {
+    if (currentMealPlan?.length && user?.subscription?.status === true) {
       const selfCreatedMealPlan = currentMealPlan.filter(
-        (mealPlan) => mealPlan.type === "SelfCreated",
+        (mealPlan) => mealPlan.type === "SelfCreated"
       )[0];
 
-      // Process breakfast items
       selfCreatedMealPlan.breakfast.forEach((item) => {
         const food = mealItems?.find((f) => f._id === item.mealItemId._id);
         if (food) {
@@ -91,11 +90,11 @@ const GenerateMealPlanScreen: React.FC<
               calPerUnit: food?.calPerUnit,
               mealType: MealType.Breakfast,
               unitAmount: food?.unitAmount,
-            }),
+            })
           );
         }
       });
-      // Process lunch items
+
       selfCreatedMealPlan.lunch.forEach((item) => {
         const food = mealItems?.find((f) => f._id === item.mealItemId._id);
         if (food) {
@@ -105,11 +104,11 @@ const GenerateMealPlanScreen: React.FC<
               count: item?.count,
               calPerUnit: food?.calPerUnit,
               mealType: MealType.Lunch,
-            }),
+            })
           );
         }
       });
-      // Process snack items
+
       selfCreatedMealPlan.snack.forEach((item) => {
         const food = mealItems?.find((f) => f._id === item.mealItemId._id);
         if (food) {
@@ -119,11 +118,11 @@ const GenerateMealPlanScreen: React.FC<
               count: item?.count,
               calPerUnit: food?.calPerUnit,
               mealType: MealType.Snack,
-            }),
+            })
           );
         }
       });
-      // Process dinner items
+
       selfCreatedMealPlan.dinner.forEach((item) => {
         const food = mealItems?.find((f) => f._id === item.mealItemId._id);
         if (food) {
@@ -133,48 +132,30 @@ const GenerateMealPlanScreen: React.FC<
               count: item?.count,
               calPerUnit: food?.calPerUnit,
               mealType: MealType.Dinner,
-            }),
+            })
           );
         }
       });
     } else {
       store.dispatch(gymActions.resetMeals());
     }
-  }, [currentMealPlan]);
+  }, [currentMealPlan, user?.subscription?.status]);
 
   useEffect(() => {
-    console.log("caloryRequirements", caloryRequirements);
-    console.log("Type:", typeof caloryRequirements);
-    console.log("Value:", user);
-
-    // ✅ Console log for perMealRequirement calculation
     if (user?.calculatedMetrics?.dci) {
       const dci = user.calculatedMetrics.dci;
       const perMealRequirement = dci;
-      console.log("=== GenerateMealPlanScreen - Calorie Requirements ===");
-      console.log("DCI (Daily Calorie Intake):", dci);
-      console.log("Per Meal Requirement (DCI):", perMealRequirement);
-      console.log(
-        "Current perMealLowerLimit:",
-        caloryRequirements.perMealLowerLimit,
-      );
-      console.log(
-        "Current perMealUpperLimit:",
-        caloryRequirements.perMealUpperLimit,
-      );
-      console.log("Goal:", goal);
-      console.log("===================================================");
     }
   }, [caloryRequirements, user]);
-  //
+
   const getMealCount = (mealType: MealType, mealItemId: string) => {
     const mealItems = mealDetails[mealType.toLowerCase()] || [];
     const mealItem = mealItems.find(
-      (item: any) => item.mealItemId === mealItemId,
+      (item: any) => item.mealItemId === mealItemId
     );
     return mealItem ? mealItem.count : 0;
   };
-  //
+
   const filteredData = useMemo(() => {
     return mealItems
       ?.map((item) => {
@@ -184,11 +165,11 @@ const GenerateMealPlanScreen: React.FC<
           selected: isSelected,
           count: isSelected
             ? getMealCount(selectedMealType, item._id || "")
-            : 0, // Default count to 1 if not selected
+            : 0,
         };
       })
       ?.filter((item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
       ?.sort((a, b) => {
         if (a.selected === b.selected) {
@@ -198,13 +179,13 @@ const GenerateMealPlanScreen: React.FC<
       });
   }, [mealItems, searchTerm, mealDetails, selectedMealType]);
 
-  //
+
   const handleMealItemPress = (mealItem: MealItem) => {
     Keyboard.dismiss();
     setSelectedMealItem(mealItem);
     bottomSheetRef.current?.snapToIndex(0);
   };
-  //
+
   const handleAddMealItem = (count: number) => {
     store.dispatch(
       gymActions.updateMealFood({
@@ -212,11 +193,22 @@ const GenerateMealPlanScreen: React.FC<
         count: count,
         calPerUnit: selectedMealItem?.calPerUnit,
         unitAmount: selectedMealItem?.unitAmount ?? 100,
-      }),
+      })
     );
     bottomSheetRef.current?.close();
   };
-  //
+
+  const handleRemoveMealItem = (mealItem: any) => {
+    store.dispatch(
+      gymActions.updateMealFood({
+        mealItemId: mealItem?._id ?? "",
+        count: 0,
+        calPerUnit: mealItem?.calPerUnit,
+        unitAmount: mealItem?.unitAmount ?? 100,
+      })
+    );
+  };
+
   const getPlannedCalorieIntakeByMealType = () => {
     switch (selectedMealType) {
       case MealType.Breakfast:
@@ -231,29 +223,20 @@ const GenerateMealPlanScreen: React.FC<
         return breakfastCalories;
     }
   };
-  //
-  const handleMealWarnPopUp = () => {
-    const selectedCalories = getPlannedCalorieIntakeByMealType();
-    return (
-      selectedCalories < caloryRequirements.perMealLowerLimit ||
-      selectedCalories > caloryRequirements.perMealUpperLimit
-    );
-  };
 
-  const handleTotalWarnPopUp = () => {
-    return (
+  const handleMealWarnPopUp = () => {
+    if (
       totalCalories < caloryRequirements.totalLowerLimit ||
       totalCalories > caloryRequirements.totalUpperLimit
-    );
+    ) {
+      return true;
+    }
+    return false;
   };
-  //
+
   const handleSetMealType = () => {
     const nextMealType = getNextMealType();
-    const isOutOfMealLimits = handleMealWarnPopUp();
-    const isOutOfTotalLimits =
-      selectedMealType === MealType.Dinner && handleTotalWarnPopUp();
-
-    if (isOutOfMealLimits && isOutOfTotalLimits) {
+    if (selectedMealType === MealType.Dinner && handleMealWarnPopUp()) {
       setNextMealType(nextMealType);
       setModalVisible(true);
     } else {
@@ -264,7 +247,12 @@ const GenerateMealPlanScreen: React.FC<
       }
     }
   };
-  //
+
+  const handlePreviousMealType = () => {
+    const prevMealType = getPreviousMealType();
+    store.dispatch(gymActions.setSelectedMealType(prevMealType));
+  };
+
   const getNextMealType = () => {
     switch (selectedMealType) {
       case MealType.Breakfast:
@@ -280,7 +268,20 @@ const GenerateMealPlanScreen: React.FC<
         return MealType.Breakfast;
     }
   };
-  //
+
+  const getPreviousMealType = () => {
+    switch (selectedMealType) {
+      case MealType.Lunch:
+        return MealType.Breakfast;
+      case MealType.Snack:
+        return MealType.Lunch;
+      case MealType.Dinner:
+        return MealType.Snack;
+      default:
+        return MealType.Breakfast;
+    }
+  };
+
   const formatUnitCount = (count: number, unit: string): string => {
     const match = unit.match(/^(\d+)(.*)$/);
 
@@ -291,52 +292,50 @@ const GenerateMealPlanScreen: React.FC<
     return `${count * unitValue} ${unitLabel}`;
   };
 
-  //
   const handleSubmitMealPlan = async () => {
-    // Helper function to omit `calPerUnit` from meal items
     const omitCalPerUnit = (mealArray: MealItemDto[]) => {
       return mealArray.map(({ calPerUnit, ...rest }) => rest);
     };
 
-    // Creating a new mealDetails object without calPerUnit
-    const mealDetailsWithoutCalPerUnit = {
-      ...mealDetails,
-      breakfast: omitCalPerUnit(mealDetails.breakfast),
-      lunch: omitCalPerUnit(mealDetails.lunch),
-      snack: omitCalPerUnit(mealDetails.snack),
-      dinner: omitCalPerUnit(mealDetails.dinner),
-    };
-    //NOTE:
     if (user?.subscription?.status === true) {
+      const mealDetailsWithoutCalPerUnit = {
+        ...mealDetails,
+        breakfast: omitCalPerUnit(mealDetails.breakfast),
+        lunch: omitCalPerUnit(mealDetails.lunch),
+        snack: omitCalPerUnit(mealDetails.snack),
+        dinner: omitCalPerUnit(mealDetails.dinner),
+      };
       try {
         const selfCreatedMealPlan =
           currentMealPlan?.length &&
           currentMealPlan?.filter(
-            (mealPlan) => mealPlan.type === "SelfCreated",
+            (mealPlan) => mealPlan.type === "SelfCreated"
           )[0];
+        let result;
         if (selfCreatedMealPlan && selfCreatedMealPlan?._id) {
-          await updateMealPlan(
+          result = await updateMealPlan(
             selfCreatedMealPlan?._id,
-            mealDetailsWithoutCalPerUnit,
+            mealDetailsWithoutCalPerUnit
           );
+        } else {
+          result = await createMealPlan(mealDetailsWithoutCalPerUnit);
         }
-        // } else {
-        //   await createMealPlan(mealDetailsWithoutCalPerUnit);
-        // }
 
         Toast.show({
           type: "success",
           text1: "Success",
-          text2: "Meal plan saved successfully!",
+          text2: result?.message || "Meal plan saved successfully!",
         });
+
         store.dispatch(gymActions.setSelectedMealType(MealType.Breakfast));
         store.dispatch(gymActions.resetMeals());
         navigation.navigate("Home");
-      } catch (error) {
+      } catch (error: any) {
+        const errorMessage = error?.response?.data?.message || "Failed to save meal plan.";
         Toast.show({
           type: "error",
           text1: "Error",
-          text2: "Failed to save meal plan.",
+          text2: errorMessage,
         });
       } finally {
         setModalVisible(false);
@@ -351,10 +350,10 @@ const GenerateMealPlanScreen: React.FC<
       navigation.push("PricingPackages");
     }
   };
-  //
+
   const handleContinue = () => {
     setModalVisible(false);
-    if (selectedMealType === MealType.Dinner) {
+    if (selectedMealType === MealType.Dinner && user) {
       handleSubmitMealPlan();
     } else {
       store.dispatch(gymActions.setSelectedMealType(nextMealType));
@@ -364,7 +363,6 @@ const GenerateMealPlanScreen: React.FC<
   return (
     <PageWrapper>
       <Box mb="base">
-        {/* Always render the container to keep the layout stable */}
         <Box height={55} justifyContent="center">
           {!showSearchBar ? (
             <PageHeader
@@ -404,7 +402,32 @@ const GenerateMealPlanScreen: React.FC<
       </Box>
 
       {!showSearchBar && (
-        <Box flexDirection="row" justifyContent="flex-end" mb="md">
+        <Box
+          flexDirection="row"
+          justifyContent="flex-end"
+          gap="sm"
+          mb="md"
+        >
+          {selectedMealType !== MealType.Breakfast && (
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                borderWidth: 2,
+                borderColor: theme.colors.PrimaryGreen,
+                borderRadius: theme.borderRadii.xs,
+                paddingHorizontal: theme.spacing.sm,
+                paddingVertical: theme.spacing.xs,
+                backgroundColor: theme.colors.backgroundPrimary,
+                gap: theme.spacing.xs,
+              }}
+              onPress={() => handlePreviousMealType()}
+              activeOpacity={constants.activeOpacity}
+            >
+              <ChevronLeft size={24} color={theme.colors.PrimaryGreen} />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={{
               flexDirection: "row",
@@ -416,20 +439,15 @@ const GenerateMealPlanScreen: React.FC<
               paddingHorizontal: theme.spacing.sm,
               paddingVertical: theme.spacing.xs,
               backgroundColor: theme.colors.backgroundPrimary,
-              gap: theme.spacing.xs,
             }}
             onPress={() => handleSetMealType()}
             activeOpacity={constants.activeOpacity}
           >
-            <Text
-              variant="lgBold"
-              style={{
-                color: theme.colors.PrimaryGreen,
-              }}
-            >
-              Next
-            </Text>
-            <ArrowRight size={20} color={theme.colors.PrimaryGreen} />
+            {selectedMealType === MealType.Dinner ? (
+              <Check size={24} color={theme.colors.PrimaryGreen} />
+            ) : (
+              <ChevronRight size={24} color={theme.colors.PrimaryGreen} />
+            )}
           </TouchableOpacity>
         </Box>
       )}
@@ -448,7 +466,7 @@ const GenerateMealPlanScreen: React.FC<
             <Box style={{ backgroundColor: theme.colors.PrimaryBlack }}>
               <MealCalorieInfoCard
                 totalIntakeData={{
-                  maxCalarieIntake: caloryRequirements.totalUpperLimit,
+                  maxCalorieIntake: caloryRequirements.totalUpperLimit,
                   minCalorieIntake: caloryRequirements.totalLowerLimit,
                   yourPlannedCalorieIntake: totalCalories,
                 }}
@@ -484,25 +502,41 @@ const GenerateMealPlanScreen: React.FC<
             } = item;
 
             return (
-              <TouchableOpacity
-                activeOpacity={constants.activeOpacity}
-                onPress={() => handleMealItemPress(item)}
+              <Box
+                backgroundColor={selected ? "SecondaryGreen" : undefined}
+                position="relative"
               >
-                <Box
-                  p="sm"
-                  backgroundColor={selected ? "SecondaryGreen" : undefined}
+                <TouchableOpacity
+                  activeOpacity={constants.activeOpacity}
+                  onPress={() => handleMealItemPress(item)}
                 >
-                  <MealsListItem
-                    key={String(_id)}
-                    title={name}
-                    image={url || image}
-                    unitCount={selected ? formatUnitCount(count, unit) : ""}
-                    description={`${calPerUnit}Cal per unit (${unitAmount + unit
-                      })`}
-                    theme={selected ? "green" : undefined}
-                  />
-                </Box>
-              </TouchableOpacity>
+                  <Box p="sm">
+                    <MealsListItem
+                      key={String(_id)}
+                      title={name}
+                      image={url || image}
+                      unitCount={selected ? formatUnitCount(count, unit) : ""}
+                      description={`${calPerUnit}Cal per unit (${unitAmount + unit
+                        })`}
+                      theme={selected ? "green" : undefined}
+                    />
+                  </Box>
+                </TouchableOpacity>
+                {selected && (
+                  <TouchableOpacity
+                    onPress={() => handleRemoveMealItem(item)}
+                    style={{
+                      position: "absolute",
+                      top: 4,
+                      right: 4,
+                      zIndex: 1,
+                      padding: 4,
+                    }}
+                  >
+                    <CircleX size={18} color={theme.colors.PrimaryRed} />
+                  </TouchableOpacity>
+                )}
+              </Box>
             );
           }}
         />
@@ -528,9 +562,8 @@ const GenerateMealPlanScreen: React.FC<
           Calorie Intake Warning
         </Text>
         <Text variant="lgBold" mb="md">
-          {selectedMealType === MealType.Dinner && handleTotalWarnPopUp()
-            ? "Total daily calorie intake is out of bounds. Are you sure you want to continue?"
-            : "Calorie intake for this meal type is out of bounds. Are you sure you want to continue?"}
+          Total calorie intake is out of bounds. Are you sure you want to
+          continue?
         </Text>
 
         <Box flexDirection="row" justifyContent="space-between" mt="md">
@@ -564,9 +597,6 @@ const GenerateMealPlanScreen: React.FC<
 };
 
 export default GenerateMealPlanScreen;
-
-// const image =
-//   "https://s3-alpha-sig.figma.com/img/10aa/1eb1/2f1ee4b7bac921a2be64883946236e89?Expires=1710115200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=I0jSdjgwo1g54o3ooA7wbc2EQbyXHGRLcjIOi5K9NdixdUve9Ehn9HiNgprFv~8DkUMiekYYX2j3B~MVCPpyboB2MTMLpgpcKHm5bTL05KSJ21POS3QmgT5fxriTaOH4FEB0WKJumHVt99mnRHK444Qtr9h9gwm-4ClS9UUqxqFr9dN2ry~jjse1mhFi5YH-nlBkGyGLqPb4BZq6VTep7L6DQCahu6hFeRqLuj8bznjd5OW9Jtfq1vfLSnUeOOEZaN~jXBsfmsa1-nLC1xx00EDsd6GqkCMxa8pSk-~WGoCd2Tvg~X9glEeI~wZ9de2Dvc~Y-nEr-bexURKMXGAWMw__";
 
 const image =
   "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif";
