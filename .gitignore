@@ -62,4 +62,7 @@ yarn-error.*
 # Firebase
 android/app/google-services.json
 
+# Firebase iOS config
+ios/**/GoogleService-Info.plist
+
 # @end expo-cli

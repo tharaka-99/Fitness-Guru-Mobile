@@ -28,3 +28,6 @@ project.xcworkspace
 
 # CocoaPods
 /Pods/
+
+# Firebase iOS config
+ios/**/GoogleService-Info.plist

@@ -8,7 +8,7 @@ import OverviewScreen from "@features/overview/screens/OverviewScreen";
 import MyTrainersScreen from "@features/trainer/screens/MyTrainersScreen";
 import { TabParamList } from "./types";
 import FitnessGuruScreen from "@features/trainer/screens/FitnessGuruScreen";
-import { DeviceEventEmitter, Image, StyleSheet, Text, View } from "react-native";
+import { AppState, DeviceEventEmitter, Image, StyleSheet, Text, View } from "react-native";
 import Request from "@utils/http/request";
 import { theme } from "@utils/styles/theme";
 
@@ -57,10 +57,17 @@ const TabNavigator = () => {
       () => refreshUnreadCount(),
     );
 
+    // Fallback: if iOS background handler doesn't fire for some reason,
+    // refresh unread count when the app becomes active again.
+    const appStateSub = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active") refreshUnreadCount();
+    });
+
     return () => {
       sub.remove();
       sub2.remove();
       sub3.remove();
+      appStateSub.remove();
     };
   }, [refreshUnreadCount]);
 
