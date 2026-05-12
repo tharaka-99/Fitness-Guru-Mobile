@@ -6,16 +6,16 @@ import Text from "@components/atoms/Text";
 import Button from "@components/atoms/Button";
 import { theme } from "@utils/styles/theme";
 import { store } from "@/store";
-import { authActions } from "@features/auth/context/slice";
-import { PurchasesOfferings } from "react-native-purchases";
+import { PurchasesOfferings, INTRO_ELIGIBILITY_STATUS } from "react-native-purchases";
 import useSubscription from "@features/subscription/hooks/useSubscription";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 
+
 interface Props {
   packages: any;
   offerings?: PurchasesOfferings;
-  onActionPress: (id: string) => void;
+  onActionPress: (id: string, discount?: any) => void;
   onChangePackage: (id: string) => void;
 }
 
@@ -27,18 +27,14 @@ const PricingPackageCard: React.FC<Props> = ({
   onChangePackage,
 }) => {
   const { user } = store.getState()["feature/auth"];
-  const { restorePurchases } = useSubscription();
+  const { restorePurchases, trialEligibility } = useSubscription();
   const navigation = useNavigation();
 
 
-  // const [selectedPlan, setSelectedPlan] = useState(
-  //   user?.isInjured ? 'Premium' : 'Standard'
-  // );
   const [selectedPlan, setSelectedPlan] = useState("Premium");
 
 
   useEffect(() => {
-    // user?.isInjured ? setSelectedPlan('Premium') : setSelectedPlan('Standard');
     setSelectedPlan("Premium");
   }, [user?.isInjured]);
 
@@ -46,33 +42,66 @@ const PricingPackageCard: React.FC<Props> = ({
   const filteredPackages = packages?.filter(
     (p: any) => p.name === selectedPlan
   );
+
+
   const getPackageData = () => {
-    if (!offerings?.current?.availablePackages) return { price: null, hasTrial: false, trialDuration: null };
+    if (!offerings?.current?.availablePackages)
+      return { price: null, hasTrial: false, trialDuration: null, discountTrial: null };
+
 
     const monthlyPackage = offerings.current.availablePackages.find(
       (pkg) => pkg.identifier === "$rc_monthly"
     );
 
-    const price = monthlyPackage?.product?.priceString || null;
-    const trialDuration = monthlyPackage?.product?.introPrice?.period || null;
 
-    const hasAndroidTrial = Platform.OS === 'android' && !!monthlyPackage?.product?.defaultOption?.freePhase || monthlyPackage?.product?.introPrice?.price === 0;
-    const hasiOSIntroTrial = Platform.OS === 'ios' && monthlyPackage?.product?.introPrice?.price === 0;
-    const hasiOSPromoOffer = Platform.OS === 'ios' &&
-      monthlyPackage?.product?.discounts &&
-      monthlyPackage.product.discounts.length > 0;
+    if (!monthlyPackage)
+      return { price: null, hasTrial: false, trialDuration: null, discountTrial: null };
 
-    const hasTrial = hasAndroidTrial || hasiOSIntroTrial || hasiOSPromoOffer;
 
-    console.log("hasTrial", JSON.stringify(hasTrial, null, 2));
+    const price = monthlyPackage.product.priceString ?? null;
 
-    return { price, hasTrial, trialDuration };
+
+    const introPrice = monthlyPackage.product.introPrice;
+    const introTrial = introPrice && introPrice.price === 0 ? introPrice : null;
+
+
+    const isEligible =
+      trialEligibility.status === INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE ||
+      trialEligibility.status === INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_UNKNOWN;
+
+
+    const hasAndroidTrial =
+      Platform.OS === "android" &&
+      (!!monthlyPackage.product.defaultOption?.freePhase ||
+        introPrice?.price === 0);
+
+
+    const hasiOSTrial =
+      Platform.OS === "ios" && isEligible && !!introTrial;
+
+
+    const hasTrial = hasAndroidTrial || hasiOSTrial;
+
+
+    return {
+      price,
+      hasTrial,
+    };
   };
 
-  const { price: revenueCatPrice, hasTrial, trialDuration } = getPackageData();
 
-  // Helper to format trial duration if needed, though for now we know it's 14 days
+  const { price: revenueCatPrice, hasTrial } = getPackageData();
+
+
   const formattedTrialInfo = hasTrial ? "14 days free" : null;
+
+
+  const buttonTitle = () => {
+    if (trialEligibility.isLoading) return "Loading...";
+    if (hasTrial) return "Start 14-Day Free Trial";
+    return "Subscribe";
+  };
+
 
   const openLink = (url: string) => {
     Linking.openURL(url).catch((err) =>
@@ -165,10 +194,7 @@ const PricingPackageCard: React.FC<Props> = ({
 
         {/* Plan Selection */}
         <Box mt="sm" style={styles.planCard}>
-          <CheckCircle2
-            size={20}
-            color={theme.colors.PrimaryGreen}
-          />
+          <CheckCircle2 size={20} color={theme.colors.PrimaryGreen} />
           <Box flex={1} ml="sm">
             <Text variant="lg" style={styles.planTitle}>
               Monthly
@@ -176,19 +202,16 @@ const PricingPackageCard: React.FC<Props> = ({
             <Text variant="sm" style={styles.planSubtitle}>
               {hasTrial
                 ? `${formattedTrialInfo}, then ${revenueCatPrice}/month`
-                : `Full access for just ${revenueCatPrice}/month`
-              }
+                : `Full access for just ${revenueCatPrice}/month`}
             </Text>
           </Box>
         </Box>
       </Box>
 
-
-      {/* Continue Button */}
       <Box mt="sm">
         <Button
-          title={hasTrial ? "Start 14-Day Free Trial" : "Subscribe"}
-          isLoading={false}
+          title={buttonTitle()}
+          isLoading={trialEligibility.isLoading}
           onPress={() => onActionPress(selectedPlan)}
         />
 
@@ -196,7 +219,10 @@ const PricingPackageCard: React.FC<Props> = ({
           onPress={async () => {
             try {
               const restoredInfo = await restorePurchases();
-              if (restoredInfo?.activeSubscriptions && restoredInfo.activeSubscriptions.length > 0) {
+              if (
+                restoredInfo?.activeSubscriptions &&
+                restoredInfo.activeSubscriptions.length > 0
+              ) {
                 Toast.show({
                   type: "success",
                   text1: "Success",
@@ -219,11 +245,7 @@ const PricingPackageCard: React.FC<Props> = ({
               });
             }
           }}
-          style={{
-            padding: 10,
-            alignItems: "center",
-
-          }}
+          style={{ padding: 10, alignItems: "center" }}
         >
           <Box flexDirection="row" justifyContent="center" alignItems="center">
             <Text variant="md" color="PrimaryGreen">
@@ -231,22 +253,6 @@ const PricingPackageCard: React.FC<Props> = ({
             </Text>
           </Box>
         </TouchableOpacity>
-
-        {/* Free Trial Button
-        <Button
-          title="Start Free Trial (Testing)"
-          isLoading={false}
-          onPress={() => {
-            // Set trial status to true for testing
-            store.dispatch(authActions.setTrialStatus(true));
-            // Also set subscription status to true to bypass premium checks
-            store.dispatch(authActions.setSubscription({ status: true }));
-            // Navigate to the next screen
-            onActionPress(selectedPlan);
-          }}
-          style={styles.trialButton}
-        /> */}
-
 
         <Box style={styles.footer}>
           <TouchableOpacity
@@ -270,8 +276,6 @@ const PricingPackageCard: React.FC<Props> = ({
   );
 };
 
-
-// Styles
 const styles = StyleSheet.create({
   headerTextContainer: {},
   headerText: {
@@ -334,13 +338,11 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   trialButton: {
-    backgroundColor: "#FF6B35", // Orange color for trial button
+    backgroundColor: "#FF6B35",
     marginTop: 10,
   },
 });
 
 
 export default PricingPackageCard;
-
-
 
