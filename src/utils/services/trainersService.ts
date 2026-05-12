@@ -1,6 +1,8 @@
 import api, { getApiForFormData } from '@utils/http/request';
 import {
   CreateTrainerRequestDto,
+  MealReRequestPayload,
+  ReRequestEligibility,
   Trainer,
   TrainerPackage,
 } from '@utils/types/trainersTypes';
@@ -104,6 +106,44 @@ export const getFitnessGuruRequest = async (): Promise<any> => {
 
     return response.data.data;
   } catch (error) {
+    throw error;
+  }
+};
+
+export const getScheduleReRequestEligibility = async (): Promise<ReRequestEligibility> => {
+  try {
+    const response = await api.get('/trainer-request/schedule-re-request/eligibility');
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const postWorkoutReRequest = async (formData: FormData): Promise<any> => {
+  try {
+    const response = await getApiForFormData().post('/trainer-request/schedule-re-request/workout',
+      formData);
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        throw new Error(error.response.data?.message || 'Error creating workout re-request');
+      }
+    }
+    throw error;
+  }
+};
+
+export const postMealReRequest = async (payload: MealReRequestPayload): Promise<any> => {
+  try {
+    const response = await api.post('/trainer-request/schedule-re-request/meal', payload);
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        throw new Error(error.response.data?.message || 'Error creating meal re-request');
+      }
+    }
     throw error;
   }
 };

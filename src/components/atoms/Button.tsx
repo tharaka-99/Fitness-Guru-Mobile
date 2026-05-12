@@ -12,6 +12,7 @@ interface ButtonProps {
   type?: "solid" | "outline";
   icon?: "arrow" | "none";
   isLoading?: boolean;
+  disabled?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -20,13 +21,17 @@ const Button: React.FC<ButtonProps> = ({
   onPress,
   isLoading = false,
   type = "solid",
+  disabled = false,
 }) => {
+  const isButtonDisabled = isLoading || disabled;
+
   if (type === "solid")
     return (
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={constants.activeOpacity}
-        disabled={isLoading} // Disable button when loading
+        disabled={isButtonDisabled}
+        style={{ opacity: isButtonDisabled ? 0.5 : 1 }}
       >
         <LinearGradient
           start={{ x: 1, y: 0.5 }}
@@ -61,7 +66,8 @@ const Button: React.FC<ButtonProps> = ({
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={constants.activeOpacity}
-        disabled={isLoading} // Disable button when loading
+        disabled={isButtonDisabled}
+        style={{ opacity: isButtonDisabled ? 0.5 : 1 }}
       >
         <Box style={[styles.buttonBase, styles.buttonOutline]}>
           <Box style={styles.buttonContent}>
