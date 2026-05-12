@@ -51,6 +51,7 @@ const initialFormValues: CreateTrainerRequestDto = {
   weight: 0,
   height: 0,
   workoutPlace: WorkoutPlace.Home,
+  workoutDaysPerWeek: "",
   homeEquipments: "",
   isAnyFoodAllergies: false,
   foodAllergies: "",
@@ -86,16 +87,16 @@ const TrainerApplicationScreen: React.FC<
     trainerId: trainer._id,
   });
   const [imageUploads, setImageUploads] = useState<{
-    frontView: string;
-    backView: string;
-    sideView: string;
-    lowerBodyView: string;
-    homeEquipments?: string[];
+    frontView: string[];
+    backView: string[];
+    sideView: string[];
+    lowerBodyView: string[];
+    homeEquipments: string[];
   }>({
-    frontView: "",
-    backView: "",
-    sideView: "",
-    lowerBodyView: "",
+    frontView: [],
+    backView: [],
+    sideView: [],
+    lowerBodyView: [],
     homeEquipments: [],
   });
   const [errors, setErrors] = useState<{
@@ -113,7 +114,11 @@ const TrainerApplicationScreen: React.FC<
     "height",
   ];
 
-  const requiredFieldsScreen2 = ["workoutPlace", "isAnyFoodAllergies"];
+  const requiredFieldsScreen2 = [
+    "workoutPlace",
+    "workoutDaysPerWeek",
+    "isAnyFoodAllergies",
+  ];
 
   const requiredFieldsScreen3 = [
     "activityLevel",
@@ -221,6 +226,7 @@ const TrainerApplicationScreen: React.FC<
     formData.append("weight", formValues.weight.toString());
     formData.append("height", formValues.height.toString());
     formData.append("workoutPlace", formValues.workoutPlace);
+    formData.append("workoutDaysPerWeek", formValues.workoutDaysPerWeek);
     formData.append("homeEquipments", formValues.homeEquipments || "");
     formData.append(
       "isAnyFoodAllergies",
@@ -367,6 +373,10 @@ const TrainerApplicationScreen: React.FC<
       unit: unit,
     }));
   };
+
+  const hasAllImages = Object.values(imageUploads).every(
+    (images) => images.length > 0
+  );
 
   return (
     <PageWrapper noPadding>
@@ -578,7 +588,7 @@ const TrainerApplicationScreen: React.FC<
             >
               <Box gap="base" px="md">
                 <Select
-                  label="Where do you workout?"
+                  label="Where do you typically work out?"
                   items={[
                     { id: "1", option: "Home", value: WorkoutPlace.Home },
                     { id: "2", option: "Gym", value: WorkoutPlace.Gym },
@@ -593,8 +603,19 @@ const TrainerApplicationScreen: React.FC<
                 />
 
                 <TextInput
-                  label="If home, please mention your equipments"
-                  placeholder="Enter your equipment names"
+                  label="How many workout days per week do you plan to exercise?"
+                  placeholder="Enter number of days (e.g., 3-5)"
+                  keyboardType="number-pad"
+                  value={formValues.workoutDaysPerWeek}
+                  onChangeText={(value) =>
+                    handleInputChange("workoutDaysPerWeek", value)
+                  }
+                  error={errors.workoutDaysPerWeek}
+                />
+
+                <TextInput
+                  label="If working out at home, please list your equipment"
+                  placeholder="Enter equipment names"
                   value={formValues.homeEquipments}
                   onChangeText={(value) =>
                     handleInputChange("homeEquipments", value)
@@ -604,7 +625,7 @@ const TrainerApplicationScreen: React.FC<
 
                 <ImageInput
                   selectionLimit={3}
-                  label="Please upload images of your equipments"
+                  label="Please upload images of your equipment"
                   onImageUpload={(value) =>
                     handleImageUpload("homeEquipments", value)
                   }
@@ -676,7 +697,7 @@ const TrainerApplicationScreen: React.FC<
                 />
 
                 <Select
-                  label="Do you have any medications right now?"
+                  label="Are you currently taking any medications?"
                   items={[
                     { id: "1", option: "Yes", value: true },
                     { id: "2", option: "No", value: false },
@@ -749,7 +770,7 @@ const TrainerApplicationScreen: React.FC<
                 />
 
                 <Select
-                  label="What is your goal?"
+                  label="What is your fitness goal?"
                   items={[
                     { id: "1", option: "Weight Gain", value: Goal.WeightGain },
                     { id: "2", option: "Weight Loss", value: Goal.WeightLoss },
@@ -767,7 +788,7 @@ const TrainerApplicationScreen: React.FC<
                 />
 
                 <TextInput
-                  label="What is your budget per week for meals?"
+                  label="What is your weekly budget for meals?"
                   placeholder="Enter your budget"
                   keyboardType="number-pad"
                   value={formValues.weeklyMealBudget.toString()}
@@ -778,7 +799,7 @@ const TrainerApplicationScreen: React.FC<
                 />
 
                 <Select
-                  label="Do you use any supplements?"
+                  label="Do you use any nutritional supplements?"
                   items={[
                     { id: "1", option: "Yes", value: true },
                     { id: "2", option: "No", value: false },
@@ -820,7 +841,7 @@ const TrainerApplicationScreen: React.FC<
             >
               <Box gap="base" px="md">
                 <Select
-                  label="Rate your cardiovascular endurance"
+                  label="How would you rate your cardiovascular endurance?"
                   items={[
                     {
                       id: "1",
@@ -854,7 +875,7 @@ const TrainerApplicationScreen: React.FC<
                 <TextInput
                   keyboardType="number-pad"
                   label="How many push-ups can you perform in one set?"
-                  placeholder="Leave blanck if you don't know"
+                  placeholder="Leave blank if you don't know"
                   value={formValues.oneSetPushUpCount.toString()}
                   onChangeText={(value) =>
                     handleInputChange("oneSetPushUpCount", Number(value))
@@ -864,7 +885,7 @@ const TrainerApplicationScreen: React.FC<
                 <TextInput
                   keyboardType="number-pad"
                   label="How many bodyweight squats can you perform in one set?"
-                  placeholder="Leave blanck if you don't know"
+                  placeholder="Leave blank if you don't know"
                   value={formValues.oneSetBodyWeightSquats.toString()}
                   onChangeText={(value) =>
                     handleInputChange("oneSetBodyWeightSquats", Number(value))
@@ -873,8 +894,8 @@ const TrainerApplicationScreen: React.FC<
 
                 <TextInput
                   keyboardType="number-pad"
-                  label="How many pull-ups squats can you perform in one set?"
-                  placeholder="Leave blanck if you don't know"
+                  label="How many pull-ups can you perform in one set?"
+                  placeholder="Leave blank if you don't know"
                   value={formValues.oneSetPullUps.toString()}
                   onChangeText={(value) =>
                     handleInputChange("oneSetPullUps", Number(value))
@@ -904,7 +925,7 @@ const TrainerApplicationScreen: React.FC<
                 />
 
                 <Select
-                  label="Do you practise any flexibility exercises (e.g stretching, yoga)?"
+                  label="Do you practice any flexibility exercises (e.g., stretching, yoga)?"
                   items={[
                     {
                       id: "1",
@@ -975,6 +996,12 @@ const TrainerApplicationScreen: React.FC<
                     title="Submit"
                     onPress={handleSubmit}
                     isLoading={isLoading}
+                    disabled={
+                      imageUploads.frontView.length === 0 ||
+                      imageUploads.backView.length === 0 ||
+                      imageUploads.sideView.length === 0 ||
+                      imageUploads.lowerBodyView.length === 0
+                    }
                   />
                 </Box>
               </Box>

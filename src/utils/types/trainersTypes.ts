@@ -91,6 +91,7 @@ export interface CreateTrainerRequestDto {
   weight: number;
   height: number;
   workoutPlace: WorkoutPlace;
+  workoutDaysPerWeek: string;
   homeEquipments: string;
   isAnyFoodAllergies: boolean;
   foodAllergies: string;
@@ -111,4 +112,24 @@ export interface CreateTrainerRequestDto {
   oneSetPullUps: number;
   canTouchToesKeepingLegsStraight: boolean;
   isPracticingAnyFlexibilityExercises: boolean;
+}
+
+export interface ReRequestEligibility {
+  meal: {
+    canRequest: boolean;
+    remainingDays: number;
+    nextRequestAt: string | null;
+  };
+  workout: {
+    canRequest: boolean;
+    remainingDays: number;
+    nextRequestAt: string | null;
+  };
+}
+
+export interface MealReRequestPayload {
+  goal: Goal;
+  age: number;
+  weight: number;
+  height: number;
 }
