@@ -46,8 +46,8 @@ import { theme } from "@utils/styles/theme";
 import useSubscription from "@features/subscription/hooks/useSubscription";
 import Text from "@components/atoms/Text";
 
-const { height: screenHeight } = Dimensions.get("window");
 
+const { height: screenHeight } = Dimensions.get("window");
 
 const PricingPackagesScreen: React.FC<
   MyStackNavigatorScreenProps<"PricingPackages">
@@ -56,11 +56,11 @@ const PricingPackagesScreen: React.FC<
   const { user } = store.getState()["feature/auth"];
   const { days, mealDetails, selectedWorkout } =
     store.getState()["feature/gym"];
+
   const [currentPackage, setCurrentPackage] = useState<string>("Premium");
   const [packages, setPackages] = useState<SubscriptionPlans>([]);
 
-  const { offerings, purchasePackage, isSubscribed, restorePurchases } = useSubscription();
-
+  const { offerings, purchasePackage, isSubscribed } = useSubscription();
 
   useEffect(() => {
     if (isSubscribed) {
@@ -68,15 +68,19 @@ const PricingPackagesScreen: React.FC<
     }
   }, [isSubscribed]);
 
+  useEffect(() => {
+    const getPackages = async () => {
+      const clientPackages = await getClientPackages();
+      setPackages(clientPackages);
+    };
+    getPackages();
+  }, []);
 
   const onChangePackage = (id: string) => {
     setCurrentPackage(id);
   };
 
-
   const onActionPress = async (id: string) => {
-
-
     if (!offerings?.current || !offerings.current.availablePackages.length) {
       Toast.show({
         type: "error",
@@ -86,12 +90,12 @@ const PricingPackagesScreen: React.FC<
       return;
     }
 
-
     const packageIdentifier = id === "Premium" ? "$rc_monthly" : "";
 
     const selectedPackage = offerings.current.availablePackages.find(
       (pkg) => pkg.identifier === packageIdentifier,
     );
+
     if (!selectedPackage) {
       Toast.show({
         type: "error",
@@ -103,15 +107,16 @@ const PricingPackagesScreen: React.FC<
 
     try {
       await purchasePackage(selectedPackage);
+
       if (user?.isInjured) {
         store.dispatch(authActions.setIsInjured(true));
         navigation.navigate("Tab", { screen: "FitnessGuru" });
         return;
       }
 
-
       if (selectedWorkout?.WorkoutType === WorkoutType.Default) {
-        (await setClientProfileInfo(profile), navigation.navigate("Home"));
+        await setClientProfileInfo(profile);
+        navigation.navigate("Tab", { screen: "FitnessGuru" });
         return;
       }
 
@@ -144,9 +149,10 @@ const PricingPackagesScreen: React.FC<
             })),
           })),
         };
-        const omitCalPerUnit = (mealArray: MealItemDto[]) => {
-          return mealArray.map(({ calPerUnit, ...rest }) => rest);
-        };
+
+        const omitCalPerUnit = (mealArray: MealItemDto[]) =>
+          mealArray.map(({ calPerUnit, ...rest }) => rest);
+
         const mealDetailsWithoutCalPerUnit = {
           ...mealDetails,
           breakfast: omitCalPerUnit(mealDetails.breakfast),
@@ -154,7 +160,6 @@ const PricingPackagesScreen: React.FC<
           snack: omitCalPerUnit(mealDetails.snack),
           dinner: omitCalPerUnit(mealDetails.dinner),
         };
-
 
         try {
           if (user?.subscription?.status) {
@@ -164,8 +169,6 @@ const PricingPackagesScreen: React.FC<
             ]);
           }
           await setClientProfileInfo(profile);
-          // await createWorkout(transformedDays);
-          // await createMealPlan(mealDetailsWithoutCalPerUnit);
           store.dispatch(gymActions.resetWorkouts());
           store.dispatch(gymActions.resetMeals());
           Toast.show({
@@ -173,7 +176,6 @@ const PricingPackagesScreen: React.FC<
             text1: "Success",
             text2: "Profile setup and workout created successfully!",
           });
-          navigation.navigate("Home");
         } catch (error) {
           console.error("Error during API calls:", error);
           Toast.show({
@@ -181,6 +183,7 @@ const PricingPackagesScreen: React.FC<
             text1: "Error",
             text2: "Failed to complete setup. Please try again.",
           });
+          return;
         }
       } else {
         Toast.show({
@@ -202,23 +205,7 @@ const PricingPackagesScreen: React.FC<
     }
   };
 
-  useEffect(() => {
-    const getPackages = async () => {
-      const cilentPackages = await getClientPackages();
-      setPackages(cilentPackages);
-    };
 
-
-    getPackages();
-  }, []);
-
-
-  useEffect(() => {
-    if (offerings?.current?.availablePackages) {
-      offerings.current.availablePackages.forEach((pkg, index) => {
-      });
-    }
-  }, [offerings]);
 
 
   return (
@@ -243,6 +230,8 @@ const PricingPackagesScreen: React.FC<
       </View>
 
 
+
+
       <View style={styles.cardContainer}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -261,7 +250,11 @@ const PricingPackagesScreen: React.FC<
 };
 
 
+
+
 export default PricingPackagesScreen;
+
+
 
 
 const styles = StyleSheet.create({
@@ -290,6 +283,12 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
 });
+
+
+
+
+
+
 
 
 
