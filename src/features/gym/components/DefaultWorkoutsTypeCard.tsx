@@ -41,7 +41,7 @@ const DefaultWorkoutsTypeCard: React.FC<Props> = ({
         </Box>
 
         <Box px="sm" flex={1} alignItems="flex-start" justifyContent="center">
-          <Text variant="lgBold" numberOfLines={1} color="SecondaryGreen">
+          <Text variant="lgBold" numberOfLines={1} color="PrimaryGreen">
             {title.toUpperCase()}
           </Text>
           <Text color="textPrimary" variant="smBold" fontWeight={'300'}>

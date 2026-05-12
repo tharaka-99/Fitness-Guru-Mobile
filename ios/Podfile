@@ -16,6 +16,15 @@ prepare_react_native_project!
 target 'fitnessguru' do
   use_expo_modules!
 
+  # Explicit modular headers for Firebase/Google to avoid global conflict
+  pod 'Firebase', :modular_headers => true
+  pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'FirebaseCore', :modular_headers => true
+  
+  # If you use Flipper, ensure it's called normally without global modular flags
+  # use_flipper!()
+
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
   else

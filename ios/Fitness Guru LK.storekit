@@ -1,0 +1,136 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "918A285E",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6743677433",
+    "_compatibilityTimeRate" : {
+      "3" : 6
+    },
+    "_developerTeamID" : "TWK589W3X3",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 798131412.98537302,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : {
+          "index" : 2,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ],
+    "_timeRate" : 1001
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21851824",
+      "localizations" : [
+
+      ],
+      "name" : "Premium Fitness Guru",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+            {
+              "internalID" : "05F5A58E",
+              "numberOfPeriods" : 1,
+              "offerID" : "fg_rc_trial",
+              "paymentMode" : "free",
+              "referenceName" : "fg-trial-offer",
+              "subscriptionPeriod" : "P2W"
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "10.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6756199741",
+          "introductoryOffer" : {
+            "internalID" : "88B40B84",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
+          "localizations" : [
+            {
+              "description" : "Monthly Premium Fitness Guru",
+              "displayName" : "Premium Fitness Guru",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "premium_monthly_ios",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Fitness Guru",
+          "subscriptionGroupID" : "21851824",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

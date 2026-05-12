@@ -8,9 +8,11 @@ import OverviewScreen from "@features/overview/screens/OverviewScreen";
 import MyTrainersScreen from "@features/trainer/screens/MyTrainersScreen";
 import { TabParamList } from "./types";
 import FitnessGuruScreen from "@features/trainer/screens/FitnessGuruScreen";
-import { DeviceEventEmitter, Image, StyleSheet, Text, View } from "react-native";
+import { DeviceEventEmitter, Image, Platform, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import Request from "@utils/http/request";
 import { theme } from "@utils/styles/theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 
 const IN_APP_PUSH_RECEIVED_EVENT = 'notifications.in_app_push_received';
 const IN_APP_MARKED_READ_EVENT = 'notifications.in_app_marked_read';
@@ -19,6 +21,7 @@ const IN_APP_DELETED_EVENT = 'notifications.in_app_deleted';
 const Tab = createBottomTabNavigator<TabParamList>();
 
 const TabNavigator = () => {
+  const insets = useSafeAreaInsets();
   const [unreadCount, setUnreadCount] = useState(0);
 
   const refreshUnreadCount = useCallback(async () => {
@@ -63,28 +66,58 @@ const TabNavigator = () => {
       sub3.remove();
     };
   }, [refreshUnreadCount]);
+  const { height: screenHeight } = useWindowDimensions();
+  const HEADER_OFFSET = 220;
+  const availableHeight = screenHeight - HEADER_OFFSET;
+  const TILE_MIN_HEIGHT = 120;
+  const TILE_COUNT = 3;
+  const needsScroll = availableHeight < TILE_MIN_HEIGHT * TILE_COUNT + 60;
+  const topTileHeight = needsScroll ? TILE_MIN_HEIGHT * 1.4 : undefined;
+  const bottomTileHeight = needsScroll ? TILE_MIN_HEIGHT * 1.4 : undefined;
 
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="FitnessGuru"
       screenOptions={{
         headerShown: false,
         tabBarAllowFontScaling: false,
-        tabBarItemStyle: { paddingVertical: 3 },
+        tabBarActiveTintColor: theme.colors.PrimaryGreen,
+        tabBarInactiveTintColor: theme.colors.textSecondary,
+        tabBarStyle: {
+          backgroundColor: theme.colors.backgroundPrimary,
+          // borderTopWidth: 1.5,
+          // borderTopColor: theme.colors.borderSecondary,
+          // paddingTop: theme.spacing.xs,
+          // paddingBottom: theme.spacing.xs + insets.bottom,
+          // height: 60 + insets.bottom,
+        },
+        tabBarItemStyle: {
+          // margin: 0,
+          // padding: 0,
+          // paddingTop: theme.spacing.sm,
+        },
+        tabBarLabelStyle: {
+          //paddingTop: theme.spacing.xs,
+          fontSize: theme.textVariants.xs.fontSize,
+          fontWeight: '600',
+        }
       }}
+
+
     >
-      <Tab.Screen
-        name="Home"
-        component={OverviewScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
-        }}
-      />
       <Tab.Screen
         name="FitnessGuru"
         component={FitnessGuruScreen}
         options={{
-          title: "Fitness Guru",
+          title: "Home",
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="Home"
+        component={OverviewScreen}
+        options={{
+          title: "FitnessGuru",
           tabBarIcon: ({ color, size, focused }) => (
             // <Entypo name="google-play" color={color} size={size - 2} />
             <Image

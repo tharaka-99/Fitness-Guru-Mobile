@@ -2,7 +2,7 @@
   "expo": {
     "name": "fitness-guru",
     "slug": "fitness-guru",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/logo-Icon-new.png",
     "userInterfaceStyle": "light",
@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#0D0D0D"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.fitnessguru.mobile",
@@ -25,7 +23,7 @@
         "light": "./assets/logo-Icon-new.png",
         "tinted": "./assets/logo-Icon-new.png"
       },
-      "buildNumber": "2",
+      "buildNumber": "3",
       "entitlements": {
         "com.apple.developer.networking.wifi-info": true
       }

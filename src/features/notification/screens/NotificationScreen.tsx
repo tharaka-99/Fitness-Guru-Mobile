@@ -6,7 +6,7 @@ import {
   DeviceEventEmitter,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-
+import { BellOff } from 'lucide-react-native';
 import PageHeader from '@components/app/header/PageHeader';
 import PageWrapper from '@components/app/PageWrapper';
 import Box from '@components/atoms/Box';
@@ -16,10 +16,13 @@ import Request from '@utils/http/request';
 import { theme } from '@utils/styles/theme';
 import NotificationCard from '../components/NotificationCard';
 import type { InAppNotificationDTO } from '../types';
+import FullScreenLoader from '@components/atoms/FullScreenLoader';
+
 
 const IN_APP_PUSH_RECEIVED_EVENT = 'notifications.in_app_push_received';
 const IN_APP_MARKED_READ_EVENT = 'notifications.in_app_marked_read';
 const IN_APP_DELETED_EVENT = 'notifications.in_app_deleted';
+
 
 /** API returns { success, statusCode, message, data: InAppNotificationDTO[] } */
 function extractInAppList(payload: unknown): InAppNotificationDTO[] {
@@ -33,6 +36,7 @@ function extractInAppList(payload: unknown): InAppNotificationDTO[] {
   return [];
 }
 
+
 async function fetchInAppNotifications(): Promise<InAppNotificationDTO[]> {
   const res = await Request.get('/notification/in-app', {
     params: { limit: 50 },
@@ -41,12 +45,14 @@ async function fetchInAppNotifications(): Promise<InAppNotificationDTO[]> {
   return list;
 }
 
+
 const NotificationScreen: React.FC<
   MyTabNavigatorScreenProps<'Notifications'>
 > = () => {
   const [items, setItems] = useState<InAppNotificationDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
 
   // If a push arrives while the user is browsing other tabs, refresh list when it lands.
   React.useEffect(() => {
@@ -64,6 +70,7 @@ const NotificationScreen: React.FC<
     return () => sub.remove();
   }, []);
 
+
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
@@ -74,11 +81,11 @@ const NotificationScreen: React.FC<
           await Request.patch('/notification/in-app/mark-all-read');
           DeviceEventEmitter.emit(IN_APP_MARKED_READ_EVENT);
 
+
           const list = await fetchInAppNotifications();
           if (!cancelled) setItems(list);
         } catch (e) {
           if (!cancelled) {
-            console.warn('Failed to load in-app notifications', e);
             setItems([]);
           }
         } finally {
@@ -90,6 +97,7 @@ const NotificationScreen: React.FC<
       };
     }, []),
   );
+
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -103,6 +111,7 @@ const NotificationScreen: React.FC<
     }
   }, []);
 
+
   const deleteNotification = useCallback(async (notificationId: string) => {
     try {
       await Request.delete(`/notification/in-app/${notificationId}`);
@@ -114,16 +123,16 @@ const NotificationScreen: React.FC<
     }
   }, []);
 
+
   if (loading && items.length === 0) {
     return (
-      <PageWrapper>
-        <PageHeader title="Notifications" />
-        <Box flex={1} justifyContent="center" alignItems="center" py="xl">
-          <ActivityIndicator size="large" color={theme.colors.PrimaryGreen} />
-        </Box>
-      </PageWrapper>
+      <FullScreenLoader
+        message="Loading..."
+        header="Notifications"
+      />
     );
   }
+
 
   return (
     <PageWrapper>
@@ -133,7 +142,7 @@ const NotificationScreen: React.FC<
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{
-          gap: theme.spacing.sm,
+          gap: theme.spacing.md,
           flexGrow: 1,
           paddingBottom: theme.spacing.lg,
         }}
@@ -146,10 +155,20 @@ const NotificationScreen: React.FC<
           />
         }
         ListEmptyComponent={
-          <Box px="base" py="xl">
+          <Box flex={1} justifyContent="center" alignItems="center" px="xl">
+            <Box
+              backgroundColor="backgroundSecondary"
+              p="lg"
+              borderRadius="full"
+              mb="md"
+            >
+              <BellOff color={theme.colors.PrimaryGreen} size={32} />
+            </Box>
+            <Text variant="mdBold" textAlign="center" mb="xs">
+              No notifications yet
+            </Text>
             <Text variant="sm" color="textSecondary" textAlign="center">
-              No notifications yet. Workout and meal plan updates from your
-              trainer will appear here.
+              Workout and meal plan updates from your trainer will appear here.
             </Text>
           </Box>
         }
@@ -172,4 +191,8 @@ const NotificationScreen: React.FC<
   );
 };
 
+
 export default NotificationScreen;
+
+
+

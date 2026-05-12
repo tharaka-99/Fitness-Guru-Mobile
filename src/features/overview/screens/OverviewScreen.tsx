@@ -1,8 +1,7 @@
-import { MapPin, Calendar, Dumbbell, BicepsFlexed, CirclePlus } from "lucide-react-native";
+import { BicepsFlexed, CirclePlus } from "lucide-react-native";
 import greetingTime from "greeting-time";
 import React, { useEffect, useState } from "react";
-import { Image, TouchableOpacity } from "react-native";
-import { PAGE_WIDTH } from "@components/app/PageWrapper";
+import { Dimensions, Image, ScrollView, TouchableOpacity, useWindowDimensions } from "react-native";
 import { Activity, Utensils, Bike } from "lucide-react-native";
 import InfoCard from "@components/app/InfoCard";
 import PageWrapper from "@components/app/PageWrapper";
@@ -12,7 +11,6 @@ import Box from "@components/atoms/Box";
 import { MyTabNavigatorScreenProps } from "@navigation/types";
 import { capitalizeString } from "@utils/helpers";
 import { getClientProfileInfo } from "@utils/services/authServices";
-import PlanCategoryCard from "../components/PlanCategoryCard";
 import { store } from "@/store";
 import { theme } from "@utils/styles/theme";
 import Text from "@components/atoms/Text";
@@ -30,13 +28,21 @@ import { getMealPlan } from "@utils/services/mealPlanService";
 import { Button } from "react-native-paper";
 import FullScreenLoader from "@components/atoms/FullScreenLoader";
 
-
 const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
   navigation,
 }) => {
   const { user } = store.getState()["feature/auth"];
   const greetingMessage: string = greetingTime(new Date());
 
+  const { height: screenHeight } = useWindowDimensions();
+
+  const HEADER_OFFSET = 220;
+  const availableHeight = screenHeight - HEADER_OFFSET;
+  const TILE_MIN_HEIGHT = 120;
+  const TILE_COUNT = 3;
+  const needsScroll = availableHeight < TILE_MIN_HEIGHT * TILE_COUNT + 60;
+  const topTileHeight = needsScroll ? TILE_MIN_HEIGHT * 1.4 : undefined;
+  const bottomTileHeight = needsScroll ? TILE_MIN_HEIGHT * 1.4 : undefined;
 
   const {
     isLoading: isProfileLoading,
@@ -44,8 +50,6 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     refetch: profileRefetch,
   } = useQuery("profile", getClientProfileInfo);
 
-
-  //
   const {
     isLoading: isWorkoutLoading,
     data: workout,
@@ -60,15 +64,12 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     refetch: mealRefetch,
   } = useQuery("mealPlan", getMealPlan);
 
-
-  //
   const {
     isLoading: isDefaultWorkoutLoading,
     data: defaultWorkout,
     error: defaultWorkoutError,
     refetch: defaultWorkoutRefetch,
   } = useQuery("defaultWorkout", getClientDefaultWorkouts);
-
 
   useFocusEffect(
     React.useCallback(() => {
@@ -91,28 +92,22 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     }, [profileRefetch, workoutRefetch, mealRefetch, defaultWorkoutRefetch])
   );
 
-
-  // Dispatch workouts to store when data is available
   React.useEffect(() => {
     if (workout) {
       store.dispatch(gymActions.setWorkouts(workout));
     }
   }, [workout]);
 
-
-  // Extract calorie calculation logic into a separate function
   const calculateCalorieRequirements = React.useCallback((profile: any) => {
     if (!profile?.calculatedMetrics?.dci || !profile?.fitnessInfo?.goal) {
       return null;
     }
-
 
     const dci = profile.calculatedMetrics.dci;
     const perMealRequirement = dci;
     const goal = profile.fitnessInfo.goal;
     let perMealLowerLimit: number;
     let perMealUpperLimit: number;
-
 
     switch (goal) {
       case "WeightGain":
@@ -136,8 +131,6 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
         perMealUpperLimit = perMealRequirement + 50;
         break;
     }
-
-
     return {
       perMealRequirement,
       perMealLowerLimit,
@@ -147,8 +140,6 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     };
   }, []);
 
-
-  // Memoize the calculated requirements to avoid unnecessary recalculations
   const calorieRequirements = React.useMemo(() => {
     return calculateCalorieRequirements(profile);
   }, [
@@ -157,8 +148,6 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     calculateCalorieRequirements,
   ]);
 
-
-  // Update Redux store when calorie requirements change
   React.useEffect(() => {
     if (calorieRequirements) {
       const {
@@ -169,8 +158,6 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
         goal,
       } = calorieRequirements;
 
-
-      // Dispatch the calculated calorie requirements to Redux store
       store.dispatch(
         gymActions.updateCaloriesRequirenment({
           perMealRequirement,
@@ -181,7 +168,6 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     }
   }, [calorieRequirements]);
 
-
   React.useEffect(() => {
     if (defaultWorkout) {
       store.dispatch(gymActions.setDefaultWorkouts(defaultWorkout));
@@ -189,10 +175,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
   }, [defaultWorkout]);
 
 
-
-
   const isDataMissing = !profile || !workout || !mealPlan;
-
 
   if (isProfileLoading && isDataMissing) {
     return (
@@ -202,20 +185,19 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     );
   }
 
-
-  const isProfileComplete =
-    (profile?.personalInfo?.weight ?? 0) > 0 &&
-    (profile?.personalInfo?.height ?? 0) > 0 &&
-    (profile?.personalInfo?.age ?? 0) > 0 &&
-    !!profile?.fitnessInfo?.goal;
-
-
   return (
     <Box flex={1} mb="xs">
       <PageWrapper>
-        <PageHeader title="Home" />
-        <Box flex={1} gap="md">
-          <Box flexDirection="row" alignItems="center" gap="md">
+        <PageHeader title="Fitness Guru" />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{ flex: 1 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: theme.spacing.sm,
+          }}
+        >
+          <Box flexDirection="row" alignItems="center" gap="md" pb="md">
             {profile?.profileImageFileUrl ? (
               <Image
                 source={{ uri: profile.profileImageFileUrl }}
@@ -248,248 +230,262 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
               </Text>
             </Box>
           </Box>
-          {(profile?.fitnessInfo?.goal ||
-            (profile?.calculatedMetrics?.dci && Math.round(profile.calculatedMetrics.dci) > 0) ||
-            (profile?.calculatedMetrics?.bmr && Math.round(profile.calculatedMetrics.bmr) > 0)) && (
-              <Box flexDirection="row" gap="sm" py="sm">
-                <Box
-                  flex={1}
-                  borderRadius="sm"
-                  borderWidth={1}
-                  borderColor="borderSecondary"
-                  flexDirection="row"
-                  overflow="hidden"
-                >
-                  <Box flex={1} p="sm">
-                    <Text variant="sm" color="textSecondary">
-                      Goal
-                    </Text>
-                    <Text variant="md" numberOfLines={1}>
-                      {profile?.fitnessInfo?.goal
-                        ? profile.fitnessInfo.goal.replace(
-                          /([a-z])([A-Z])/g,
-                          "$1 $2"
-                        )
-                        : "Not Set"}
-                    </Text>
-                  </Box>
-                  <Box width={8} backgroundColor="LightBlue" />
+          {(
+            <Box flexDirection="row" gap="sm" pb="md" justifyContent="space-between">
+              <Box
+                flex={1}
+                borderRadius="sm"
+                borderWidth={1}
+                borderColor="borderSecondary"
+                flexDirection="row"
+                overflow="hidden"
+              >
+                <Box flex={1} p="sm">
+                  <Text variant="sm" color="textSecondary">
+                    Goal
+                  </Text>
+                  <Text variant="md" numberOfLines={1}>
+                    {profile?.fitnessInfo?.goal
+                      ? profile.fitnessInfo.goal.replace(
+                        /([a-z])([A-Z])/g,
+                        "$1 $2"
+                      )
+                      : "Not Set"}
+                  </Text>
                 </Box>
-                <Box
-                  flex={1}
-                  borderRadius="sm"
-                  borderWidth={1}
-                  borderColor="borderSecondary"
-                  flexDirection="row"
-                  overflow="hidden"
-                >
-                  <Box flex={1} p="sm">
-                    <Text variant="sm" color="textSecondary">
-                      DCI
-                    </Text>
-                    <Text variant="md" numberOfLines={1}>
-                      {profile?.calculatedMetrics?.dci
-                        ? `${Math.round(profile.calculatedMetrics.dci)} Cal`
-                        : "0Cal"}
-                    </Text>
-                  </Box>
-                  <Box width={8} backgroundColor="LightPink" />
-                </Box>
-                <Box
-                  flex={1}
-                  borderRadius="sm"
-                  borderWidth={1}
-                  borderColor="borderSecondary"
-                  flexDirection="row"
-                  overflow="hidden"
-                >
-                  <Box flex={1} p="sm">
-                    <Text variant="sm" color="textSecondary">
-                      BMR
-                    </Text>
-                    <Text variant="md" numberOfLines={1}>
-                      {profile?.calculatedMetrics?.bmr
-                        ? `${Math.round(profile.calculatedMetrics.bmr)} Cal`
-                        : "0Cal"}
-                    </Text>
-                  </Box>
-                  <Box width={8} backgroundColor="PrimaryOrange" />
-                </Box>
+                <Box width={8} backgroundColor="LightBlue" />
               </Box>
-            )}
+              <Box
+                flex={1}
+                borderRadius="sm"
+                borderWidth={1}
+                borderColor="borderSecondary"
+                flexDirection="row"
+                overflow="hidden"
+              >
+                <Box flex={1} p="sm">
+                  <Text variant="sm" color="textSecondary">
+                    DCI
+                  </Text>
+                  <Text variant="md" numberOfLines={1}>
+                    {profile?.calculatedMetrics?.dci
+                      ? `${Math.round(profile.calculatedMetrics.dci)} Cal`
+                      : "0Cal"}
+                  </Text>
+                </Box>
+                <Box width={8} backgroundColor="LightPink" />
+              </Box>
+              <Box
+                flex={1}
+                borderRadius="sm"
+                borderWidth={1}
+                borderColor="borderSecondary"
+                flexDirection="row"
+                overflow="hidden"
+              >
+                <Box flex={1} p="sm">
+                  <Text variant="sm" color="textSecondary">
+                    BMR
+                  </Text>
+                  <Text variant="md" numberOfLines={1}>
+                    {profile?.calculatedMetrics?.bmr
+                      ? `${Math.round(profile.calculatedMetrics.bmr)} Cal`
+                      : "0Cal"}
+                  </Text>
+                </Box>
+                <Box width={8} backgroundColor="PrimaryOrange" />
+              </Box>
+            </Box>
+          )}
 
-
-          <Box flex={1} paddingBottom="sm" gap="sm" >
-            {!user?.isInjured &&
-              profile?.fitnessInfo &&
-              profile?.personalInfo && (
-                <>
-                  <Box flex={1} flexDirection="row" justifyContent="space-between" gap="sm">
-                    {workout && workout?.length > 0 ? (
-                      <TouchableOpacity
-                        style={{ flex: 1 }}
-                        onPress={() => {
-                          navigation.navigate("WorkoutRoutine");
-                          store.dispatch(
-                            gymActions.setSelectedWorkout({
-                              WorkoutType: WorkoutType.SelfCreated,
-                              createdBy: "",
-                            })
-                          );
-                        }}
-                      >
-                        <Box
-                          flex={1}
-                          backgroundColor="backgroundSecondary"
-                          borderWidth={1}
-                          borderColor="borderSecondary"
-                          borderRadius="sm"
-                          p="lg"
-                          alignItems="center"
-                          justifyContent="center"
-                          gap="sm"
-                        >
-                          <BicepsFlexed color={theme.colors.LightBlue} size={40} strokeWidth={1} />
-                          <Text variant="lg" color="LightBlue">My Workout</Text>
-                          <Text variant="xs" color="textSecondary" textAlign="center">
-                            Update your workout routine every 30days - 45days.
-                          </Text>
-                        </Box>
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity
-                        style={{ flex: 1 }}
-                        onPress={() => {
-                          navigation.navigate("WorkoutRoutine");
-                          store.dispatch(
-                            gymActions.setSelectedWorkout({
-                              WorkoutType: WorkoutType.SelfCreated,
-                              createdBy: "",
-                            })
-                          );
-                        }}
-                      >
-                        <Box
-                          flex={1}
-                          backgroundColor="backgroundSecondary"
-                          borderWidth={1}
-                          borderColor="borderSecondary"
-                          borderRadius="sm"
-                          p="lg"
-                          alignItems="center"
-                          justifyContent="center"
-                          gap="sm"
-                        >
-                          <CirclePlus color={theme.colors.LightBlue} size={40} strokeWidth={1} />
-                          <Text variant="lg" color="LightBlue">Create Workouts</Text>
-                          <Text variant="xs" color="textSecondary" textAlign="center">
-                            You can create your own custom workouts.
-                          </Text>
-                        </Box>
-                      </TouchableOpacity>
-                    )}
-
-
+          <Box gap="sm" flexGrow={1}>
+            {!user?.isInjured && (
+              <Box gap="sm" flexGrow={1}>
+                <Box flexGrow={1} flexDirection="row" justifyContent="space-between" gap="sm">
+                  {workout && workout?.length > 0 ? (
                     <TouchableOpacity
-                      style={{ flex: 1 }}
+                      style={{
+                        flex: 1,
+                        backgroundColor: theme.colors.backgroundSecondary,
+                        borderWidth: 1,
+                        borderColor: theme.colors.borderSecondary,
+                        borderRadius: theme.borderRadii.sm,
+                        padding: theme.spacing.sm,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: theme.spacing.sm,
+                        minHeight: topTileHeight,
+                      }}
                       onPress={() => {
+                        navigation.navigate("WorkoutRoutine");
                         store.dispatch(
-                          gymActions.setSelectedMealPlanType(
-                            MealPlanType.SelfCreated
-                          )
+                          gymActions.setSelectedWorkout({
+                            WorkoutType: WorkoutType.SelfCreated,
+                            createdBy: "",
+                          })
                         );
-                        navigation.navigate("MealPlan");
                       }}
                     >
-                      <Box
-                        flex={1}
-                        backgroundColor="backgroundSecondary"
-                        borderWidth={1}
-                        borderColor="borderSecondary"
-                        borderRadius="sm"
-                        p="lg"
-                        alignItems="center"
-                        justifyContent="center"
-                        gap="sm"
-                      >
-                        <Utensils color={theme.colors.LightPink} size={40} strokeWidth={1} />
-                        <Text variant="lg" color="LightPink">My Meal Plan</Text>
-                        <Text variant="xs" color="textSecondary" textAlign="center">
-                          Update your meal plan when ever you think its necessary.
-                        </Text>
-                      </Box>
+
+
+                      <BicepsFlexed color={theme.colors.LightBlue} size={40} strokeWidth={1} />
+                      <Text variant="lg" color="LightBlue">My Workout</Text>
+                      <Text variant="xs" color="textSecondary" textAlign="center">
+                        Update your workout routine every 30days - 45days.
+                      </Text>
+
+
                     </TouchableOpacity>
-                  </Box>
+                  ) : (
+                    <TouchableOpacity
+                      style={{
+                        flex: 1,
+                        backgroundColor: theme.colors.backgroundSecondary,
+                        borderWidth: 1,
+                        borderColor: theme.colors.borderSecondary,
+                        borderRadius: theme.borderRadii.sm,
+                        padding: theme.spacing.sm,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: theme.spacing.sm,
+                        minHeight: topTileHeight,
+                      }}
+                      onPress={() => {
+                        navigation.navigate("WorkoutRoutine");
+                        store.dispatch(
+                          gymActions.setSelectedWorkout({
+                            WorkoutType: WorkoutType.SelfCreated,
+                            createdBy: "",
+                          })
+                        );
+                      }}
+                    >
+
+
+                      <CirclePlus color={theme.colors.LightBlue} size={40} strokeWidth={1} />
+                      <Text variant="lg" color="LightBlue">Create Workouts</Text>
+                      <Text variant="xs" color="textSecondary" textAlign="center">
+                        You can create your own custom workouts.
+                      </Text>
+
+
+                    </TouchableOpacity>
+                  )}
+
+
 
 
                   <TouchableOpacity
-                    style={{ flex: 1 }}
+                    style={{
+                      flex: 1,
+                      backgroundColor: theme.colors.backgroundSecondary,
+                      borderWidth: 1,
+                      borderColor: theme.colors.borderSecondary,
+                      borderRadius: theme.borderRadii.sm,
+                      padding: theme.spacing.sm,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: theme.spacing.sm,
+                      minHeight: topTileHeight,
+                    }}
                     onPress={() => {
-                      navigation.navigate("GeneralWorkoutRoutine");
                       store.dispatch(
-                        gymActions.setSelectedWorkout({
-                          WorkoutType: WorkoutType.Default,
-                          createdBy: "",
-                        })
+                        gymActions.setSelectedMealPlanType(
+                          MealPlanType.SelfCreated
+                        )
                       );
+                      navigation.navigate("MealPlan");
                     }}
                   >
-                    <Box
-                      flex={1}
-                      backgroundColor="backgroundSecondary"
-                      borderWidth={1}
-                      borderColor="borderSecondary"
-                      borderRadius="sm"
-                      p="lg"
-                      alignItems="center"
-                      justifyContent="center"
-                      gap="sm"
-                    >
-                      <Bike color={theme.colors.PrimaryOrange} size={40} strokeWidth={1} />
-                      <Text variant="lg" color="PrimaryOrange">Default Workouts</Text>
-                      <Text variant="xs" color="textSecondary" textAlign="center">
-                        Perform any workout routine based on your weekly schedule.
-                      </Text>
-                    </Box>
+
+
+                    <Utensils color={theme.colors.LightPink} size={40} strokeWidth={1} />
+                    <Text variant="lg" color="LightPink">My Meal Plan</Text>
+                    <Text variant="xs" color="textSecondary" textAlign="center">
+                      Update your meal plan when ever you think its necessary.
+                    </Text>
+
+
                   </TouchableOpacity>
-                  <Box mt="sm">
-                    <Text variant="lgBold">Workout Analytics</Text>
-                    <Box flexDirection="row" justifyContent="space-between" gap="sm" mt="sm">
-                      <TouchableOpacity
-                        style={{ flex: 1 }}
-                        onPress={() => navigation.navigate("MyDashboardScreen" as any)}
-                      >
-                        <Box
-                          backgroundColor="backgroundSecondary"
-                          borderRadius="sm"
-                          p="md"
-                          justifyContent="center"
-                        >
-                          <Text variant="xs" color="textSecondary">Schedule</Text>
-                          <Text variant="md">My Workout</Text>
-                        </Box>
-                      </TouchableOpacity>
+                </Box>
 
 
-                      <TouchableOpacity
-                        style={{ flex: 1 }}
-                        onPress={() => navigation.navigate("MyDashboardScreen" as any)}
-                      >
-                        <Box
-                          backgroundColor="backgroundSecondary"
-                          borderRadius="sm"
-                          p="md"
-                          justifyContent="center"
-                        >
-                          <Text variant="xs" color="textSecondary">Schedule</Text>
-                          <Text variant="md">Fitness Guru</Text>
-                        </Box>
-                      </TouchableOpacity>
-                    </Box>
+
+
+                <TouchableOpacity
+                  style={{
+                    flexGrow: 1,
+                    backgroundColor: theme.colors.backgroundSecondary,
+                    borderWidth: 1,
+                    borderColor: theme.colors.borderSecondary,
+                    borderRadius: theme.borderRadii.sm,
+                    padding: theme.spacing.sm,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: theme.spacing.sm,
+                    minHeight: bottomTileHeight,
+                  }}
+                  onPress={() => {
+                    navigation.navigate("GeneralWorkoutRoutine");
+                    store.dispatch(
+                      gymActions.setSelectedWorkout({
+                        WorkoutType: WorkoutType.Default,
+                        createdBy: "",
+                      })
+                    );
+                  }}
+                >
+
+
+                  <Bike color={theme.colors.PrimaryOrange} size={40} strokeWidth={1} />
+                  <Text variant="lg" color="PrimaryOrange">Default Workouts</Text>
+                  <Text variant="xs" color="textSecondary" textAlign="center">
+                    Perform any workout routine based on your weekly schedule.
+                  </Text>
+
+
+                </TouchableOpacity>
+                <Box mt="sm">
+                  <Text variant="lgBold">Workout Analytics</Text>
+                  <Box flexDirection="row" justifyContent="space-between" gap="sm" mt="sm" flexGrow={1}>
+                    <TouchableOpacity
+                      style={{
+                        flex: 1,
+                        backgroundColor: theme.colors.backgroundSecondary,
+                        borderRadius: theme.borderRadii.sm,
+                        padding: theme.spacing.md,
+                        justifyContent: "center",
+
+                      }}
+                      onPress={() => navigation.navigate("MyDashboardScreen" as any)}
+                    >
+                      <Text variant="xs" color="textSecondary">Schedule</Text>
+                      <Text variant="md">My Workout</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={{
+                        flex: 1,
+                        backgroundColor: theme.colors.backgroundSecondary,
+                        borderRadius: theme.borderRadii.sm,
+                        padding: theme.spacing.md,
+                        justifyContent: "center",
+
+                      }}
+                      onPress={() => navigation.navigate("MyDashboardScreen" as any)}
+                    >
+
+
+                      <Text variant="xs" color="textSecondary">Schedule</Text>
+                      <Text variant="md">Fitness Guru</Text>
+
+
+                    </TouchableOpacity>
                   </Box>
-                </>
-              )}
-            {!user?.isInjured &&
+                </Box>
+              </Box>
+            )}
+            {/* {!user?.isInjured &&
               !profile?.fitnessInfo &&
               !profile?.personalInfo && (
                 <InfoCard
@@ -498,8 +494,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                   imageSource={require("assets/images/dumble-with-heart.png")}
                   buttonOnPress={() => navigation.navigate("Onboard")}
                 />
-              )}
-
+              )} */}
 
             {user?.isInjured && (
               <InfoCard
@@ -513,13 +508,20 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
               />
             )}
           </Box>
-        </Box>
+        </ScrollView>
       </PageWrapper>
     </Box>
   );
 };
 
 
+
+
 export default OverviewScreen;
+
+
+
+
+
 
 
