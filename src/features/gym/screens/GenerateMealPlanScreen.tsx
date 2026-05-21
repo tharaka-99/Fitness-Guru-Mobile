@@ -2,7 +2,6 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, Keyboard, TouchableOpacity, View } from "react-native";
 import { ArrowLeft, ArrowRight, Check, Search, ChevronLeft, ChevronRight, CircleX } from "lucide-react-native";
-
 import { store } from "@/store";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
@@ -297,7 +296,9 @@ const GenerateMealPlanScreen: React.FC<
       return mealArray.map(({ calPerUnit, ...rest }) => rest);
     };
 
-    if (user?.subscription?.status === true) {
+    if (
+      // user?.subscription?.status === true
+      true) {
       const mealDetailsWithoutCalPerUnit = {
         ...mealDetails,
         breakfast: omitCalPerUnit(mealDetails.breakfast),
@@ -329,7 +330,9 @@ const GenerateMealPlanScreen: React.FC<
 
         store.dispatch(gymActions.setSelectedMealType(MealType.Breakfast));
         store.dispatch(gymActions.resetMeals());
-        navigation.navigate("Home");
+        setTimeout(() => {
+          navigation.navigate("Home");
+        }, 1000);
       } catch (error: any) {
         const errorMessage = error?.response?.data?.message || "Failed to save meal plan.";
         Toast.show({
@@ -340,15 +343,16 @@ const GenerateMealPlanScreen: React.FC<
       } finally {
         setModalVisible(false);
       }
-    } else {
-      setModalVisible(false);
-      Toast.show({
-        type: "info",
-        text1: "Subscription Required",
-        text2: "Please subscribe to save your meal plans.",
-      });
-      navigation.push("PricingPackages");
     }
+    // else {
+    //   setModalVisible(false);
+    //   Toast.show({
+    //     type: "info",
+    //     text1: "Subscription Required",
+    //     text2: "Please subscribe to save your meal plans.",
+    //   });
+    //   navigation.push("PricingPackages");
+    // }
   };
 
   const handleContinue = () => {

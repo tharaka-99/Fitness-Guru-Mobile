@@ -42,29 +42,33 @@ import { useIsFocused } from "@react-navigation/native";
 
 const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   navigation,
+  route,
 }) => {
   const { user } = store.getState()["feature/auth"];
   const [currentStep, setCurrentStep] = useState<number>(0);
   const pageViewRef = useRef<PagerView>(null);
 
-  const [age, setAge] = useState<number>(1);
+  const [age, setAge] = useState<number>(user?.personalInfo?.age || 0);
   const [unit, setUnit] = useState(Unit.Metric);
-  const [weight, setWeight] = useState<number>(0);
-  const [height, setHeight] = useState<number>(0);
+  const [weight, setWeight] = useState<number>(user?.personalInfo?.weight || 0);
+  const [height, setHeight] = useState<number>(user?.personalInfo?.height || 0);
   const [activityLevel, setActivityLevel] = useState<ActivityLevel | undefined>(
-    undefined,
+    (user?.fitnessInfo?.activityLevel as ActivityLevel) || undefined,
   );
-  const [goal, setGoal] = useState<Goal | undefined>(undefined);
-  const [expertiseLevel, setExpertiseLevel] = useState<ExpertiseLevel | undefined>(
-    undefined,
+  const [goal, setGoal] = useState<Goal | undefined>(
+    (user?.fitnessInfo?.goal as Goal) || undefined,
   );
+  const [expertiseLevel, setExpertiseLevel] = useState<
+    ExpertiseLevel | undefined
+  >((user?.fitnessInfo?.expertiseLevel as ExpertiseLevel) || undefined);
   const [isProfileSaved, setIsProfileSaved] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const isFocused = useIsFocused();
 
   const goToNextStep = () => {
-    if (currentStep === 1) {
+    // Validation for Personal Info (Step 0)
+    if (currentStep === 0) {
       if (!age || !weight || !height) {
         Toast.show({
           type: "error",
@@ -73,7 +77,12 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
         });
         return;
       }
-    } else if (currentStep === 2) {
+      pageViewRef.current?.setPage(1);
+      return;
+    }
+
+    // Logic for Fitness Info (Step 1) -> Save and redirect directly to meal generator
+    if (currentStep === 1) {
       if (!activityLevel || !goal || !expertiseLevel) {
         Toast.show({
           type: "error",
@@ -82,6 +91,9 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
         });
         return;
       }
+      // Save profile configuration metrics, then send to Meal Plan screen
+      saveProfileInfo();
+      return;
     }
 
     pageViewRef.current?.setPage(currentStep + 1);
@@ -91,7 +103,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
     if (haveInjury) {
       navigation.replace("Injury");
     } else {
-      goToNextStep();
+      navigation.navigate("GenerateWorkout");
     }
   };
   //
@@ -100,13 +112,13 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
     const convertedValues =
       unit === Unit.Imperial
         ? {
-          weight: +(weight * 2.20462).toFixed(1), // kg to lbs
-          height: +(height * 0.393701).toFixed(1), // cm to inches
-        }
+            weight: +(weight * 2.20462).toFixed(1), // kg to lbs
+            height: +(height * 0.393701).toFixed(1), // cm to inches
+          }
         : {
-          weight: +(weight / 2.20462).toFixed(1), // lbs to kg
-          height: +(height / 0.393701).toFixed(1), // inches to cm
-        };
+            weight: +(weight / 2.20462).toFixed(1), // lbs to kg
+            height: +(height / 0.393701).toFixed(1), // inches to cm
+          };
     setHeight(convertedValues.height);
     setWeight(convertedValues.weight);
   };
@@ -228,9 +240,9 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       );
 
       // If the user's subscription is active, save the profile information
-      if (user?.subscription?.status === true) {
-        await setClientProfileInfo(clientInfo);
-      }
+      // if (user?.subscription?.status === true) {
+      await setClientProfileInfo(clientInfo);
+      // }
 
       setIsLoading(false);
 
@@ -266,7 +278,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
           perMealUpperLimit = perMealRequirement + 250;
           break;
         default:
-          // If no valid goal is set, keep the default per meal values
           perMealLowerLimit = perMealRequirement - 50;
           perMealUpperLimit = perMealRequirement + 50;
           break;
@@ -281,7 +292,11 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       );
 
       setIsProfileSaved(true);
-      goToNextStep();
+
+      // Always automatically redirect to the Meal Generator layout screen
+      setTimeout(() => {
+        navigation.navigate("GenerateMealPlan");
+      }, 100);
     } catch (error) {
       Toast.show({
         type: "error",
@@ -289,13 +304,6 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
         text2: "Error saving profile info",
       });
       setIsLoading(false);
-    }
-  };
-  //
-  const handleSubmit = async () => {
-    if (currentStep === 2 && !isProfileSaved) {
-      saveProfileInfo();
-      goToNextStep();
     }
   };
   //
@@ -323,6 +331,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       navigation.navigate("GenerateMealPlan");
     }
   };
+
   return (
     <PageWrapper>
       <PageHeader
@@ -346,292 +355,322 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       />
 
       <Box flex={1} style={{ flexGrow: 1 }}>
-        <PagerView
-          //initialPage={0}
-          ref={pageViewRef}
-          key={isFocused ? "focused" : "none"}
-          initialPage={currentStep}
-          style={{ flex: 1 }}
-          scrollEnabled={false}
-          onPageSelected={(e) => setCurrentStep(e.nativeEvent.position)}
-        >
-          <KeyboardAwareScrollView
-            key="1"
+        {route.params?.fromMealPlan ? (
+          <PagerView
+            ref={pageViewRef}
+            key={isFocused ? "focused" : "none"}
+            initialPage={currentStep}
             style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            enableOnAndroid={true}
-            enableAutomaticScroll={true}
+            scrollEnabled={false}
+            onPageSelected={(e) => setCurrentStep(e.nativeEvent.position)}
           >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-              <View style={{ flex: 1 }}>
-                <HaveInjuryQuestion onAnswer={handleHaveInjuryQuestion} />
-              </View>
-            </TouchableWithoutFeedback>
-          </KeyboardAwareScrollView>
-          <KeyboardAwareScrollView
-            key="2"
-            style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            enableOnAndroid={true}
-            enableAutomaticScroll={true}
-            nestedScrollEnabled={true}
-          >
-            <TouchableWithoutFeedback>
-              <View style={{ flex: 1 }}>
-                <Box gap="lg">
-                  <Text
-                    variant="xlBold"
-                    textAlign="center"
-                    color="PrimaryGreen"
-                    textTransform="uppercase"
-                  >
-                    Personal Info
-                  </Text>
-
-                  <Box gap="base">
-                    <TextInput
-                      label="Age"
-                      placeholder="Enter your age"
-                      keyboardType="number-pad"
-                      onChangeText={(text) => setAge(parseInt(text))}
-                    />
-                    {/* Toggle for Metric or Imperial */}
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "flex-end",
-                        marginBottom: "-8%",
-                        zIndex: 10,
-                      }}
+            {/* Step 0: Personal Info */}
+            <KeyboardAwareScrollView
+              key="1"
+              style={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              enableOnAndroid={true}
+              enableAutomaticScroll={true}
+              nestedScrollEnabled={true}
+            >
+              <TouchableWithoutFeedback>
+                <View style={{ flex: 1 }}>
+                  <Box gap="lg">
+                    <Text
+                      variant="xlBold"
+                      textAlign="center"
+                      color="PrimaryGreen"
+                      textTransform="uppercase"
                     >
-                      <Box
+                      Personal Info
+                    </Text>
+
+                    <Box gap="base">
+                      <TextInput
+                        label="Age"
+                        value={
+                          user?.personalInfo?.age
+                            ? user.personalInfo?.age.toString()
+                            : ""
+                        }
+                        placeholder="Enter your age"
+                        keyboardType="number-pad"
+                        onChangeText={(text) => setAge(parseInt(text))}
+                      />
+                      <View
                         style={{
                           flexDirection: "row",
                           alignItems: "center",
-                          backgroundColor: theme.colors.SecondaryGrey,
-                          borderRadius: 6,
-                          padding: 2,
+                          justifyContent: "flex-end",
+                          marginBottom: "-8%",
+                          zIndex: 10,
                         }}
                       >
-                        <TouchableOpacity
-                          onPress={() =>
-                            unit !== Unit.Metric && toggleUnit(Unit.Metric)
-                          }
-                          activeOpacity={0.7}
+                        <Box
                           style={{
-                            backgroundColor:
-                              unit === Unit.Metric
-                                ? theme.colors.PrimaryGreen
-                                : "transparent",
+                            flexDirection: "row",
                             alignItems: "center",
-                            justifyContent: "center",
-                            minHeight: theme.spacing.lg + 10,
-                            minWidth: theme.spacing["3xl"] + 10,
-                            paddingHorizontal: 10,
-
-                            borderRadius: 4,
-                            paddingVertical: 5,
+                            // gap: 2,
+                            backgroundColor: theme.colors.SecondaryGrey,
+                            borderRadius: 6,
+                            pointerEvents: "box-none",
                           }}
                         >
-                          <Text
+                          <TouchableOpacity
+                            onPress={() =>
+                              unit !== Unit.Metric && toggleUnit(Unit.Metric)
+                            }
+                            activeOpacity={0.7}
                             style={{
-                              color:
+                              backgroundColor:
                                 unit === Unit.Metric
-                                  ? theme.colors.PrimaryBlack
-                                  : theme.colors.PrimaryWhite,
+                                  ? theme.colors.PrimaryGreen
+                                  : undefined,
+                              alignItems: "center",
+                              justifyContent: "center",
+                              minHeight: theme.spacing.lg + 10,
+                              minWidth: theme.spacing["3xl"] + 10,
+                              paddingHorizontal: 10,
+                              borderRadius: 4,
+                              zIndex: 1,
                             }}
+                            disabled={unit === Unit.Metric}
                           >
-                            Metric
-                          </Text>
-                        </TouchableOpacity>
+                            <Text
+                              style={{
+                                color:
+                                  unit === Unit.Metric
+                                    ? theme.colors.PrimaryBlack
+                                    : theme.colors.PrimaryWhite,
+                              }}
+                            >
+                              Metric
+                            </Text>
+                          </TouchableOpacity>
 
-                        <TouchableOpacity
-                          onPress={() =>
-                            unit !== Unit.Imperial && toggleUnit(Unit.Imperial)
-                          }
-                          activeOpacity={0.7}
-                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                          style={{
-                            backgroundColor:
-                              unit === Unit.Imperial
-                                ? theme.colors.PrimaryGreen
-                                : "transparent",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            minHeight: theme.spacing.lg + 10,
-                            minWidth: theme.spacing["3xl"] + 10,
-                            paddingHorizontal: 10,
-                            borderRadius: 4,
-                            paddingVertical: 5,
-                          }}
-                        >
-                          <Text
+                          <TouchableOpacity
+                            onPress={() =>
+                              unit !== Unit.Imperial &&
+                              toggleUnit(Unit.Imperial)
+                            }
+                            activeOpacity={0.7}
                             style={{
-                              color:
+                              backgroundColor:
                                 unit === Unit.Imperial
-                                  ? theme.colors.PrimaryBlack
-                                  : theme.colors.PrimaryWhite,
+                                  ? theme.colors.PrimaryGreen
+                                  : undefined,
+                              alignItems: "center",
+                              justifyContent: "center",
+                              minHeight: theme.spacing.lg + 10,
+                              minWidth: theme.spacing["3xl"] + 10,
+                              paddingHorizontal: 10,
+                              borderRadius: 4,
+                              zIndex: 1,
                             }}
+                            disabled={unit === Unit.Imperial}
                           >
-                            Imperial
-                          </Text>
-                        </TouchableOpacity>
-                      </Box>
-                    </View>
-                    <TextInput
-                      value={weight ? weight.toString() : ""}
-                      label={`Weight in ${unit === Unit.Metric ? "kg" : "lbs"}`}
-                      keyboardType="number-pad"
-                      placeholder="Enter your weight"
-                      onChangeText={(text) =>
-                        setWeight(text ? parseInt(text) : 0)
-                      }
-                    />
-                    <TextInput
-                      value={height ? height.toString() : ""}
-                      label={`Height in ${unit === Unit.Metric ? "cm" : "inches"
-                        }`}
-                      keyboardType="number-pad"
-                      placeholder="Enter your height"
-                      onChangeText={(text) =>
-                        setHeight(text ? parseInt(text) : 0)
-                      }
+                            <Text
+                              style={{
+                                color:
+                                  unit === Unit.Imperial
+                                    ? theme.colors.PrimaryBlack
+                                    : theme.colors.PrimaryWhite,
+                              }}
+                            >
+                              Imperial
+                            </Text>
+                          </TouchableOpacity>
+                        </Box>
+                      </View>
+                      <TextInput
+                        value={
+                          user?.personalInfo?.weight
+                            ? user.personalInfo.weight.toString()
+                            : ""
+                        }
+                        label={`Weight in ${unit === Unit.Metric ? "kg" : "lbs"}`}
+                        keyboardType="number-pad"
+                        placeholder="Enter your weight"
+                        onChangeText={(text) =>
+                          setWeight(text ? parseInt(text) : 0)
+                        }
+                      />
+                      <TextInput
+                        value={
+                          user?.personalInfo?.height
+                            ? user.personalInfo.height.toString()
+                            : ""
+                        }
+                        label={`Height in ${unit === Unit.Metric ? "cm" : "inches"}`}
+                        keyboardType="number-pad"
+                        placeholder="Enter your height"
+                        onChangeText={(text) =>
+                          setHeight(text ? parseInt(text) : 0)
+                        }
+                      />
+                    </Box>
+
+                    <Button title="Continue" onPress={goToNextStep} />
+                  </Box>
+                </View>
+              </TouchableWithoutFeedback>
+            </KeyboardAwareScrollView>
+
+            {/* Step 1: Fitness Info */}
+            <KeyboardAwareScrollView
+              key="2"
+              style={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              enableOnAndroid={true}
+              enableAutomaticScroll={true}
+            >
+              <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={{ flex: 1 }}>
+                  <Box gap="lg">
+                    <Text
+                      variant="xlBold"
+                      textAlign="center"
+                      color="PrimaryGreen"
+                      textTransform="uppercase"
+                    >
+                      Fitness Info
+                    </Text>
+
+                    <Box gap="base">
+                      <Select
+                        label="Activity Level"
+                        value={activityLevel}
+                        items={[
+                          {
+                            id: "1",
+                            option: "Sedentary (No Exercise)",
+                            value: ActivityLevel.Sedentary,
+                          },
+                          {
+                            id: "2",
+                            option: "Light (Exercise 1-2 days per week)",
+                            value: ActivityLevel.Light,
+                          },
+                          {
+                            id: "3",
+                            option: "Moderate (Exercise 3-5 days per week)",
+                            value: ActivityLevel.Moderate,
+                          },
+                          {
+                            id: "4",
+                            option: "Active (Exercise 6-7 days per week)",
+                            value: ActivityLevel.Active,
+                          },
+                        ]}
+                        onSelect={(value) =>
+                          setActivityLevel(value.value as ActivityLevel)
+                        }
+                      />
+
+                      <Select
+                        label="What is your goal?"
+                        value={goal}
+                        items={[
+                          {
+                            id: "1",
+                            option: "Weight Gain (250 - 500 Cal)",
+                            value: Goal.WeightGain,
+                          },
+                          {
+                            id: "2",
+                            option: "Fat Loss (250 - 500 Cal)",
+                            value: Goal.FatLoss,
+                          },
+                          {
+                            id: "3",
+                            option: "Maintenance (DCI)",
+                            value: Goal.Maintenance,
+                          },
+                          {
+                            id: "4",
+                            option: "Lean Gaining (100 - 250 Cal)",
+                            value: Goal.LeanGaining,
+                          },
+                          // {
+                          //   id: "5",
+                          //   option: "Weight Loss (500 - 1000 Cal)",
+                          //   value: Goal.WeightLoss,
+                          // },
+                        ]}
+                        onSelect={(value) => setGoal(value.value as Goal)}
+                      />
+
+                      <Select
+                        label="Expertise Level"
+                        value={expertiseLevel}
+                        items={[
+                          {
+                            id: "1",
+                            option: "Beginner",
+                            value: ExpertiseLevel.Beginner,
+                          },
+                          {
+                            id: "2",
+                            option: "Intermediate",
+                            value: ExpertiseLevel.Intermediate,
+                          },
+                          {
+                            id: "3",
+                            option: "Advanced",
+                            value: ExpertiseLevel.Advanced,
+                          },
+                        ]}
+                        onSelect={(value) =>
+                          setExpertiseLevel(value.value as ExpertiseLevel)
+                        }
+                      />
+                    </Box>
+
+                    <Button
+                      title="Create Meal Plan"
+                      onPress={goToNextStep}
+                      isLoading={isLoading}
                     />
                   </Box>
-
-                  <Button title="Continue" onPress={goToNextStep} />
-                </Box>
-              </View>
-            </TouchableWithoutFeedback>
-          </KeyboardAwareScrollView>
-          <KeyboardAwareScrollView
-            key="3"
+                </View>
+              </TouchableWithoutFeedback>
+            </KeyboardAwareScrollView>
+          </PagerView>
+        ) : (
+          <PagerView
+            ref={pageViewRef}
+            key={isFocused ? "focused" : "none"}
+            initialPage={currentStep}
             style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            enableOnAndroid={true}
-            enableAutomaticScroll={true}
+            scrollEnabled={false}
+            onPageSelected={(e) => setCurrentStep(e.nativeEvent.position)}
           >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-              <View style={{ flex: 1 }}>
-                <Box gap="lg">
-                  <Text
-                    variant="xlBold"
-                    textAlign="center"
-                    color="PrimaryGreen"
-                    textTransform="uppercase"
-                  >
-                    Fitness Info
-                  </Text>
-
-                  <Box gap="base">
-                    <Select
-                      label="Activity Level"
-                      items={[
-                        {
-                          id: "1",
-                          option: "Sedentary (No Exercise)",
-                          value: ActivityLevel.Sedentary,
-                        },
-                        {
-                          id: "2",
-                          option: "Light (Exercise 1-2 days per week)",
-                          value: ActivityLevel.Light,
-                        },
-                        {
-                          id: "3",
-                          option: "Moderate (Exercise 3-5 days per week)",
-                          value: ActivityLevel.Moderate,
-                        },
-                        {
-                          id: "4",
-                          option: "Active (Exercise 6-7 days per week)",
-                          value: ActivityLevel.Active,
-                        },
-                      ]}
-                      onSelect={(value) =>
-                        setActivityLevel(value.value as ActivityLevel)
-                      }
-                    />
-
-                    <Select
-                      label="What is your goal?"
-                      items={[
-                        {
-                          id: "1",
-                          option: "Weight Gain (250 - 500 Cal)",
-                          value: Goal.WeightGain,
-                        },
-                        {
-                          id: "2",
-                          option: "Fat Loss (250 - 500 Cal)",
-                          value: Goal.FatLoss,
-                        },
-                        {
-                          id: "3",
-                          option: "Maintenance (DCI)",
-                          value: Goal.Maintenance,
-                        },
-                        {
-                          id: "4",
-                          option: "Lean Gaining (100 - 250 Cal)",
-                          value: Goal.LeanGaining,
-                        },
-                        // {
-                        //   id: "5",
-                        //   option: "Weight Loss (500 - 1000 Cal)",
-                        //   value: Goal.WeightLoss,
-                        // },
-                      ]}
-                      onSelect={(value) => setGoal(value.value as Goal)}
-                    />
-
-                    <Select
-                      label="Expertise Level"
-                      items={[
-                        {
-                          id: "1",
-                          option: "Beginner",
-                          value: ExpertiseLevel.Beginner,
-                        },
-                        {
-                          id: "2",
-                          option: "Intermediate",
-                          value: ExpertiseLevel.Intermediate,
-                        },
-                        {
-                          id: "3",
-                          option: "Advanced",
-                          value: ExpertiseLevel.Advanced,
-                        },
-                      ]}
-                      onSelect={(value) =>
-                        setExpertiseLevel(value.value as ExpertiseLevel)
-                      }
-                    />
-                  </Box>
-
-                  <Button
-                    title="Continue"
-                    onPress={currentStep === 3 ? handleSubmit : goToNextStep}
-                    isLoading={isLoading}
-                  />
-                </Box>
-              </View>
-            </TouchableWithoutFeedback>
-          </KeyboardAwareScrollView>
-          <View key="4" style={{ flex: 1 }}>
-            <WorkoutGenerateOptions
-              onOptionSelected={handleWorkoutGeneteOptions}
-            />
-          </View>
-        </PagerView>
+            <KeyboardAwareScrollView
+              key="1"
+              style={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              enableOnAndroid={true}
+              enableAutomaticScroll={true}
+            >
+              <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={{ flex: 1 }}>
+                  <HaveInjuryQuestion onAnswer={handleHaveInjuryQuestion} />
+                </View>
+              </TouchableWithoutFeedback>
+            </KeyboardAwareScrollView>
+            <KeyboardAwareScrollView style={{ flex: 1 }}>
+              <WorkoutGenerateOptions
+                onOptionSelected={handleWorkoutGeneteOptions}
+              />
+            </KeyboardAwareScrollView>
+          </PagerView>
+        )}
       </Box>
     </PageWrapper>
   );

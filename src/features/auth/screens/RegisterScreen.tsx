@@ -98,7 +98,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
       if (key === "password" || key === "confirmPassword") {
         setPasswordsMatch(
           updated.password === updated.confirmPassword &&
-          updated.confirmPassword.length > 0
+            updated.confirmPassword.length > 0,
         );
       }
 
@@ -236,16 +236,19 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
           <Box gap="base">
             <TextInput
               label="First Name"
+              autoCapitalize="sentences"
               placeholder="Enter Your First Name"
               onChangeText={(t) => handleInputChange("firstName", t)}
             />
             <TextInput
               label="Last Name"
+              autoCapitalize="sentences"
               placeholder="Enter Your Last Name"
               onChangeText={(t) => handleInputChange("lastName", t)}
             />
             <TextInput
               label="Email"
+              autoCapitalize="none"
               keyboardType="email-address"
               placeholder="Enter Your Email"
               onChangeText={(t) => handleInputChange("email", t)}
@@ -253,6 +256,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
             <TextInput
               secureTextEntry
               label="Password"
+              autoCapitalize="none"
               placeholder="Enter Your Password"
               onChangeText={(t) => {
                 handleInputChange("password", t);
@@ -260,7 +264,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
                 // Check password match when password changes
                 setPasswordsMatch(
                   t === (userData.confirmPassword ?? "") &&
-                  (userData.confirmPassword?.length ?? 0) > 0
+                    (userData.confirmPassword?.length ?? 0) > 0,
                 );
               }}
             />
@@ -309,6 +313,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
             <TextInput
               secureTextEntry
               label="Confirm Password"
+              autoCapitalize="none"
               placeholder="Enter Your Confirm Password"
               onChangeText={(t) => handleInputChange("confirmPassword", t)}
             />
@@ -362,6 +367,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
             <TextInput
               label="City"
               placeholder="Your City"
+              autoCapitalize="sentences"
               onChangeText={(t) => handleInputChange("city", t)}
             />
             <Select

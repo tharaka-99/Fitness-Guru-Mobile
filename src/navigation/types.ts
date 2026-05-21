@@ -15,7 +15,7 @@ export type RootStackParamList = {
   MealsList: undefined;
   TrainerApplication: { trainerId: string; packageId: string };
   GenerateMealPlan: undefined;
-  Onboard: undefined;
+  Onboard: { fromMealPlan?: boolean } | undefined;
   Injury: undefined;
   GenerateWorkout: undefined;
   DayExercises: { day: number };

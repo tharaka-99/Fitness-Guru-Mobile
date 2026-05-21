@@ -12,6 +12,8 @@ export interface InputProps {
   secureTextEntry?: boolean;
   placeholder?: string;
   keyboardType?: KeyboardType;
+  outlinecolor?: string;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
 }
 
 if (TextInput.defaultProps == null) {
@@ -26,6 +28,8 @@ const Input: React.FC<InputProps> = ({
   onChangeText,
   keyboardType = "default",
   secureTextEntry = false,
+  outlinecolor = "transparent",
+  autoCapitalize = "none",
 }) => {
   return (
     <Box height={50}>
@@ -36,7 +40,7 @@ const Input: React.FC<InputProps> = ({
         mode="outlined"
         style={styles.input}
         placeholder={placeholder}
-        outlineColor="transparent"
+        outlineColor={outlinecolor}
         onChangeText={onChangeText}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
@@ -44,7 +48,7 @@ const Input: React.FC<InputProps> = ({
         selectionColor={theme.colors.PrimaryGreen}
         activeOutlineColor={theme.colors.PrimaryGreen}
         placeholderTextColor={theme.colors.textSecondary}
-        autoCapitalize="none"
+        autoCapitalize={autoCapitalize}
         autoCorrect={false}
         autoComplete="off"
       />

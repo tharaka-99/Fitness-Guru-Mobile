@@ -82,7 +82,7 @@ const MealCalorieInfoCard: React.FC<Props> = ({ summary, totalIntakeData }) => {
               <Text variant="md" fontWeight="600">
                 Total Calorie Intake
               </Text>
-              
+
               <Box
                 gap="sm"
                 alignItems="center"

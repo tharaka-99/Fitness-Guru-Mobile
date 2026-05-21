@@ -158,8 +158,8 @@ const AnalyticsScreen: React.FC<
                       color={theme.colors.PrimaryGreen}
                     />
                   </TouchableOpacity>
-                  <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
-                    Analytics
+                  <Text style={{ textTransform: "capitalize", width: "80%" }} color="PrimaryGreen" variant="lgBold" numberOfLines={1}>
+                    {selectedExercise?.exercise?.name}
                   </Text>
                 </Box>
               }

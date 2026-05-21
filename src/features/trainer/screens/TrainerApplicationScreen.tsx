@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -9,6 +9,8 @@ import {
   View,
 } from "react-native";
 import PagerView from "react-native-pager-view";
+import SelectDropdown from "react-native-select-dropdown";
+import { ChevronDown } from "lucide-react-native";
 import PageHeader from "@components/app/header/PageHeader";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import Box from "@components/atoms/Box";
@@ -20,6 +22,7 @@ import StepProgress from "@components/atoms/StepProgress";
 import Text from "@components/atoms/Text";
 import TextInput from "@components/molecules/TextInput";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
+import { trainerActions } from "../context/slice";
 import { capitalizeString } from "@utils/helpers";
 import {
   postFitnessGuruRequest,
@@ -36,7 +39,7 @@ import {
 } from "@utils/types/trainersTypes";
 import { Unit } from "@utils/types/types";
 import { Text as PaperText, Icon } from "react-native-paper";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ArrowLeft } from "lucide-react-native";
@@ -77,10 +80,12 @@ const initialFormValues: CreateTrainerRequestDto = {
 const TrainerApplicationScreen: React.FC<
   MyStackNavigatorScreenProps<"TrainerApplication">
 > = ({ route, navigation }) => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: any) => state["feature/auth"]);
   const { trainerId, packageId } = route.params;
   const [currentStep, setCurrentStep] = useState<number>(0);
   const pageViewRef = useRef<PagerView>(null);
-  const { trainer } = useSelector((state: any) => state["feature/trainer"]);
+  const { trainer, pendingApplication } = useSelector((state: any) => state["feature/trainer"]);
   const [unit, setUnit] = useState(Unit.Metric);
   const [formValues, setFormValues] = useState<CreateTrainerRequestDto>({
     ...initialFormValues,
@@ -173,7 +178,6 @@ const TrainerApplicationScreen: React.FC<
   };
   //
   const handleBackStep = (index: number) => {
-
     pageViewRef.current?.setPage(index);
   };
   //
@@ -205,7 +209,6 @@ const TrainerApplicationScreen: React.FC<
       console.log(`${key}:`, value);
     }
   };
-
 
   const appendTrainerRequestData = (
     formValues: CreateTrainerRequestDto,
@@ -309,12 +312,18 @@ const TrainerApplicationScreen: React.FC<
     });
     return formData;
   };
-  //
+
   const handleSubmit = async () => {
     try {
-      setIsLoading(true);
+      const isSubscribed = user?.subscription?.status === true;
 
-      // Create a FormData instance
+      if (!isSubscribed) {
+        dispatch(trainerActions.setPendingApplication(true));
+        navigation.navigate("PricingPackages");
+        return;
+      }
+
+      setIsLoading(true);
       const formData = appendTrainerRequestData(
         formValues,
         imageUploads,
@@ -341,7 +350,6 @@ const TrainerApplicationScreen: React.FC<
           text2: "Trainer requested successfully!",
         });
       }
-
       setIsLoading(false);
     } catch (error: any) {
       Toast.show({
@@ -352,6 +360,14 @@ const TrainerApplicationScreen: React.FC<
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const isSubscribed = user?.subscription?.status === true;
+    if (isSubscribed && pendingApplication) {
+      dispatch(trainerActions.setPendingApplication(false));
+      handleSubmit();
+    }
+  }, [user?.subscription?.status, pendingApplication]);
 
   //
   const toggleUnit = (unit: Unit) => {
@@ -375,7 +391,7 @@ const TrainerApplicationScreen: React.FC<
   };
 
   const hasAllImages = Object.values(imageUploads).every(
-    (images) => images.length > 0
+    (images) => images.length > 0,
   );
 
   return (
@@ -428,6 +444,7 @@ const TrainerApplicationScreen: React.FC<
               <Box gap="base" px="md">
                 <TextInput
                   label="Full Name"
+                  autoCapitalize="sentences"
                   placeholder="Enter your full name"
                   value={formValues.fullName}
                   onChangeText={(value) => handleInputChange("fullName", value)}
@@ -436,6 +453,7 @@ const TrainerApplicationScreen: React.FC<
 
                 <TextInput
                   label="Occupation"
+                  autoCapitalize="sentences"
                   placeholder="Enter your occupation"
                   value={formValues.occupation}
                   onChangeText={(value) =>
@@ -461,7 +479,9 @@ const TrainerApplicationScreen: React.FC<
                   placeholder="Enter your age"
                   keyboardType="number-pad"
                   value={formValues.age.toString()}
-                  onChangeText={(value) => handleInputChange("age", +value)}
+                  onChangeText={(value) =>
+                    handleInputChange("age", value as any)
+                  }
                   error={errors.age}
                 />
 
@@ -556,7 +576,9 @@ const TrainerApplicationScreen: React.FC<
                   placeholder="Enter your weight"
                   keyboardType="number-pad"
                   value={formValues.weight.toString()}
-                  onChangeText={(value) => handleInputChange("weight", +value)}
+                  onChangeText={(value) =>
+                    handleInputChange("weight", value as any)
+                  }
                   error={errors.weight}
                 />
 
@@ -565,7 +587,9 @@ const TrainerApplicationScreen: React.FC<
                   placeholder="Enter your height"
                   keyboardType="number-pad"
                   value={formValues.height.toString()}
-                  onChangeText={(value) => handleInputChange("height", +value)}
+                  onChangeText={(value) =>
+                    handleInputChange("height", value as any)
+                  }
                   error={errors.height}
                 />
 
@@ -602,16 +626,74 @@ const TrainerApplicationScreen: React.FC<
                   key={formValues.workoutPlace}
                 />
 
-                <TextInput
-                  label="How many workout days per week do you plan to exercise?"
-                  placeholder="Enter number of days (e.g., 3-5)"
-                  keyboardType="number-pad"
-                  value={formValues.workoutDaysPerWeek}
-                  onChangeText={(value) =>
-                    handleInputChange("workoutDaysPerWeek", value)
-                  }
-                  error={errors.workoutDaysPerWeek}
-                />
+                <Box gap="base" mt="sm">
+                  <InputLabel label="How many workout days per week do you plan to exercise?" />
+
+                  <SelectDropdown
+                    data={["1", "2", "3", "4", "5", "6"]}
+                    onSelect={(selectedItem) =>
+                      handleInputChange("workoutDaysPerWeek", selectedItem)
+                    }
+                    defaultButtonText="Select Days"
+                    buttonStyle={{
+                      width: "100%",
+                      height: 50,
+                      backgroundColor: theme.colors.backgroundSecondary,
+                      borderRadius: theme.borderRadii.xs,
+                      borderWidth: 1,
+                      borderColor: theme.colors.borderSecondary,
+                    }}
+                    renderCustomizedButtonChild={(selectedItem) => (
+                      <Box
+                        flex={1}
+                        flexDirection="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        paddingHorizontal="sm"
+                      >
+                        <Text
+                          variant="sm"
+                          color={selectedItem ? "textPrimary" : "textSecondary"}
+                        >
+                          {selectedItem
+                            ? `${selectedItem} Day${selectedItem !== "1" ? "s" : ""}`
+                            : "Select Days"}
+                        </Text>
+                        <ChevronDown
+                          size={18}
+                          color={theme.colors.textSecondary}
+                        />
+                      </Box>
+                    )}
+                    dropdownStyle={{
+                      marginTop: -20,
+                      backgroundColor: theme.colors.backgroundSecondary,
+                      borderRadius: theme.borderRadii.xs,
+                    }}
+                    rowStyle={{
+                      borderBottomColor: theme.colors.borderSecondary,
+                      borderBottomWidth: 1,
+                    }}
+                    renderCustomizedRowChild={(item) => (
+                      <Box
+                        flex={1}
+                        paddingLeft="xl"
+                        alignItems="flex-start"
+                        justifyContent="center"
+                        paddingVertical="sm"
+                      >
+                        <Text variant="sm" color="textPrimary">
+                          {item} Day{item !== "1" ? "s" : ""}
+                        </Text>
+                      </Box>
+                    )}
+                  />
+                  {errors.workoutDaysPerWeek && (
+                    <Text color="PrimaryRed" variant="xs" mt="xs">
+                      {errors.workoutDaysPerWeek}
+                    </Text>
+                  )}
+                </Box>
 
                 <TextInput
                   label="If working out at home, please list your equipment"

@@ -1,4 +1,4 @@
-import { Home, Bell, User } from "lucide-react-native";
+import { Home, Bell, User, Dumbbell } from "lucide-react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useState } from "react";
 
@@ -8,15 +8,22 @@ import OverviewScreen from "@features/overview/screens/OverviewScreen";
 import MyTrainersScreen from "@features/trainer/screens/MyTrainersScreen";
 import { TabParamList } from "./types";
 import FitnessGuruScreen from "@features/trainer/screens/FitnessGuruScreen";
-import { DeviceEventEmitter, Image, Platform, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import {
+  DeviceEventEmitter,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import Request from "@utils/http/request";
 import { theme } from "@utils/styles/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-
-const IN_APP_PUSH_RECEIVED_EVENT = 'notifications.in_app_push_received';
-const IN_APP_MARKED_READ_EVENT = 'notifications.in_app_marked_read';
-const IN_APP_DELETED_EVENT = 'notifications.in_app_deleted';
+const IN_APP_PUSH_RECEIVED_EVENT = "notifications.in_app_push_received";
+const IN_APP_MARKED_READ_EVENT = "notifications.in_app_marked_read";
+const IN_APP_DELETED_EVENT = "notifications.in_app_deleted";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -45,19 +52,16 @@ const TabNavigator = () => {
   useEffect(() => {
     refreshUnreadCount();
 
-    const sub = DeviceEventEmitter.addListener(
-      IN_APP_PUSH_RECEIVED_EVENT,
-      () => refreshUnreadCount(),
+    const sub = DeviceEventEmitter.addListener(IN_APP_PUSH_RECEIVED_EVENT, () =>
+      refreshUnreadCount(),
     );
 
-    const sub2 = DeviceEventEmitter.addListener(
-      IN_APP_MARKED_READ_EVENT,
-      () => refreshUnreadCount(),
+    const sub2 = DeviceEventEmitter.addListener(IN_APP_MARKED_READ_EVENT, () =>
+      refreshUnreadCount(),
     );
 
-    const sub3 = DeviceEventEmitter.addListener(
-      IN_APP_DELETED_EVENT,
-      () => refreshUnreadCount(),
+    const sub3 = DeviceEventEmitter.addListener(IN_APP_DELETED_EVENT, () =>
+      refreshUnreadCount(),
     );
 
     return () => {
@@ -80,6 +84,7 @@ const TabNavigator = () => {
       initialRouteName="FitnessGuru"
       screenOptions={{
         headerShown: false,
+        tabBarHideOnKeyboard: true,
         tabBarAllowFontScaling: false,
         tabBarActiveTintColor: theme.colors.PrimaryGreen,
         tabBarInactiveTintColor: theme.colors.textSecondary,
@@ -99,11 +104,9 @@ const TabNavigator = () => {
         tabBarLabelStyle: {
           //paddingTop: theme.spacing.xs,
           fontSize: theme.textVariants.xs.fontSize,
-          fontWeight: '600',
-        }
+          fontWeight: "600",
+        },
       }}
-
-
     >
       <Tab.Screen
         name="FitnessGuru"
@@ -117,18 +120,9 @@ const TabNavigator = () => {
         name="Home"
         component={OverviewScreen}
         options={{
-          title: "FitnessGuru",
-          tabBarIcon: ({ color, size, focused }) => (
-            // <Entypo name="google-play" color={color} size={size - 2} />
-            <Image
-              resizeMode="cover"
-              style={{ width: size, height: size }}
-              source={
-                focused
-                  ? require("assets/images/FG_tab_icon_active.png")
-                  : require("assets/images/FG_tab_icon_inactive.png")
-              }
-            />
+          title: "My Fitness",
+          tabBarIcon: ({ color, size }) => (
+            <Dumbbell color={color} size={size} />
           ),
         }}
       />

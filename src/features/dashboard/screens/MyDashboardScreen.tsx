@@ -131,7 +131,6 @@ const MyDashboardScreen: React.FC<
       <PageWrapper>
         <FullScreenLoader
           message="Loading..."
-          header="Workout Analytics"
         />
       </PageWrapper>
     );

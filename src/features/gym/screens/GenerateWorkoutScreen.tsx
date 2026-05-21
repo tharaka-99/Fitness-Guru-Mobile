@@ -167,54 +167,50 @@ const GenerateWorkoutScreen: React.FC<
   };
 
   const handleSaveWorkout = async () => {
-    if (user?.subscription?.status === true) {
-      const transformedDays: Workout = {
-        type: WorkoutType.SelfCreated,
-        exerciseDays: days.exerciseDays.map((exerciseDay: ExerciseDay) => ({
-          day: exerciseDay.day,
-          exercises: exerciseDay.exercises
-            .filter(
-              (exercise: Exercises) =>
-                exercise.exercise && exercise.exercise._id,
-            )
-            .map((exercise: Exercises) => ({
-              order: exercise.order,
-              exercise: exercise.exercise._id,
-              sets: exercise.sets,
-              reps: exercise.reps,
-              rest: exercise.rest,
-            })),
-        })),
-      };
-      const selfCreatedWorkoutPlan = currentWorkout?.find(
-        (workout) => workout.type === "SelfCreated",
-      );
+    const transformedDays: Workout = {
+      type: WorkoutType.SelfCreated,
+      exerciseDays: days.exerciseDays.map((exerciseDay: ExerciseDay) => ({
+        day: exerciseDay.day,
+        exercises: exerciseDay.exercises
+          .filter(
+            (exercise: Exercises) =>
+              exercise.exercise && exercise.exercise._id,
+          )
+          .map((exercise: Exercises) => ({
+            order: exercise.order,
+            exercise: exercise.exercise._id,
+            sets: exercise.sets,
+            reps: exercise.reps,
+            rest: exercise.rest,
+          })),
+      })),
+    };
+    const selfCreatedWorkoutPlan = currentWorkout?.find(
+      (workout) => workout.type === "SelfCreated",
+    );
 
-      try {
-        if (selfCreatedWorkoutPlan && selfCreatedWorkoutPlan._id) {
-          const updateData = { ...transformedDays };
-          delete updateData.type;
-          await updateWorkout(selfCreatedWorkoutPlan._id, updateData);
-        } else {
-          await createWorkout(transformedDays);
-        }
-        Toast.show({
-          type: "success",
-          text1: "Success",
-          text2: "Workout saved successfully!",
-        });
-        navigation.navigate("Home");
-        store.dispatch(gymActions.resetWorkouts());
-      } catch (error) {
-        console.error("Error saving workout:", error);
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Failed to save workout. Please try again.",
-        });
+    try {
+      if (selfCreatedWorkoutPlan && selfCreatedWorkoutPlan._id) {
+        const updateData = { ...transformedDays };
+        delete updateData.type;
+        await updateWorkout(selfCreatedWorkoutPlan._id, updateData);
+      } else {
+        await createWorkout(transformedDays);
       }
-    } else {
-      navigation.push("GenerateMealPlan");
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Workout saved successfully!",
+      });
+      navigation.navigate("Home");
+      store.dispatch(gymActions.resetWorkouts());
+    } catch (error) {
+      console.error("Error saving workout:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to save workout. Please try again.",
+      });
     }
   };
 

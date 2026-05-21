@@ -46,7 +46,6 @@ import { theme } from "@utils/styles/theme";
 import useSubscription from "@features/subscription/hooks/useSubscription";
 import Text from "@components/atoms/Text";
 
-
 const { height: screenHeight } = Dimensions.get("window");
 
 const PricingPackagesScreen: React.FC<
@@ -56,6 +55,7 @@ const PricingPackagesScreen: React.FC<
   const { user } = store.getState()["feature/auth"];
   const { days, mealDetails, selectedWorkout } =
     store.getState()["feature/gym"];
+  const { pendingApplication } = store.getState()["feature/trainer"];
 
   const [currentPackage, setCurrentPackage] = useState<string>("Premium");
   const [packages, setPackages] = useState<SubscriptionPlans>([]);
@@ -131,7 +131,6 @@ const PricingPackagesScreen: React.FC<
         });
       }
 
-
       if (!hasSubscription) {
         const transformedDays: Workout = {
           type: WorkoutType.SelfCreated,
@@ -192,7 +191,20 @@ const PricingPackagesScreen: React.FC<
           text2: "Subscription already active.",
         });
       }
-      navigation.navigate("Home");
+
+      if (pendingApplication) {
+        setTimeout(() => {
+          store.dispatch(authActions.setSubscription({ status: true }));
+          navigation.goBack();
+        }, 1000);
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Trainer subscription activated successfully, waiting for approval!",
+        });
+      } else {
+        navigation.navigate("Tab", { screen: "FitnessGuru" });
+      }
     } catch (error: any) {
       if (!error.userCancelled) {
         console.error("Error during purchase or setup:", error);
@@ -204,9 +216,6 @@ const PricingPackagesScreen: React.FC<
       }
     }
   };
-
-
-
 
   return (
     <View style={{ flex: 1 }}>
@@ -229,9 +238,6 @@ const PricingPackagesScreen: React.FC<
         />
       </View>
 
-
-
-
       <View style={styles.cardContainer}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -249,13 +255,7 @@ const PricingPackagesScreen: React.FC<
   );
 };
 
-
-
-
 export default PricingPackagesScreen;
-
-
-
 
 const styles = StyleSheet.create({
   backButton: {
@@ -283,12 +283,3 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
 });
-
-
-
-
-
-
-
-
-

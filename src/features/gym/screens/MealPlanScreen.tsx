@@ -31,16 +31,16 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
   } = useQuery("mealPlan", getMealPlan);
 
   const handleAddMealPlan = () => {
-    if (!isSubscribed) {
-      Toast.show({
-        type: "info",
-        text1: "Subscription Required",
-        text2: "Please subscribe to save your meal plans.",
-      });
-      navigation.push("PricingPackages");
-      return;
-    }
-    navigation.navigate("GenerateMealPlan");
+    // if (!isSubscribed) {
+    //   Toast.show({
+    //     type: "info",
+    //     text1: "Subscription Required",
+    //     text2: "Please subscribe to save your meal plans.",
+    //   });
+    //   navigation.push("PricingPackages");
+    //   return;
+    // }
+    navigation.navigate("Onboard", { fromMealPlan: true });
   };
 
   let selectedMeal;
@@ -59,10 +59,12 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
     <PageWrapper>
       <PageHeader
         rightComponent={
-          <TouchableOpacity onPress={handleAddMealPlan}>
-            <Plus size={30} color={theme.colors.PrimaryGreen} />
-          </TouchableOpacity>
-        }
+          selectedMealPlanType === MealPlanType.SelfCreated ? (
+            <TouchableOpacity onPress={handleAddMealPlan}>
+              <Plus size={30} color={theme.colors.PrimaryGreen} />
+            </TouchableOpacity>
+          ) : null}
+
         title="Meal Plan"
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">

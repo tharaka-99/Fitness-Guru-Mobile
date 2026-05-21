@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { Image, StyleSheet, TextInput, TouchableOpacity } from "react-native";
-import { ChevronDown } from "lucide-react-native";
+import { StyleSheet, TextInput, TouchableOpacity } from "react-native";
 
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
 import { ActivityIndicator, Divider } from "react-native-paper";
 import { theme } from "@utils/styles/theme";
 import Button from "@components/atoms/Button";
-import SelectDropdown from "react-native-select-dropdown";
 import { Unit } from "@utils/types/types";
 import { LogSetDto } from "@utils/types/analyticsTypes";
 import useSubscription from "@features/subscription/hooks/useSubscription";
@@ -40,7 +38,6 @@ const LogSetsCard: React.FC<Props> = ({
     })
     .toLocaleUpperCase();
 
-  // Initialize state to hold data for each set
   const [logSets, setLogSets] = useState<LogSetDto[]>(
     Array(sets)
       .fill({
@@ -89,7 +86,67 @@ const LogSetsCard: React.FC<Props> = ({
 
   return (
     <Box p="sm" gap="base">
-      <Text style={styles.dateText}>{dateStr}</Text>
+      <Box flexDirection="row" justifyContent="space-between" alignItems="center">
+        <Text style={styles.dateText}>{dateStr}</Text>
+        <Box
+          height={35}
+          width={100}
+          backgroundColor="SecondaryWhite"
+          borderRadius="xs"
+          flexDirection="row"
+        >
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              backgroundColor:
+                logSets[0]?.unit === Unit.Metric
+                  ? theme.colors.PrimaryGreen
+                  : "transparent",
+              borderRadius: theme.borderRadii.xs,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={() =>
+              setLogSets((prev) =>
+                prev.map((item) => ({ ...item, unit: Unit.Metric }))
+              )
+            }
+          >
+            <Text
+              variant="sm"
+              color="PrimaryBlack"
+
+            >
+              kg
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              backgroundColor:
+                logSets[0]?.unit === Unit.Imperial
+                  ? theme.colors.PrimaryGreen
+                  : "transparent",
+              borderRadius: theme.borderRadii.xs,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={() =>
+              setLogSets((prev) =>
+                prev.map((item) => ({ ...item, unit: Unit.Imperial }))
+              )
+            }
+          >
+            <Text
+              variant="sm"
+              color="PrimaryBlack"
+
+            >
+              lb
+            </Text>
+          </TouchableOpacity>
+        </Box>
+      </Box>
       <Divider />
 
       <Box
@@ -137,28 +194,22 @@ const LogSetsCard: React.FC<Props> = ({
               flexDirection="row"
               justifyContent="space-between"
               alignItems="center"
+              paddingRight="base"
+              paddingBottom="sm"
             >
               <TextInput
                 placeholder="Weight"
                 keyboardType="numeric"
-                style={styles.input}
+                style={[styles.input, { flex: 1, marginBottom: 0 }]}
                 value={set.totalWeight === 0 ? "" : String(set.totalWeight)}
                 onChangeText={(text) =>
                   handleChange(index, "totalWeight", text)
                 }
                 editable={!alreadyLogged}
               />
-              <Box backgroundColor="SecondaryWhite" width={"40%"}>
-                <DropDown
-                  data={[
-                    { label: "kg", value: Unit.Metric },
-                    { label: "lbs", value: Unit.Imperial },
-                  ]}
-                  onSelect={(selectedItem) =>
-                    handleChange(index, "unit", selectedItem.value)
-                  }
-                />
-              </Box>
+              <Text variant="sm" color="textSecondary">
+                {set.unit === Unit.Metric ? "kg" : "lb"}
+              </Text>
             </Box>
           </Box>
           <Box
@@ -212,57 +263,6 @@ const LogSetsCard: React.FC<Props> = ({
 };
 
 export default LogSetsCard;
-
-interface DropDownProps {
-  onSelect: (selectedItem: any, index: number) => void;
-  data: any[];
-}
-
-const DropDown: React.FC<DropDownProps> = ({ data, onSelect }) => {
-  return (
-    <SelectDropdown
-      data={data}
-      disableAutoScroll
-      onSelect={onSelect}
-      defaultButtonText="kg"
-      renderCustomizedButtonChild={(item) => (
-        <Box flex={1} alignItems="center" justifyContent="center">
-          <Text variant="sm" color={item ? "PrimaryBlack" : "textSecondary"}>
-            {item ? item.label : "kg"}
-          </Text>
-        </Box>
-      )}
-      buttonStyle={{
-        width: "100%",
-        borderRadius: theme.borderRadii.xs,
-        paddingHorizontal: theme.spacing.base,
-      }}
-      buttonTextStyle={{ color: theme.colors.PrimaryBlack }}
-      renderDropdownIcon={() => (
-        <ChevronDown
-          size={12}
-          color={theme.colors.textSecondary}
-        />
-      )}
-      renderCustomizedRowChild={(item) => (
-        <Box
-          flex={1}
-          alignItems="center"
-          justifyContent="center"
-          backgroundColor="backgroundSecondary"
-          borderBottomWidth={0}
-        >
-          <Text variant="sm">{item.label}</Text>
-        </Box>
-      )}
-      dropdownStyle={{
-        width: 40,
-        borderRadius: theme.borderRadii.xs,
-        backgroundColor: theme.colors.backgroundSecondary,
-      }}
-    />
-  );
-};
 
 const styles = StyleSheet.create({
   dateText: {

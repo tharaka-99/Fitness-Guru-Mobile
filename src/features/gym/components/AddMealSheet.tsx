@@ -8,12 +8,10 @@ import BottomSheet, {
 import React, { useCallback, useEffect, useState } from "react";
 import { Image, TouchableOpacity, Keyboard } from "react-native";
 
-
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
 import { constants, theme } from "@utils/styles/theme";
 // import TextInput from '@components/molecules/TextInput';
-
 
 interface Props {
   unit: string;
@@ -25,9 +23,7 @@ interface Props {
   selectedMealItemcount: number;
 }
 
-
 const IMAGE_SIZE = 110;
-
 
 const AddMealSheet: React.FC<Props> = ({
   unit,
@@ -48,14 +44,12 @@ const AddMealSheet: React.FC<Props> = ({
         disappearsOnIndex={-1}
       />
     ),
-    []
+    [],
   );
-
 
   useEffect(() => {
     setCount(selectedMealItemcount);
   }, [selectedMealItemcount]);
-
 
   return (
     <BottomSheet
@@ -105,7 +99,6 @@ const AddMealSheet: React.FC<Props> = ({
               />
             </Box>
 
-
             <Box gap="xs" flex={1}>
               <Text
                 variant="xlBold"
@@ -123,7 +116,6 @@ const AddMealSheet: React.FC<Props> = ({
             </Box>
           </Box>
 
-
           <Box
             gap="md"
             height={60}
@@ -132,7 +124,6 @@ const AddMealSheet: React.FC<Props> = ({
             justifyContent="center"
           >
             <ArrowButton direction="up" onPress={() => setCount(count + 50)} />
-
 
             <Box
               // px="lg"
@@ -165,13 +156,11 @@ const AddMealSheet: React.FC<Props> = ({
               />
             </Box>
 
-
             <ArrowButton
               direction="down"
               onPress={() => setCount(Math.max(0, count - 50))}
             />
           </Box>
-
 
           <TouchableOpacity
             activeOpacity={constants.activeOpacity}
@@ -189,15 +178,12 @@ const AddMealSheet: React.FC<Props> = ({
   );
 };
 
-
 export default AddMealSheet;
-
 
 interface ArrowButtonProps {
   direction: "up" | "down";
   onPress?: () => void;
 }
-
 
 const ArrowButton: React.FC<ArrowButtonProps> = ({
   onPress,
@@ -214,14 +200,11 @@ const ArrowButton: React.FC<ArrowButtonProps> = ({
         backgroundColor="PrimaryGreen"
       >
         {direction === "up" ? (
-          <ChevronUp color="white" size={20} />
+          <ChevronUp color={theme.colors.PrimaryBlack} size={20} />
         ) : (
-          <ChevronDown color="white" size={20} />
+          <ChevronDown color={theme.colors.PrimaryBlack} size={20} />
         )}
       </Box>
     </TouchableOpacity>
   );
 };
-
-
-

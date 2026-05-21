@@ -24,16 +24,16 @@ const WorkoutRoutineScreen: React.FC<
   const { isSubscribed } = useSubscription();
 
   const handleAddWorkout = () => {
-    if (!isSubscribed) {
-      Toast.show({
-        type: "info",
-        text1: "Subscription Required",
-        text2: "Please subscribe to save your workouts.",
-      });
-      navigation.push("PricingPackages");
-      return;
-    }
-    navigation.navigate("GenerateWorkout");
+    // if (!isSubscribed) {
+    //   Toast.show({
+    //     type: "info",
+    //     text1: "Subscription Required",
+    //     text2: "Please subscribe to save your workouts.",
+    //   });
+    //   navigation.push("PricingPackages");
+    //   return;
+    // }
+  navigation.navigate("Onboard");
   };
 
   // Filter out only the data with type "SelfCreated" and "Default"

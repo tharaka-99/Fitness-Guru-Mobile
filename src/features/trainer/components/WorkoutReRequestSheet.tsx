@@ -1,10 +1,18 @@
 import React, { useCallback, useState } from "react";
-import { TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import { ChevronDown } from "lucide-react-native";
+import SelectDropdown from "react-native-select-dropdown";
+import TextInput from "@components/molecules/TextInput";
+import { Unit } from "@utils/types/types";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetView,
-  BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
@@ -19,7 +27,10 @@ interface Props {
   onSuccess: () => void;
 }
 
-const WorkoutReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
+const WorkoutReRequestSheet: React.FC<Props> = ({
+  bottomSheetRef,
+  onSuccess,
+}) => {
   const [workoutDaysPerWeek, setWorkoutDaysPerWeek] = useState("");
   const [images, setImages] = useState<{
     frontView: string[];
@@ -43,10 +54,13 @@ const WorkoutReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) =
         disappearsOnIndex={-1}
       />
     ),
-    []
+    [],
   );
 
-  const handleImageUpload = (name: keyof typeof images, value: string | string[]) => {
+  const handleImageUpload = (
+    name: keyof typeof images,
+    value: string | string[],
+  ) => {
     setImages((prev) => ({
       ...prev,
       [name]: Array.isArray(value) ? value : [value],
@@ -55,12 +69,25 @@ const WorkoutReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) =
 
   const handleSubmit = async () => {
     if (!workoutDaysPerWeek) {
-      Toast.show({ type: "error", text1: "Error", text2: "Please enter workout days per week" });
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please enter workout days per week",
+      });
       return;
     }
 
-    if (!images.frontView.length || !images.backView.length || !images.sideView.length || !images.lowerBodyView.length) {
-      Toast.show({ type: "error", text1: "Error", text2: "Please upload all 4 body images" });
+    if (
+      !images.frontView.length ||
+      !images.backView.length ||
+      !images.sideView.length ||
+      !images.lowerBodyView.length
+    ) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please upload all 4 body images",
+      });
       return;
     }
 
@@ -95,11 +122,19 @@ const WorkoutReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) =
 
       await postWorkoutReRequest(formData);
 
-      Toast.show({ type: "success", text1: "Success", text2: "Workout re-request created successfully" });
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Workout re-request created successfully",
+      });
       onSuccess();
       bottomSheetRef.current?.close();
     } catch (error: any) {
-      Toast.show({ type: "error", text1: "Error", text2: error.message || "Something went wrong" });
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error.message || "Something went wrong",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -119,33 +154,73 @@ const WorkoutReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) =
       android_keyboardInputMode="adjustResize"
       enableHandlePanningGesture={true}
     >
-      <BottomSheetView style={{ flex: 1, backgroundColor: theme.colors.backgroundSecondary }}>
+      <BottomSheetView
+        style={{ flex: 1, backgroundColor: theme.colors.backgroundSecondary }}
+      >
         <ScrollView contentContainerStyle={{ padding: theme.spacing.md }}>
           <Box gap="md">
-            <Text variant="xlBold" textAlign="center" mb="md">Workout Request</Text>
+            <Text variant="xlBold" textAlign="center" mb="md">
+              Workout Re-Request
+            </Text>
 
             <Box>
-              <Text variant="md" mb="xs">Workout Days Per Week</Text>
-              <Box
-                borderWidth={1}
-                borderColor="borderSecondary"
-                borderRadius="xs"
-                p="xs"
-                backgroundColor="backgroundSecondary"
-              >
-                <BottomSheetTextInput
-                  value={workoutDaysPerWeek}
-                  onChangeText={setWorkoutDaysPerWeek}
-                  placeholder="Enter number (e.g. 5)"
-                  keyboardType="number-pad"
-                  placeholderTextColor={theme.colors.textSecondary}
-                  style={{
-                    color: theme.colors.PrimaryWhite,
-                    padding: theme.spacing.sm,
-                    fontSize: 16,
-                  }}
-                />
-              </Box>
+              <Text variant="md" mb="xs">
+                Workout Days Per Week
+              </Text>
+              <SelectDropdown
+                data={["1", "2", "3", "4", "5", "6"]}
+                onSelect={(selectedItem) => setWorkoutDaysPerWeek(selectedItem)}
+                defaultButtonText="Select Days"
+                buttonStyle={{
+                  width: "100%",
+                  height: 50,
+                  backgroundColor: theme.colors.backgroundSecondary,
+                  borderRadius: theme.borderRadii.xs,
+                  borderWidth: 1,
+                  borderColor: theme.colors.SecondaryGrey,
+                }}
+                renderCustomizedButtonChild={(selectedItem) => (
+                  <Box
+                    flex={1}
+                    flexDirection="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    paddingHorizontal="sm"
+                  >
+                    <Text
+                      variant="sm"
+                      color={selectedItem ? "textPrimary" : "textSecondary"}
+                    >
+                      {selectedItem
+                        ? `${selectedItem} Day${selectedItem !== "1" ? "s" : ""}`
+                        : "Select Days"}
+                    </Text>
+                    <ChevronDown size={18} color={theme.colors.textSecondary} />
+                  </Box>
+                )}
+                dropdownStyle={{
+                  marginTop: -20,
+                  backgroundColor: theme.colors.backgroundSecondary,
+                  borderRadius: theme.borderRadii.xs,
+                }}
+                rowStyle={{
+                  borderBottomColor: theme.colors.borderSecondary,
+                  borderBottomWidth: 1,
+                }}
+                renderCustomizedRowChild={(item) => (
+                  <Box
+                    flex={1}
+                    paddingLeft="xl"
+                    alignItems="flex-start"
+                    justifyContent="center"
+                    paddingVertical="sm"
+                  >
+                    <Text variant="sm" color="textPrimary">
+                      {item} Day{item !== "1" ? "s" : ""}
+                    </Text>
+                  </Box>
+                )}
+              />
             </Box>
 
             <Box gap="sm">

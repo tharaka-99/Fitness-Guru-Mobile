@@ -139,17 +139,17 @@ export const subscribeToForegroundFCM = () => {
       const body =
         n?.body ?? (typeof d?.body === 'string' ? d.body : undefined) ?? '';
 
-      if (!body && title === 'Fitness Guru') {
+      // If it's a data-only or silent push without explicit title/body, skip the toast
+      if (body || title !== 'Fitness Guru') {
+        Toast.show({
+          type: 'success',
+          text1: title,
+          ...(body ? { text2: body } : {}),
+          visibilityTime: 4500,
+          position: 'top',
+          topOffset: 56,
+        });
       }
-
-      Toast.show({
-        type: 'success',
-        text1: title,
-        ...(body ? { text2: body } : {}),
-        visibilityTime: 4500,
-        position: 'top',
-        topOffset: 56,
-      });
 
       // Trigger tab badge refresh. Delay slightly to allow backend in-app write to finish.
       setTimeout(() => {

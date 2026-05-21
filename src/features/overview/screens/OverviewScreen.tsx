@@ -1,7 +1,13 @@
 import { BicepsFlexed, CirclePlus } from "lucide-react-native";
 import greetingTime from "greeting-time";
 import React, { useEffect, useState } from "react";
-import { Dimensions, Image, ScrollView, TouchableOpacity, useWindowDimensions } from "react-native";
+import {
+  Dimensions,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+} from "react-native";
 import { Activity, Utensils, Bike } from "lucide-react-native";
 import InfoCard from "@components/app/InfoCard";
 import PageWrapper from "@components/app/PageWrapper";
@@ -89,7 +95,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
         }
       };
       fetchData();
-    }, [profileRefetch, workoutRefetch, mealRefetch, defaultWorkoutRefetch])
+    }, [profileRefetch, workoutRefetch, mealRefetch, defaultWorkoutRefetch]),
   );
 
   React.useEffect(() => {
@@ -163,7 +169,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
           perMealRequirement,
           perMealLowerLimit,
           perMealUpperLimit,
-        })
+        }),
       );
     }
   }, [calorieRequirements]);
@@ -174,21 +180,16 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     }
   }, [defaultWorkout]);
 
-
   const isDataMissing = !profile || !workout || !mealPlan;
 
   if (isProfileLoading && isDataMissing) {
-    return (
-      <FullScreenLoader
-        message="Loading..."
-      />
-    );
+    return <FullScreenLoader message="Loading..." />;
   }
 
   return (
     <Box flex={1} mb="xs">
       <PageWrapper>
-        <PageHeader title="Fitness Guru" />
+        <PageHeader title="My Fitness" />
         <ScrollView
           showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
@@ -213,25 +214,33 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                 justifyContent="center"
               >
                 <Text variant="lgBold" color="PrimaryWhite">
-                  {(profile?.firstName?.[0] || "") + (profile?.lastName?.[0] || "")}
+                  {(capitalizeString(profile?.firstName?.[0] ?? "") || "") +
+                    (capitalizeString(profile?.lastName?.[0] ?? "") || "")}
                 </Text>
               </Box>
             )}
             <Box>
-              <Text variant="lgBold" numberOfLines={1}>
-                {capitalizeString(greetingMessage)}, {(profile?.firstName || "")}
+              <Text variant="lgBold">
+                Welcome Back, {user?.firstName || ""}
               </Text>
               <Text variant="md" color="textSecondary">
-                {new Date().toLocaleDateString("en-US", {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "long",
-                })}
+                <Text variant="md" color="textSecondary">
+                  {new Date().toLocaleDateString("en-US", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "long",
+                  })}
+                </Text>
               </Text>
             </Box>
           </Box>
-          {(
-            <Box flexDirection="row" gap="sm" pb="md" justifyContent="space-between">
+          {
+            <Box
+              flexDirection="row"
+              gap="sm"
+              pb="md"
+              justifyContent="space-between"
+            >
               <Box
                 flex={1}
                 borderRadius="sm"
@@ -248,7 +257,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                     {profile?.fitnessInfo?.goal
                       ? profile.fitnessInfo.goal.replace(
                         /([a-z])([A-Z])/g,
-                        "$1 $2"
+                        "$1 $2",
                       )
                       : "Not Set"}
                   </Text>
@@ -270,7 +279,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                   <Text variant="md" numberOfLines={1}>
                     {profile?.calculatedMetrics?.dci
                       ? `${Math.round(profile.calculatedMetrics.dci)} Cal`
-                      : "0Cal"}
+                      : "0 Cal"}
                   </Text>
                 </Box>
                 <Box width={8} backgroundColor="LightPink" />
@@ -290,18 +299,23 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                   <Text variant="md" numberOfLines={1}>
                     {profile?.calculatedMetrics?.bmr
                       ? `${Math.round(profile.calculatedMetrics.bmr)} Cal`
-                      : "0Cal"}
+                      : "0 Cal"}
                   </Text>
                 </Box>
                 <Box width={8} backgroundColor="PrimaryOrange" />
               </Box>
             </Box>
-          )}
+          }
 
           <Box gap="sm" flexGrow={1}>
             {!user?.isInjured && (
               <Box gap="sm" flexGrow={1}>
-                <Box flexGrow={1} flexDirection="row" justifyContent="space-between" gap="sm">
+                <Box
+                  flexGrow={1}
+                  flexDirection="row"
+                  justifyContent="space-between"
+                  gap="sm"
+                >
                   {workout && workout?.length > 0 ? (
                     <TouchableOpacity
                       style={{
@@ -322,19 +336,25 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                           gymActions.setSelectedWorkout({
                             WorkoutType: WorkoutType.SelfCreated,
                             createdBy: "",
-                          })
+                          }),
                         );
                       }}
                     >
-
-
-                      <BicepsFlexed color={theme.colors.LightBlue} size={40} strokeWidth={1} />
-                      <Text variant="lg" color="LightBlue">My Workout</Text>
-                      <Text variant="xs" color="textSecondary" textAlign="center">
+                      <BicepsFlexed
+                        color={theme.colors.LightBlue}
+                        size={40}
+                        strokeWidth={1}
+                      />
+                      <Text variant="lg" color="LightBlue">
+                        My Workout
+                      </Text>
+                      <Text
+                        variant="xs"
+                        color="textSecondary"
+                        textAlign="center"
+                      >
                         Update your workout routine every 30days - 45days.
                       </Text>
-
-
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity
@@ -351,29 +371,32 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                         minHeight: topTileHeight,
                       }}
                       onPress={() => {
-                        navigation.navigate("WorkoutRoutine");
+                        navigation.navigate("Onboard");
                         store.dispatch(
                           gymActions.setSelectedWorkout({
                             WorkoutType: WorkoutType.SelfCreated,
                             createdBy: "",
-                          })
+                          }),
                         );
                       }}
                     >
-
-
-                      <CirclePlus color={theme.colors.LightBlue} size={40} strokeWidth={1} />
-                      <Text variant="lg" color="LightBlue">Create Workouts</Text>
-                      <Text variant="xs" color="textSecondary" textAlign="center">
+                      <CirclePlus
+                        color={theme.colors.LightBlue}
+                        size={40}
+                        strokeWidth={1}
+                      />
+                      <Text variant="lg" color="LightBlue">
+                        Create Workouts
+                      </Text>
+                      <Text
+                        variant="xs"
+                        color="textSecondary"
+                        textAlign="center"
+                      >
                         You can create your own custom workouts.
                       </Text>
-
-
                     </TouchableOpacity>
                   )}
-
-
-
 
                   <TouchableOpacity
                     style={{
@@ -391,26 +414,55 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                     onPress={() => {
                       store.dispatch(
                         gymActions.setSelectedMealPlanType(
-                          MealPlanType.SelfCreated
-                        )
+                          MealPlanType.SelfCreated,
+                        ),
                       );
-                      navigation.navigate("MealPlan");
+
+                      mealPlan && mealPlan.length > 0
+                        ? navigation.navigate("MealPlan")
+                        : navigation.navigate("Onboard", {
+                          fromMealPlan: true,
+                        });
                     }}
                   >
-
-
-                    <Utensils color={theme.colors.LightPink} size={40} strokeWidth={1} />
-                    <Text variant="lg" color="LightPink">My Meal Plan</Text>
-                    <Text variant="xs" color="textSecondary" textAlign="center">
-                      Update your meal plan when ever you think its necessary.
+                    {mealPlan && mealPlan.length > 0 ? (
+                      <Utensils
+                        color={theme.colors.LightPink}
+                        size={40}
+                        strokeWidth={1}
+                      />
+                    ) : (
+                      <CirclePlus
+                        color={theme.colors.LightPink}
+                        size={40}
+                        strokeWidth={1}
+                      />
+                    )}
+                    <Text variant="lg" color="LightPink">
+                      {mealPlan && mealPlan?.length > 0
+                        ? "My Meal Plan"
+                        : "Create Meal Plan"}
                     </Text>
 
-
+                    {mealPlan && mealPlan.length > 0 ? (
+                      <Text
+                        variant="xs"
+                        color="textSecondary"
+                        textAlign="center"
+                      >
+                        Update your meal plan when ever you think its necessary.
+                      </Text>
+                    ) : (
+                      <Text
+                        variant="xs"
+                        color="textSecondary"
+                        textAlign="center"
+                      >
+                        Create your own meal plan based on your fitness goal.
+                      </Text>
+                    )}
                   </TouchableOpacity>
                 </Box>
-
-
-
 
                 <TouchableOpacity
                   style={{
@@ -431,23 +483,31 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                       gymActions.setSelectedWorkout({
                         WorkoutType: WorkoutType.Default,
                         createdBy: "",
-                      })
+                      }),
                     );
                   }}
                 >
-
-
-                  <Bike color={theme.colors.PrimaryOrange} size={40} strokeWidth={1} />
-                  <Text variant="lg" color="PrimaryOrange">Default Workouts</Text>
+                  <Bike
+                    color={theme.colors.PrimaryOrange}
+                    size={40}
+                    strokeWidth={1}
+                  />
+                  <Text variant="lg" color="PrimaryOrange">
+                    Default Workouts
+                  </Text>
                   <Text variant="xs" color="textSecondary" textAlign="center">
                     Perform any workout routine based on your weekly schedule.
                   </Text>
-
-
                 </TouchableOpacity>
                 <Box mt="sm">
                   <Text variant="lgBold">Workout Analytics</Text>
-                  <Box flexDirection="row" justifyContent="space-between" gap="sm" mt="sm" flexGrow={1}>
+                  <Box
+                    flexDirection="row"
+                    justifyContent="space-between"
+                    gap="sm"
+                    mt="sm"
+                    flexGrow={1}
+                  >
                     <TouchableOpacity
                       style={{
                         flex: 1,
@@ -455,11 +515,14 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                         borderRadius: theme.borderRadii.sm,
                         padding: theme.spacing.md,
                         justifyContent: "center",
-
                       }}
-                      onPress={() => navigation.navigate("MyDashboardScreen" as any)}
+                      onPress={() =>
+                        navigation.navigate("MyDashboardScreen" as any)
+                      }
                     >
-                      <Text variant="xs" color="textSecondary">Schedule</Text>
+                      <Text variant="xs" color="textSecondary">
+                        Schedule
+                      </Text>
                       <Text variant="md">My Workout</Text>
                     </TouchableOpacity>
 
@@ -470,16 +533,15 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                         borderRadius: theme.borderRadii.sm,
                         padding: theme.spacing.md,
                         justifyContent: "center",
-
                       }}
-                      onPress={() => navigation.navigate("MyDashboardScreen" as any)}
+                      onPress={() =>
+                        navigation.navigate("MyDashboardScreen" as any)
+                      }
                     >
-
-
-                      <Text variant="xs" color="textSecondary">Schedule</Text>
+                      <Text variant="xs" color="textSecondary">
+                        Schedule
+                      </Text>
                       <Text variant="md">Fitness Guru</Text>
-
-
                     </TouchableOpacity>
                   </Box>
                 </Box>
@@ -496,7 +558,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                 />
               )} */}
 
-            {user?.isInjured && (
+            {user?.isInjured && user.subscription?.status === true && (
               <InfoCard
                 title="We Care About You More"
                 description="By getting started, you will get customised workout routines and meal plans based on your injury levels."
@@ -514,14 +576,4 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
   );
 };
 
-
-
-
 export default OverviewScreen;
-
-
-
-
-
-
-

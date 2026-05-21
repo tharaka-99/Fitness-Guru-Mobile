@@ -11,6 +11,7 @@ interface SelectProps {
   items: Item[];
   onSelect?: (item: Item) => void;
   label?: string;
+  value?: string | boolean | number; // Added value prop here
 }
 interface Item {
   id: string;
@@ -20,15 +21,25 @@ interface Item {
 
 const { width } = Dimensions.get("window");
 
-const Select: React.FC<SelectProps> = ({ items, label, onSelect }) => {
+const Select: React.FC<SelectProps> = ({ items, label, onSelect, value }) => {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
+  // Sync state when incoming 'value' changes (e.g., loaded from Redux profile info)
   useEffect(() => {
-    if (selectedItem && onSelect) onSelect(selectedItem);
-  }, [selectedItem]);
+    if (value !== undefined && items) {
+      const matchedItem = items.find((item) => item.value === value);
+      if (matchedItem) {
+        setSelectedItem(matchedItem);
+      }
+    }
+  }, [value, items]);
 
+  // Handle local item selection and notify parent form component
   const handleItemSelect = (item: Item) => {
     setSelectedItem(item);
+    if (onSelect) {
+      onSelect(item);
+    }
   };
 
   return (
