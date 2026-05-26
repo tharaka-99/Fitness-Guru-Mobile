@@ -49,7 +49,7 @@ const GenerateWorkoutScreen: React.FC<
   useEffect(() => {
     if (currentWorkout?.length) {
       const selfCreatedWorkoutPlan = currentWorkout.find(
-        (workout) => workout.type === "SelfCreated",
+        (workout) => workout.type === "SelfCreated"
       );
 
       selfCreatedWorkoutPlan?.exerciseDays?.forEach((day: ExerciseDay) => {
@@ -76,7 +76,7 @@ const GenerateWorkoutScreen: React.FC<
             };
 
             store.dispatch(
-              gymActions.addExerciseToDay({ day: day.day, exercise }),
+              gymActions.addExerciseToDay({ day: day.day, exercise })
             );
           }
         });
@@ -146,8 +146,9 @@ const GenerateWorkoutScreen: React.FC<
                 numberOfLines={1}
                 style={{ textTransform: "capitalize" }}
               >
-                {`${item.exercises.length} ${item.exercises.length === 1 ? "exercise" : "exercises"
-                  } added`}
+                {`${item.exercises.length} ${
+                  item.exercises.length === 1 ? "exercise" : "exercises"
+                } added`}
               </Text>
             </Box>
 
@@ -173,8 +174,7 @@ const GenerateWorkoutScreen: React.FC<
         day: exerciseDay.day,
         exercises: exerciseDay.exercises
           .filter(
-            (exercise: Exercises) =>
-              exercise.exercise && exercise.exercise._id,
+            (exercise: Exercises) => exercise.exercise && exercise.exercise._id
           )
           .map((exercise: Exercises) => ({
             order: exercise.order,
@@ -186,7 +186,7 @@ const GenerateWorkoutScreen: React.FC<
       })),
     };
     const selfCreatedWorkoutPlan = currentWorkout?.find(
-      (workout) => workout.type === "SelfCreated",
+      (workout) => workout.type === "SelfCreated"
     );
 
     try {
@@ -257,25 +257,30 @@ const GenerateWorkoutScreen: React.FC<
                     borderWidth: 2,
                     borderColor: theme.colors.PrimaryGreen,
                     borderRadius: theme.borderRadii.xs,
-                    paddingHorizontal: theme.spacing.sm,
-                    paddingVertical: theme.spacing.xs,
+                    paddingHorizontal: theme.spacing.md,
+                    paddingVertical: theme.spacing.sm,
                     backgroundColor:
                       exerciseDaysLength <= 0
                         ? theme.colors.PrimaryGrey
-                        : "transparent",
+                        : theme.colors.PrimaryGreen,
                     opacity: exerciseDaysLength <= 0 ? 0.5 : 1,
                     gap: theme.spacing.xs,
                   }}
                 >
                   <Text
-                    variant="lgBold"
+                    variant="md"
+                    fontWeight="500"
+                    letterSpacing={1}
                     style={{
-                      color: theme.colors.PrimaryGreen,
+                      color:
+                        exerciseDaysLength <= 0
+                          ? theme.colors.PrimaryGreen
+                          : theme.colors.PrimaryBlack,
                     }}
+                    textTransform="capitalize"
                   >
-                    Next
+                    Save
                   </Text>
-                  <ArrowRight size={18} color={theme.colors.PrimaryGreen} />
                 </TouchableOpacity>
               </Box>
             )}
@@ -306,25 +311,23 @@ const GenerateWorkoutScreen: React.FC<
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "center",
-              borderWidth: 2,
-              borderColor: theme.colors.PrimaryGreen,
               borderRadius: 8,
               paddingHorizontal: 16,
-              paddingVertical: 14,
-              backgroundColor: "transparent",
+              paddingVertical: 18,
+              backgroundColor: theme.colors.PrimaryGreen,
             }}
           >
             <PlusCircle
               size={20}
-              color={theme.colors.PrimaryGreen}
+              color={theme.colors.PrimaryBlack}
               style={{ marginRight: 8 }}
             />
             <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                color: theme.colors.PrimaryGreen,
-              }}
+              variant="md"
+              fontWeight="500"
+              letterSpacing={1}
+              color="textPrimaryBlack"
+              textTransform="capitalize"
             >
               Add New Day
             </Text>

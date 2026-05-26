@@ -53,10 +53,10 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   const [weight, setWeight] = useState<number>(user?.personalInfo?.weight || 0);
   const [height, setHeight] = useState<number>(user?.personalInfo?.height || 0);
   const [activityLevel, setActivityLevel] = useState<ActivityLevel | undefined>(
-    (user?.fitnessInfo?.activityLevel as ActivityLevel) || undefined,
+    (user?.fitnessInfo?.activityLevel as ActivityLevel) || undefined
   );
   const [goal, setGoal] = useState<Goal | undefined>(
-    (user?.fitnessInfo?.goal as Goal) || undefined,
+    (user?.fitnessInfo?.goal as Goal) || undefined
   );
   const [expertiseLevel, setExpertiseLevel] = useState<
     ExpertiseLevel | undefined
@@ -130,7 +130,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
     unit: Unit,
     gender: string,
     activityLevel: ActivityLevel,
-    goal: Goal,
+    goal: Goal
   ) => {
     // Calculate BMR
     let bmr = 0;
@@ -236,7 +236,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
         unit,
         user ? user.gender : "Male",
         activityLevel,
-        goal,
+        goal
       );
 
       // If the user's subscription is active, save the profile information
@@ -250,7 +250,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
       store.dispatch(
         authActions.setBmrAndDci({
           calculatedMetrics: { bmr, dci },
-        }),
+        })
       );
 
       // Calculate per meal requirements based on DCI and goal
@@ -288,7 +288,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
           perMealRequirement,
           perMealLowerLimit,
           perMealUpperLimit,
-        }),
+        })
       );
 
       setIsProfileSaved(true);
@@ -390,11 +390,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                     <Box gap="base">
                       <TextInput
                         label="Age"
-                        value={
-                          user?.personalInfo?.age
-                            ? user.personalInfo?.age.toString()
-                            : ""
-                        }
+                        value={age ? age.toString() : ""}
                         placeholder="Enter your age"
                         keyboardType="number-pad"
                         onChangeText={(text) => setAge(parseInt(text))}
@@ -440,10 +436,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                           >
                             <Text
                               style={{
-                                color:
-                                  unit === Unit.Metric
-                                    ? theme.colors.PrimaryBlack
-                                    : theme.colors.PrimaryWhite,
+                                color: theme.colors.PrimaryBlack,
                               }}
                             >
                               Metric
@@ -473,10 +466,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                           >
                             <Text
                               style={{
-                                color:
-                                  unit === Unit.Imperial
-                                    ? theme.colors.PrimaryBlack
-                                    : theme.colors.PrimaryWhite,
+                                color: theme.colors.PrimaryBlack,
                               }}
                             >
                               Imperial
@@ -485,12 +475,10 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                         </Box>
                       </View>
                       <TextInput
-                        value={
-                          user?.personalInfo?.weight
-                            ? user.personalInfo.weight.toString()
-                            : ""
-                        }
-                        label={`Weight in ${unit === Unit.Metric ? "kg" : "lbs"}`}
+                        value={weight ? weight.toString() : ""}
+                        label={`Weight in ${
+                          unit === Unit.Metric ? "kg" : "lbs"
+                        }`}
                         keyboardType="number-pad"
                         placeholder="Enter your weight"
                         onChangeText={(text) =>
@@ -498,12 +486,10 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                         }
                       />
                       <TextInput
-                        value={
-                          user?.personalInfo?.height
-                            ? user.personalInfo.height.toString()
-                            : ""
-                        }
-                        label={`Height in ${unit === Unit.Metric ? "cm" : "inches"}`}
+                        value={height ? height.toString() : ""}
+                        label={`Height in ${
+                          unit === Unit.Metric ? "cm" : "inches"
+                        }`}
                         keyboardType="number-pad"
                         placeholder="Enter your height"
                         onChangeText={(text) =>

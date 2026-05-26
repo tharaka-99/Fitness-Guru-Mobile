@@ -3,7 +3,9 @@ import { View, TouchableOpacity, ScrollView } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
+  BottomSheetScrollView,
   BottomSheetView,
+  BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
@@ -51,7 +53,7 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
         disappearsOnIndex={-1}
       />
     ),
-    [],
+    []
   );
 
   const handleUnitToggle = (newUnit: Unit) => {
@@ -66,8 +68,8 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
           ? (w * 2.20462).toFixed(1)
           : ""
         : w > 0
-          ? (w / 2.20462).toFixed(1)
-          : "";
+        ? (w / 2.20462).toFixed(1)
+        : "";
 
     const convertedHeight =
       newUnit === Unit.Imperial
@@ -75,8 +77,8 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
           ? (h * 0.393701).toFixed(1)
           : ""
         : h > 0
-          ? (h / 0.393701).toFixed(1)
-          : "";
+        ? (h / 0.393701).toFixed(1)
+        : "";
 
     setFormValues((prev) => ({
       ...prev,
@@ -95,8 +97,8 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
           ? (w * 2.20462).toFixed(1)
           : ""
         : w > 0
-          ? (w / 2.20462).toFixed(1)
-          : "";
+        ? (w / 2.20462).toFixed(1)
+        : "";
 
     setFormValues((prev) => ({
       ...prev,
@@ -113,8 +115,8 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
           ? (h * 0.393701).toFixed(1)
           : ""
         : h > 0
-          ? (h / 0.393701).toFixed(1)
-          : "";
+        ? (h / 0.393701).toFixed(1)
+        : "";
 
     setFormValues((prev) => ({
       ...prev,
@@ -183,15 +185,23 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
       backdropComponent={sheetBackDrop}
       handleIndicatorStyle={{ backgroundColor: theme.colors.textPrimary }}
       backgroundStyle={{ backgroundColor: theme.colors.backgroundSecondary }}
-      keyboardBehavior="interactive"
+      keyboardBehavior="fillParent"
       android_keyboardInputMode="adjustResize"
       keyboardBlurBehavior="restore"
       enableHandlePanningGesture={true}
+      animateOnMount={true}
     >
-      <BottomSheetView
-        style={{ flex: 1, backgroundColor: theme.colors.backgroundSecondary }}
+      <Box
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.backgroundSecondary,
+        }}
       >
-        <ScrollView contentContainerStyle={{ padding: theme.spacing.md }}>
+        <ScrollView
+          contentContainerStyle={{ padding: theme.spacing.md }}
+          scrollEnabled={true}
+          automaticallyAdjustKeyboardInsets={true}
+        >
           <Box gap="md">
             <Text variant="xlBold" textAlign="center" mb="md">
               Meal Plan Re-Request
@@ -363,7 +373,7 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
               }
             />
 
-            <Box mt="md">
+            <Box pb="xl">
               <Button
                 title={isLoading ? "Submitting..." : "Submit Request"}
                 onPress={handleSubmit}
@@ -372,7 +382,7 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
             </Box>
           </Box>
         </ScrollView>
-      </BottomSheetView>
+      </Box>
     </BottomSheet>
   );
 };

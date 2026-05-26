@@ -38,6 +38,13 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
   navigation,
 }) => {
   const { user } = store.getState()["feature/auth"];
+  const {
+    selectedDay,
+    workouts,
+    selectedWorkout,
+    selectedGeneralDay,
+    defaultWorkouts,
+  } = store.getState()["feature/gym"];
   const greetingMessage: string = greetingTime(new Date());
 
   const { height: screenHeight } = useWindowDimensions();
@@ -95,7 +102,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
         }
       };
       fetchData();
-    }, [profileRefetch, workoutRefetch, mealRefetch, defaultWorkoutRefetch]),
+    }, [profileRefetch, workoutRefetch, mealRefetch, defaultWorkoutRefetch])
   );
 
   React.useEffect(() => {
@@ -103,6 +110,12 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
       store.dispatch(gymActions.setWorkouts(workout));
     }
   }, [workout]);
+
+  const selfCreatedMelaplan =
+    mealPlan?.filter((plan) => plan.type === MealPlanType.SelfCreated) ?? [];
+
+  const selfCreatedWorkoutPlan =
+    workout?.filter((work) => work.type === WorkoutType.SelfCreated) ?? [];
 
   const calculateCalorieRequirements = React.useCallback((profile: any) => {
     if (!profile?.calculatedMetrics?.dci || !profile?.fitnessInfo?.goal) {
@@ -169,7 +182,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
           perMealRequirement,
           perMealLowerLimit,
           perMealUpperLimit,
-        }),
+        })
       );
     }
   }, [calorieRequirements]);
@@ -256,9 +269,9 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                   <Text variant="md" numberOfLines={1}>
                     {profile?.fitnessInfo?.goal
                       ? profile.fitnessInfo.goal.replace(
-                        /([a-z])([A-Z])/g,
-                        "$1 $2",
-                      )
+                          /([a-z])([A-Z])/g,
+                          "$1 $2"
+                        )
                       : "Not Set"}
                   </Text>
                 </Box>
@@ -308,7 +321,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
           }
 
           <Box gap="sm" flexGrow={1}>
-            {!user?.isInjured && (
+            {
               <Box gap="sm" flexGrow={1}>
                 <Box
                   flexGrow={1}
@@ -316,7 +329,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                   justifyContent="space-between"
                   gap="sm"
                 >
-                  {workout && workout?.length > 0 ? (
+                  {selfCreatedWorkoutPlan?.length > 0 ? (
                     <TouchableOpacity
                       style={{
                         flex: 1,
@@ -336,7 +349,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                           gymActions.setSelectedWorkout({
                             WorkoutType: WorkoutType.SelfCreated,
                             createdBy: "",
-                          }),
+                          })
                         );
                       }}
                     >
@@ -376,7 +389,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                           gymActions.setSelectedWorkout({
                             WorkoutType: WorkoutType.SelfCreated,
                             createdBy: "",
-                          }),
+                          })
                         );
                       }}
                     >
@@ -414,18 +427,18 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                     onPress={() => {
                       store.dispatch(
                         gymActions.setSelectedMealPlanType(
-                          MealPlanType.SelfCreated,
-                        ),
+                          MealPlanType.SelfCreated
+                        )
                       );
 
-                      mealPlan && mealPlan.length > 0
+                      selfCreatedMelaplan.length > 0
                         ? navigation.navigate("MealPlan")
                         : navigation.navigate("Onboard", {
-                          fromMealPlan: true,
-                        });
+                            fromMealPlan: true,
+                          });
                     }}
                   >
-                    {mealPlan && mealPlan.length > 0 ? (
+                    {selfCreatedMelaplan.length > 0 ? (
                       <Utensils
                         color={theme.colors.LightPink}
                         size={40}
@@ -439,12 +452,12 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                       />
                     )}
                     <Text variant="lg" color="LightPink">
-                      {mealPlan && mealPlan?.length > 0
+                      {selfCreatedMelaplan.length > 0
                         ? "My Meal Plan"
                         : "Create Meal Plan"}
                     </Text>
 
-                    {mealPlan && mealPlan.length > 0 ? (
+                    {selfCreatedMelaplan.length > 0 ? (
                       <Text
                         variant="xs"
                         color="textSecondary"
@@ -483,7 +496,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                       gymActions.setSelectedWorkout({
                         WorkoutType: WorkoutType.Default,
                         createdBy: "",
-                      }),
+                      })
                     );
                   }}
                 >
@@ -546,7 +559,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                   </Box>
                 </Box>
               </Box>
-            )}
+            }
             {/* {!user?.isInjured &&
               !profile?.fitnessInfo &&
               !profile?.personalInfo && (
@@ -558,7 +571,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                 />
               )} */}
 
-            {user?.isInjured && user.subscription?.status === true && (
+            {/* {user?.isInjured && user.subscription?.status === true && (
               <InfoCard
                 title="We Care About You More"
                 description="By getting started, you will get customised workout routines and meal plans based on your injury levels."
@@ -568,7 +581,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                   navigation.navigate("Tab", { screen: "FitnessGuru" })
                 }
               />
-            )}
+            )} */}
           </Box>
         </ScrollView>
       </PageWrapper>

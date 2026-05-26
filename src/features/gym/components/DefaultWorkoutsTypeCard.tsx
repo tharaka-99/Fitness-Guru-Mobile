@@ -1,11 +1,11 @@
-import { ArrowRight } from 'lucide-react-native';
-import React from 'react';
-import { Image, TouchableOpacity } from 'react-native';
+import { ArrowRight } from "lucide-react-native";
+import React from "react";
+import { Image, TouchableOpacity } from "react-native";
 
-import { PAGE_WIDTH } from '@components/app/PageWrapper';
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
-import { constants, theme } from '@utils/styles/theme';
+import { PAGE_WIDTH } from "@components/app/PageWrapper";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { constants, theme } from "@utils/styles/theme";
 
 interface Props {
   title: string;
@@ -37,14 +37,14 @@ const DefaultWorkoutsTypeCard: React.FC<Props> = ({
           alignItems="center"
           justifyContent="center"
         >
-          <Image style={{}} source={image} />
+          <Image style={{ width: 50, height: 50 }} source={image} />
         </Box>
 
         <Box px="sm" flex={1} alignItems="flex-start" justifyContent="center">
           <Text variant="lgBold" numberOfLines={1} color="PrimaryGreen">
             {title.toUpperCase()}
           </Text>
-          <Text color="textPrimary" variant="smBold" fontWeight={'300'}>
+          <Text color="textPrimary" variant="smBold" fontWeight={"300"}>
             {description}
           </Text>
         </Box>
@@ -56,10 +56,7 @@ const DefaultWorkoutsTypeCard: React.FC<Props> = ({
           justifyContent="center"
           backgroundColor="PrimaryGreen"
         >
-          <ArrowRight
-            size={23}
-            color={theme.colors.PrimaryBlack}
-          />
+          <ArrowRight size={23} color={theme.colors.PrimaryBlack} />
         </Box>
       </Box>
     </TouchableOpacity>

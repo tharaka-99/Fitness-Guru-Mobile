@@ -1,5 +1,5 @@
 import { MyStackNavigatorScreenProps } from "@navigation/types";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Dimensions,
   Image,
@@ -8,27 +8,28 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
-import { store } from "@/store";
+import { useSelector, useDispatch } from "react-redux";
+import Toast from "react-native-toast-message";
+import { ArrowLeft } from "lucide-react-native";
+
 import PageWrapper from "@components/app/PageWrapper";
-import PageHeader from "@components/app/header/PageHeader";
-import Box from "@components/atoms/Box";
-import PaginationDots from "@components/atoms/PaginationDots";
+import PricingPackageCard from "../components/PricingPackageCard";
+import { theme } from "@utils/styles/theme";
+import useSubscription from "@features/subscription/hooks/useSubscription";
+import Text from "@components/atoms/Text";
+
 import { authActions } from "@features/auth/context/slice";
 import { gymActions } from "@features/gym/context/slice";
+import { RootState, store } from "@/store";
+
 import { setClientProfileInfo } from "@utils/services/authServices";
 import { createMealPlan } from "@utils/services/mealPlanService";
-import {
-  activeNewPackage,
-  getClientPackages,
-} from "@utils/services/packageService";
+import { getClientPackages } from "@utils/services/packageService";
 import { createWorkout } from "@utils/services/workoutService";
-import env from "@utils/env";
 import { MealItemDto } from "@utils/types/mealPlanTypes";
-import {
-  SubscriptionPlan,
-  SubscriptionPlans,
-} from "@utils/types/subscriptionTypes";
+import { SubscriptionPlans } from "@utils/types/subscriptionTypes";
 import {
   ExerciseDay,
   Exercises,
@@ -36,219 +37,439 @@ import {
   WorkoutType,
 } from "@utils/types/types";
 import { hasPremiumAccess } from "@utils/helpers";
-import Toast from "react-native-toast-message";
-import PricingPackageCard from "../components/PricingPackageCard";
-import UserNameWithAvatar from "../components/onboard/UserNameWithAvatar";
-import { overviewActions } from "../context/slice";
-import Purchases from "react-native-purchases";
-import { ArrowLeft } from "lucide-react-native";
-import { theme } from "@utils/styles/theme";
-import useSubscription from "@features/subscription/hooks/useSubscription";
-import Text from "@components/atoms/Text";
 
 const { height: screenHeight } = Dimensions.get("window");
+
+// ============================================================================
+// CUSTOM HOOKS
+// ============================================================================
+
+/**
+ * Hook for fetching subscription packages
+ */
+const usePackageService = () => {
+  const [packages, setPackages] = useState<SubscriptionPlans>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await getClientPackages();
+        setPackages(data);
+      } catch (err) {
+        const error =
+          err instanceof Error ? err : new Error("Failed to fetch packages");
+        setError(error);
+        console.error("Error fetching packages:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPackages();
+  }, []);
+
+  return { packages, isLoading, error };
+};
+
+/**
+ * Hook for handling profile and workout setup
+ */
+const useProfileSetup = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const setupProfile = useCallback(
+    async (profile: any, gymData: any, user: any) => {
+      try {
+        setIsLoading(true);
+
+        // Only create workout and meal plan if user has subscription
+        if (user?.subscription?.status) {
+          // Transform workout data - match the exact structure expected by API
+          const transformedDays: Workout = {
+            type: WorkoutType.SelfCreated,
+            exerciseDays:
+              gymData.days?.exerciseDays?.map((exerciseDay: ExerciseDay) => ({
+                day: exerciseDay.day,
+                exercises:
+                  exerciseDay.exercises?.map((exercise: Exercises) => ({
+                    order: exercise.order,
+                    exercise: {
+                      _id: exercise.exercise?._id,
+                      name: exercise.exercise?.name,
+                    },
+                    sets: exercise.sets,
+                    reps: exercise.reps,
+                    rest: exercise.rest,
+                  })) || [],
+              })) || [],
+          };
+
+          // Remove calPerUnit from meal items
+          const omitCalPerUnit = (mealArray: MealItemDto[]) =>
+            mealArray?.map(({ calPerUnit, ...rest }) => rest) || [];
+
+          const mealDetailsWithoutCalPerUnit = {
+            ...gymData.mealDetails,
+            breakfast: omitCalPerUnit(gymData.mealDetails?.breakfast || []),
+            lunch: omitCalPerUnit(gymData.mealDetails?.lunch || []),
+            snack: omitCalPerUnit(gymData.mealDetails?.snack || []),
+            dinner: omitCalPerUnit(gymData.mealDetails?.dinner || []),
+          };
+
+          console.log(
+            "Creating workout with data:",
+            JSON.stringify(transformedDays, null, 2)
+          );
+          console.log(
+            "Creating meal plan with data:",
+            JSON.stringify(mealDetailsWithoutCalPerUnit, null, 2)
+          );
+
+          try {
+            await createWorkout(transformedDays);
+            console.log("✅ Workout created successfully");
+          } catch (workoutError) {
+            console.error("❌ Workout creation failed:", workoutError);
+            throw workoutError;
+          }
+
+          try {
+            await createMealPlan(mealDetailsWithoutCalPerUnit);
+            console.log("✅ Meal plan created successfully");
+          } catch (mealError) {
+            console.error("❌ Meal plan creation failed:", mealError);
+            throw mealError;
+          }
+        }
+
+        // Always set profile info
+        try {
+          await setClientProfileInfo(profile);
+          console.log("✅ Profile info set successfully");
+        } catch (profileError) {
+          console.error("❌ Profile setup failed:", profileError);
+          throw profileError;
+        }
+
+        return { success: true };
+      } catch (error) {
+        console.error("Error during profile setup:", error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  return { setupProfile, isLoading };
+};
+
+/**
+ * Hook for handling purchase and post-purchase actions
+ */
+const usePurchaseHandler = (options: any) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const executePurchase = useCallback(
+    async (packageId: string) => {
+      try {
+        // Validate offerings
+        if (!options.offerings?.current?.availablePackages.length) {
+          Toast.show({
+            type: "error",
+            text1: "Error",
+            text2: "No subscription packages available.",
+          });
+          return;
+        }
+
+        // Map package ID to RevenueCat identifier
+        const packageIdentifier = packageId === "Premium" ? "$rc_monthly" : "";
+
+        // Find selected package
+        const selectedPackage =
+          options.offerings.current.availablePackages.find(
+            (pkg: any) => pkg.identifier === packageIdentifier
+          );
+
+        if (!selectedPackage) {
+          Toast.show({
+            type: "error",
+            text1: "Error",
+            text2: "Selected package not found.",
+          });
+          return;
+        }
+
+        setIsLoading(true);
+
+        // Execute purchase
+        await options.purchasePackage(selectedPackage);
+
+        // Handle injured user
+        if (options.user?.isInjured) {
+          options.dispatch(authActions.setIsInjured(true));
+          options.navigation.navigate("Tab", { screen: "FitnessGuru" });
+          return;
+        }
+
+        // Handle default workout
+        if (
+          options.gymData?.selectedWorkout?.WorkoutType === WorkoutType.Default
+        ) {
+          try {
+            await setClientProfileInfo(options.profile);
+          } catch (err) {
+            console.error("Error setting profile for default workout:", err);
+          }
+          options.navigation.navigate("Tab", { screen: "FitnessGuru" });
+          return;
+        }
+
+        // Get fresh subscription status
+        const currentUser = (store.getState() as any)["feature/auth"].user;
+        const hasSubscription = hasPremiumAccess(currentUser);
+
+        if (hasSubscription) {
+          Toast.show({
+            type: "success",
+            text1: "Success",
+            text2: "Activated subscription successfully!",
+          });
+
+          // Check if user has complete workout data
+          const hasWorkoutData =
+            options.gymData?.days?.exerciseDays &&
+            options.gymData.days.exerciseDays.length > 0;
+
+          const hasMealData =
+            options.gymData?.mealDetails &&
+            Object.keys(options.gymData.mealDetails).length > 0;
+
+          console.log("hasMealData>>", hasMealData);
+          console.log("hasWorkoutData>>", hasWorkoutData);
+          console.log("options.profile>>", options.profile);
+          console.log("user>>", options.user);
+
+          // If user has both workout AND meal data, setup them
+          if (hasWorkoutData && hasMealData) {
+            try {
+              await options.setupProfile(
+                options.profile,
+                options.gymData,
+                options.user
+              );
+
+              options.dispatch(gymActions.resetWorkouts());
+              options.dispatch(gymActions.resetMeals());
+
+              Toast.show({
+                type: "success",
+                text1: "Success",
+                text2: "Profile setup and workout created successfully!",
+              });
+            } catch (setupError: any) {
+              console.error("Error during setup:", setupError);
+
+              if (setupError?.response?.status === 400) {
+                Toast.show({
+                  type: "error",
+                  text1: "Validation Error",
+                  text2:
+                    "Invalid data format. Please check your profile information.",
+                });
+              } else {
+                Toast.show({
+                  type: "error",
+                  text1: "Setup Error",
+                  text2: "Failed to complete setup. Please try again.",
+                });
+              }
+              return;
+            }
+          } else {
+            Toast.show({
+              type: "success",
+              text1: "Success",
+              text2: "Premium activated! Complete your profile.",
+            });
+
+            options.navigation.navigate("Tab", { screen: "FitnessGuru" });
+            return;
+          }
+        }
+
+        // Handle trainer pending application
+        if (options.pendingApplication) {
+          setTimeout(() => {
+            options.dispatch(authActions.setSubscription({ status: true }));
+            options.navigation.goBack();
+          }, 1000);
+
+          Toast.show({
+            type: "success",
+            text1: "Success",
+            text2:
+              "Trainer subscription activated successfully, waiting for approval!",
+          });
+        } else {
+          options.navigation.navigate("Tab", { screen: "FitnessGuru" });
+        }
+      } catch (error: any) {
+        if (!error?.userCancelled) {
+          console.error("Error during purchase:", error);
+          Toast.show({
+            type: "error",
+            text1: "Error",
+            text2: "Failed to complete purchase. Please try again.",
+          });
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [options]
+  );
+
+  return { executePurchase, isLoading };
+};
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 
 const PricingPackagesScreen: React.FC<
   MyStackNavigatorScreenProps<"PricingPackages">
 > = ({ navigation }) => {
+  const dispatch = useDispatch();
+
+  // Redux selectors
+  const { pendingApplication } = useSelector((state: RootState) => ({
+    pendingApplication: state["feature/trainer"].pendingApplication,
+  }));
+
   const { profile } = store.getState()["feature/overview"];
-  const { user } = store.getState()["feature/auth"];
-  const { days, mealDetails, selectedWorkout } =
-    store.getState()["feature/gym"];
-  const { pendingApplication } = store.getState()["feature/trainer"];
 
-  const [currentPackage, setCurrentPackage] = useState<string>("Premium");
-  const [packages, setPackages] = useState<SubscriptionPlans>([]);
+  const { user } = useSelector((state: RootState) => state["feature/auth"]);
+  const gymData = useSelector((state: RootState) => state["feature/gym"]);
 
+  // Custom hooks
   const { offerings, purchasePackage, isSubscribed } = useSubscription();
+  const {
+    packages,
+    isLoading: isPackagesLoading,
+    error: packagesError,
+  } = usePackageService();
+  const { setupProfile } = useProfileSetup();
 
+  const { executePurchase, isLoading: isPurchaseLoading } = usePurchaseHandler({
+    offerings,
+    purchasePackage,
+    user,
+    profile,
+    gymData,
+    pendingApplication,
+    navigation,
+    dispatch,
+    setupProfile,
+  });
+
+  // Local state
+  const [currentPackage, setCurrentPackage] = useState<string>("Premium");
+
+  // Effects
   useEffect(() => {
     if (isSubscribed) {
-      store.dispatch(authActions.setSubscription({ status: true }));
+      dispatch(authActions.setSubscription({ status: true }));
     }
-  }, [isSubscribed]);
+  }, [isSubscribed, dispatch]);
 
-  useEffect(() => {
-    const getPackages = async () => {
-      const clientPackages = await getClientPackages();
-      setPackages(clientPackages);
-    };
-    getPackages();
+  // Handlers
+  const handleChangePackage = useCallback((id: string) => {
+    setCurrentPackage(id);
   }, []);
 
-  const onChangePackage = (id: string) => {
-    setCurrentPackage(id);
-  };
+  const handleActionPress = useCallback(
+    async (id: string) => {
+      await executePurchase(id);
+    },
+    [executePurchase]
+  );
 
-  const onActionPress = async (id: string) => {
-    if (!offerings?.current || !offerings.current.availablePackages.length) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "No subscription packages available.",
-      });
-      return;
-    }
+  const handleBackPress = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
 
-    const packageIdentifier = id === "Premium" ? "$rc_monthly" : "";
+  // Computed values
+  const isLoading = isPurchaseLoading || isPackagesLoading;
 
-    const selectedPackage = offerings.current.availablePackages.find(
-      (pkg) => pkg.identifier === packageIdentifier,
+  // Error state
+  if (packagesError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text color="PrimaryRed" variant="md" fontWeight="bold" mb="md">
+          Failed to load packages
+        </Text>
+        <TouchableOpacity style={styles.retryButton} onPress={handleBackPress}>
+          <Text color="PrimaryWhite" fontWeight="bold">
+            Go Back
+          </Text>
+        </TouchableOpacity>
+      </View>
     );
-
-    if (!selectedPackage) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Selected package not found.",
-      });
-      return;
-    }
-
-    try {
-      await purchasePackage(selectedPackage);
-
-      if (user?.isInjured) {
-        store.dispatch(authActions.setIsInjured(true));
-        navigation.navigate("Tab", { screen: "FitnessGuru" });
-        return;
-      }
-
-      if (selectedWorkout?.WorkoutType === WorkoutType.Default) {
-        await setClientProfileInfo(profile);
-        navigation.navigate("Tab", { screen: "FitnessGuru" });
-        return;
-      }
-
-      const currentUser = (store.getState() as any)["feature/auth"].user;
-      const hasSubscription = hasPremiumAccess(currentUser);
-
-      if (hasSubscription) {
-        Toast.show({
-          type: "success",
-          text1: "Success",
-          text2: "Activated subscription successfully!",
-        });
-      }
-
-      if (!hasSubscription) {
-        const transformedDays: Workout = {
-          type: WorkoutType.SelfCreated,
-          exerciseDays: days.exerciseDays.map((exerciseDay: ExerciseDay) => ({
-            day: exerciseDay.day,
-            exercises: exerciseDay.exercises.map((exercise: Exercises) => ({
-              order: exercise.order,
-              exercise: {
-                _id: exercise.exercise._id,
-                name: exercise.exercise.name,
-              },
-              sets: exercise.sets,
-              reps: exercise.reps,
-              rest: exercise.rest,
-            })),
-          })),
-        };
-
-        const omitCalPerUnit = (mealArray: MealItemDto[]) =>
-          mealArray.map(({ calPerUnit, ...rest }) => rest);
-
-        const mealDetailsWithoutCalPerUnit = {
-          ...mealDetails,
-          breakfast: omitCalPerUnit(mealDetails.breakfast),
-          lunch: omitCalPerUnit(mealDetails.lunch),
-          snack: omitCalPerUnit(mealDetails.snack),
-          dinner: omitCalPerUnit(mealDetails.dinner),
-        };
-
-        try {
-          if (user?.subscription?.status) {
-            await Promise.all([
-              createWorkout(transformedDays),
-              createMealPlan(mealDetailsWithoutCalPerUnit),
-            ]);
-          }
-          await setClientProfileInfo(profile);
-          store.dispatch(gymActions.resetWorkouts());
-          store.dispatch(gymActions.resetMeals());
-          Toast.show({
-            type: "success",
-            text1: "Success",
-            text2: "Profile setup and workout created successfully!",
-          });
-        } catch (error) {
-          console.error("Error during API calls:", error);
-          Toast.show({
-            type: "error",
-            text1: "Error",
-            text2: "Failed to complete setup. Please try again.",
-          });
-          return;
-        }
-      } else {
-        Toast.show({
-          type: "info",
-          text1: "Info",
-          text2: "Subscription already active.",
-        });
-      }
-
-      if (pendingApplication) {
-        setTimeout(() => {
-          store.dispatch(authActions.setSubscription({ status: true }));
-          navigation.goBack();
-        }, 1000);
-        Toast.show({
-          type: "success",
-          text1: "Success",
-          text2: "Trainer subscription activated successfully, waiting for approval!",
-        });
-      } else {
-        navigation.navigate("Tab", { screen: "FitnessGuru" });
-      }
-    } catch (error: any) {
-      if (!error.userCancelled) {
-        console.error("Error during purchase or setup:", error);
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Failed to complete purchase or setup. Please try again.",
-        });
-      }
-    }
-  };
+  }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
+      {/* Back Button */}
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() => navigation.goBack()}
+        onPress={handleBackPress}
+        activeOpacity={0.7}
+        disabled={isLoading}
       >
         <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
       </TouchableOpacity>
+
+      {/* Hero Image Section */}
       <View style={styles.imageContainer}>
         <Image
-          source={
-            // currentPackage === "Standard"
-            //   ? require("../../../../assets/images/pricing-img1.jpg")
-            //   :
-            require("../../../../assets/images/pricing-img2.jpg")
-          }
+          source={require("../../../../assets/images/pricing-img2.jpg")}
           style={styles.image}
           resizeMode="cover"
         />
       </View>
 
+      {/* Pricing Cards Section */}
       <View style={styles.cardContainer}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          scrollEnabled={!isLoading}
         >
-          <PricingPackageCard
-            packages={packages}
-            offerings={offerings ?? undefined}
-            onActionPress={(id: string) => onActionPress(id)}
-            onChangePackage={(id: string) => onChangePackage(id)}
-          />
+          {isLoading && !packages.length ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator
+                size="large"
+                color={theme.colors.PrimaryGreen}
+              />
+              <Text mt="md" color="textSecondary">
+                Loading packages...
+              </Text>
+            </View>
+          ) : (
+            <PricingPackageCard
+              packages={packages}
+              offerings={offerings ?? undefined}
+              onActionPress={handleActionPress}
+              onChangePackage={handleChangePackage}
+            />
+          )}
         </ScrollView>
       </View>
     </View>
@@ -257,7 +478,15 @@ const PricingPackagesScreen: React.FC<
 
 export default PricingPackagesScreen;
 
+// ============================================================================
+// STYLES
+// ============================================================================
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.backgroundPrimary,
+  },
   backButton: {
     position: "absolute",
     top: Platform.OS === "ios" ? 20 : 10,
@@ -281,5 +510,23 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     paddingBottom: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 40,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  retryButton: {
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    backgroundColor: theme.colors.PrimaryGreen,
+    borderRadius: 8,
   },
 });

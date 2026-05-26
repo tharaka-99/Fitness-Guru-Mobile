@@ -58,14 +58,14 @@ const GeneralWorkoutRoutineScreen: React.FC<
   const generalWorkoutsInfo = [
     {
       id: 0,
-      image: require("assets/images/ignaite.png"),
+      image: require("assets/images/kettlebell.png"),
       name: "ignite",
       description:
         "Kickstart your fitness journey with this invigorating workout.",
     },
     {
       id: 1,
-      image: require("assets/images/momentum.png"),
+      image: require("assets/images/Momemtum.png"),
       name: "momentum",
       description: "Build on yesterday`s progress and keep the momentum going.",
     },
@@ -78,7 +78,7 @@ const GeneralWorkoutRoutineScreen: React.FC<
     },
     {
       id: 3,
-      image: require("assets/images/zenith.png"),
+      image: require("assets/images/Zenith1.png"),
       name: "zenith",
       description:
         "Reach the peak of your performance with this comprehensive workout.",
@@ -92,7 +92,7 @@ const GeneralWorkoutRoutineScreen: React.FC<
     },
     {
       id: 5,
-      image: require("assets/images/apex.png"),
+      image: require("assets/images/Apex1.png"),
       name: "apex",
       description:
         "Push your limits and reach the pinnacle of your fitness potential.",
@@ -116,7 +116,6 @@ const GeneralWorkoutRoutineScreen: React.FC<
       <FlatList
         data={generalWorkoutsInfo}
         keyExtractor={({ name }) => String(name)}
-
         renderItem={({ item }) => {
           const { name, description, image, id } = item;
 

@@ -2,7 +2,7 @@
   "expo": {
     "name": "fitness-guru",
     "slug": "fitness-guru",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/logo-Icon-new.png",
     "userInterfaceStyle": "light",

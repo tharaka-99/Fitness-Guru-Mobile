@@ -71,12 +71,16 @@ const LogSetsCard: React.FC<Props> = ({
     );
   };
 
+  const canRecord = logSets.every(
+    (set) => set.totalWeight > 0 && set.totalReps > 0
+  );
+
   const handleRecord = () => {
     if (!isSubscribed) {
       Toast.show({
         type: "info",
         text1: "Subscription Required",
-        text2: "Please subscribe to save your workouts.",
+        text2: "Please subscribe to save your workout records.",
       });
       navigation.push("PricingPackages");
       return;
@@ -86,7 +90,11 @@ const LogSetsCard: React.FC<Props> = ({
 
   return (
     <Box p="sm" gap="base">
-      <Box flexDirection="row" justifyContent="space-between" alignItems="center">
+      <Box
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+      >
         <Text style={styles.dateText}>{dateStr}</Text>
         <Box
           height={35}
@@ -112,11 +120,7 @@ const LogSetsCard: React.FC<Props> = ({
               )
             }
           >
-            <Text
-              variant="sm"
-              color="PrimaryBlack"
-
-            >
+            <Text variant="sm" color="PrimaryBlack">
               kg
             </Text>
           </TouchableOpacity>
@@ -137,11 +141,7 @@ const LogSetsCard: React.FC<Props> = ({
               )
             }
           >
-            <Text
-              variant="sm"
-              color="PrimaryBlack"
-
-            >
+            <Text variant="sm" color="PrimaryBlack">
               lb
             </Text>
           </TouchableOpacity>
@@ -246,6 +246,7 @@ const LogSetsCard: React.FC<Props> = ({
             <Button
               title={isLoading ? "Adding your logs.." : "Record Workout"}
               onPress={handleRecord}
+              disabled={!canRecord}
             />
             <Text color="textSecondary" textAlign="center" mt="sm">
               You can record your sets daily to keep track of your progress

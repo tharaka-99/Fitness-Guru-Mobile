@@ -1,7 +1,15 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, Keyboard, TouchableOpacity, View } from "react-native";
-import { ArrowLeft, ArrowRight, Check, Search, ChevronLeft, ChevronRight, CircleX } from "lucide-react-native";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  CircleX,
+} from "lucide-react-native";
 import { store } from "@/store";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
@@ -79,66 +87,73 @@ const GenerateMealPlanScreen: React.FC<
         (mealPlan) => mealPlan.type === "SelfCreated"
       )[0];
 
-      selfCreatedMealPlan.breakfast.forEach((item) => {
-        const food = mealItems?.find((f) => f._id === item.mealItemId._id);
-        if (food) {
-          store.dispatch(
-            gymActions.updateCurrentMealFood({
-              mealItemId: food?._id ?? "",
-              count: item?.count,
-              calPerUnit: food?.calPerUnit,
-              mealType: MealType.Breakfast,
-              unitAmount: food?.unitAmount,
-            })
-          );
-        }
-      });
+      // FIX: Add a safeguard check here
+      if (selfCreatedMealPlan) {
+        selfCreatedMealPlan.breakfast?.forEach((item) => {
+          const food = mealItems?.find((f) => f._id === item.mealItemId?._id); // added optional chain to item.mealItemId
+          if (food) {
+            store.dispatch(
+              gymActions.updateCurrentMealFood({
+                mealItemId: food?._id ?? "",
+                count: item?.count,
+                calPerUnit: food?.calPerUnit,
+                mealType: MealType.Breakfast,
+                unitAmount: food?.unitAmount,
+              })
+            );
+          }
+        });
 
-      selfCreatedMealPlan.lunch.forEach((item) => {
-        const food = mealItems?.find((f) => f._id === item.mealItemId._id);
-        if (food) {
-          store.dispatch(
-            gymActions.updateCurrentMealFood({
-              mealItemId: food?._id ?? "",
-              count: item?.count,
-              calPerUnit: food?.calPerUnit,
-              mealType: MealType.Lunch,
-            })
-          );
-        }
-      });
+        selfCreatedMealPlan.lunch?.forEach((item) => {
+          const food = mealItems?.find((f) => f._id === item.mealItemId?._id);
+          if (food) {
+            store.dispatch(
+              gymActions.updateCurrentMealFood({
+                mealItemId: food?._id ?? "",
+                count: item?.count,
+                calPerUnit: food?.calPerUnit,
+                mealType: MealType.Lunch,
+              })
+            );
+          }
+        });
 
-      selfCreatedMealPlan.snack.forEach((item) => {
-        const food = mealItems?.find((f) => f._id === item.mealItemId._id);
-        if (food) {
-          store.dispatch(
-            gymActions.updateCurrentMealFood({
-              mealItemId: food?._id ?? "",
-              count: item?.count,
-              calPerUnit: food?.calPerUnit,
-              mealType: MealType.Snack,
-            })
-          );
-        }
-      });
+        selfCreatedMealPlan.snack?.forEach((item) => {
+          const food = mealItems?.find((f) => f._id === item.mealItemId?._id);
+          if (food) {
+            store.dispatch(
+              gymActions.updateCurrentMealFood({
+                mealItemId: food?._id ?? "",
+                count: item?.count,
+                calPerUnit: food?.calPerUnit,
+                mealType: MealType.Snack,
+              })
+            );
+          }
+        });
 
-      selfCreatedMealPlan.dinner.forEach((item) => {
-        const food = mealItems?.find((f) => f._id === item.mealItemId._id);
-        if (food) {
-          store.dispatch(
-            gymActions.updateCurrentMealFood({
-              mealItemId: food?._id ?? "",
-              count: item?.count,
-              calPerUnit: food?.calPerUnit,
-              mealType: MealType.Dinner,
-            })
-          );
-        }
-      });
+        selfCreatedMealPlan.dinner?.forEach((item) => {
+          const food = mealItems?.find((f) => f._id === item.mealItemId?._id);
+          if (food) {
+            store.dispatch(
+              gymActions.updateCurrentMealFood({
+                mealItemId: food?._id ?? "",
+                count: item?.count,
+                calPerUnit: food?.calPerUnit,
+                mealType: MealType.Dinner,
+              })
+            );
+          }
+        });
+      } else {
+        // Fallback if currentMealPlan exists but no "SelfCreated" entry is found
+        store.dispatch(gymActions.resetMeals());
+      }
     } else {
       store.dispatch(gymActions.resetMeals());
     }
-  }, [currentMealPlan, user?.subscription?.status]);
+  }, [currentMealPlan, user?.subscription?.status, mealItems]);
+  // Added mealItems to dependency array since it's utilized inside the loop
 
   useEffect(() => {
     if (user?.calculatedMetrics?.dci) {
@@ -177,7 +192,6 @@ const GenerateMealPlanScreen: React.FC<
         return a.selected ? -1 : 1;
       });
   }, [mealItems, searchTerm, mealDetails, selectedMealType]);
-
 
   const handleMealItemPress = (mealItem: MealItem) => {
     Keyboard.dismiss();
@@ -298,7 +312,8 @@ const GenerateMealPlanScreen: React.FC<
 
     if (
       // user?.subscription?.status === true
-      true) {
+      true
+    ) {
       const mealDetailsWithoutCalPerUnit = {
         ...mealDetails,
         breakfast: omitCalPerUnit(mealDetails.breakfast),
@@ -334,7 +349,8 @@ const GenerateMealPlanScreen: React.FC<
           navigation.navigate("Home");
         }, 1000);
       } catch (error: any) {
-        const errorMessage = error?.response?.data?.message || "Failed to save meal plan.";
+        const errorMessage =
+          error?.response?.data?.message || "Failed to save meal plan.";
         Toast.show({
           type: "error",
           text1: "Error",
@@ -406,12 +422,7 @@ const GenerateMealPlanScreen: React.FC<
       </Box>
 
       {!showSearchBar && (
-        <Box
-          flexDirection="row"
-          justifyContent="flex-end"
-          gap="sm"
-          mb="md"
-        >
+        <Box flexDirection="row" justifyContent="flex-end" gap="sm" mb="md">
           {selectedMealType !== MealType.Breakfast && (
             <TouchableOpacity
               style={{
@@ -476,11 +487,11 @@ const GenerateMealPlanScreen: React.FC<
                 }}
                 summary={{
                   baseMetabolicRate:
-                    `${user?.calculatedMetrics?.bmr.toFixed(2)}Cal` ||
-                    "0.00Cal",
+                    `${user?.calculatedMetrics?.bmr.toFixed(2)} Cal` ||
+                    "0.0Cal",
                   dailyCalorieIntake:
-                    `${user?.calculatedMetrics?.dci.toFixed(2)}Cal` ||
-                    "0.00Cal",
+                    `${user?.calculatedMetrics?.dci.toFixed(2)} Cal` ||
+                    "0.0Cal",
                 }}
               />
               <MealCalorieSection
@@ -520,8 +531,9 @@ const GenerateMealPlanScreen: React.FC<
                       title={name}
                       image={url || image}
                       unitCount={selected ? formatUnitCount(count, unit) : ""}
-                      description={`${calPerUnit}Cal per unit (${unitAmount + unit
-                        })`}
+                      description={`${calPerUnit}Cal per unit (${
+                        unitAmount + unit
+                      })`}
                       theme={selected ? "green" : undefined}
                     />
                   </Box>
@@ -550,8 +562,9 @@ const GenerateMealPlanScreen: React.FC<
         image={selectedMealItem?.url || image}
         mealName={selectedMealItem?.name || "Meal item"}
         unit={selectedMealItem?.unit || "Unit"}
-        caloriesPerUnit={`${selectedMealItem?.calPerUnit}Cal per ${selectedMealItem?.unitAmount + " " + selectedMealItem?.unit
-          }`}
+        caloriesPerUnit={`${selectedMealItem?.calPerUnit}Cal per ${
+          selectedMealItem?.unitAmount + " " + selectedMealItem?.unit
+        }`}
         bottomSheetRef={bottomSheetRef}
         selectedMealItemcount={selectedMealItem?.count || 0}
         handleAddMealItem={handleAddMealItem}

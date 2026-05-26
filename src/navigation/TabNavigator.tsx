@@ -53,15 +53,15 @@ const TabNavigator = () => {
     refreshUnreadCount();
 
     const sub = DeviceEventEmitter.addListener(IN_APP_PUSH_RECEIVED_EVENT, () =>
-      refreshUnreadCount(),
+      refreshUnreadCount()
     );
 
     const sub2 = DeviceEventEmitter.addListener(IN_APP_MARKED_READ_EVENT, () =>
-      refreshUnreadCount(),
+      refreshUnreadCount()
     );
 
     const sub3 = DeviceEventEmitter.addListener(IN_APP_DELETED_EVENT, () =>
-      refreshUnreadCount(),
+      refreshUnreadCount()
     );
 
     return () => {
@@ -70,14 +70,6 @@ const TabNavigator = () => {
       sub3.remove();
     };
   }, [refreshUnreadCount]);
-  const { height: screenHeight } = useWindowDimensions();
-  const HEADER_OFFSET = 220;
-  const availableHeight = screenHeight - HEADER_OFFSET;
-  const TILE_MIN_HEIGHT = 120;
-  const TILE_COUNT = 3;
-  const needsScroll = availableHeight < TILE_MIN_HEIGHT * TILE_COUNT + 60;
-  const topTileHeight = needsScroll ? TILE_MIN_HEIGHT * 1.4 : undefined;
-  const bottomTileHeight = needsScroll ? TILE_MIN_HEIGHT * 1.4 : undefined;
 
   return (
     <Tab.Navigator
@@ -90,19 +82,11 @@ const TabNavigator = () => {
         tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarStyle: {
           backgroundColor: theme.colors.backgroundPrimary,
-          // borderTopWidth: 1.5,
-          // borderTopColor: theme.colors.borderSecondary,
-          // paddingTop: theme.spacing.xs,
-          // paddingBottom: theme.spacing.xs + insets.bottom,
-          // height: 60 + insets.bottom,
         },
         tabBarItemStyle: {
-          // margin: 0,
-          // padding: 0,
-          // paddingTop: theme.spacing.sm,
+          paddingTop: 4,
         },
         tabBarLabelStyle: {
-          //paddingTop: theme.spacing.xs,
           fontSize: theme.textVariants.xs.fontSize,
           fontWeight: "600",
         },
@@ -140,18 +124,19 @@ const TabNavigator = () => {
         name="Notifications"
         component={NotificationScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <View style={styles.bellWrap}>
-              <Bell color={color} size={size} />
-              {unreadCount > 0 ? (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>
-                    {unreadCount > 9 ? "9" : String(unreadCount)}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-          ),
+          tabBarBadge:
+            unreadCount > 0
+              ? unreadCount > 9
+                ? "9+"
+                : unreadCount
+              : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: theme.colors.PrimaryRed,
+            fontSize: 10,
+            color: theme.colors.PrimaryWhite,
+            fontWeight: 800,
+          },
+          tabBarIcon: ({ color, size }) => <Bell color={color} size={size} />,
         }}
       />
       <Tab.Screen
@@ -166,29 +151,3 @@ const TabNavigator = () => {
 };
 
 export default TabNavigator;
-
-const styles = StyleSheet.create({
-  bellWrap: {
-    width: 30,
-    height: 30,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  badge: {
-    position: "absolute",
-    right: -8,
-    top: -6,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: theme.colors.PrimaryRed,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  badgeText: {
-    color: "#fff",
-    fontSize: 10,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-});

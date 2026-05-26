@@ -6,11 +6,13 @@ import Text from "@components/atoms/Text";
 import Button from "@components/atoms/Button";
 import { theme } from "@utils/styles/theme";
 import { store } from "@/store";
-import { PurchasesOfferings, INTRO_ELIGIBILITY_STATUS } from "react-native-purchases";
+import {
+  PurchasesOfferings,
+  INTRO_ELIGIBILITY_STATUS,
+} from "react-native-purchases";
 import useSubscription from "@features/subscription/hooks/useSubscription";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
-
 
 interface Props {
   packages: any;
@@ -18,7 +20,6 @@ interface Props {
   onActionPress: (id: string, discount?: any) => void;
   onChangePackage: (id: string) => void;
 }
-
 
 const PricingPackageCard: React.FC<Props> = ({
   packages,
@@ -30,58 +31,56 @@ const PricingPackageCard: React.FC<Props> = ({
   const { restorePurchases, trialEligibility } = useSubscription();
   const navigation = useNavigation();
 
-
   const [selectedPlan, setSelectedPlan] = useState("Premium");
-
 
   useEffect(() => {
     setSelectedPlan("Premium");
   }, [user?.isInjured]);
 
-
   const filteredPackages = packages?.filter(
     (p: any) => p.name === selectedPlan
   );
 
-
   const getPackageData = () => {
     if (!offerings?.current?.availablePackages)
-      return { price: null, hasTrial: false, trialDuration: null, discountTrial: null };
-
+      return {
+        price: null,
+        hasTrial: false,
+        trialDuration: null,
+        discountTrial: null,
+      };
 
     const monthlyPackage = offerings.current.availablePackages.find(
       (pkg) => pkg.identifier === "$rc_monthly"
     );
 
-
     if (!monthlyPackage)
-      return { price: null, hasTrial: false, trialDuration: null, discountTrial: null };
-
+      return {
+        price: null,
+        hasTrial: false,
+        trialDuration: null,
+        discountTrial: null,
+      };
 
     const price = monthlyPackage.product.priceString ?? null;
-
 
     const introPrice = monthlyPackage.product.introPrice;
     const introTrial = introPrice && introPrice.price === 0 ? introPrice : null;
 
-
     const isEligible =
-      trialEligibility.status === INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE ||
-      trialEligibility.status === INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_UNKNOWN;
-
+      trialEligibility.status ===
+        INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE ||
+      trialEligibility.status ===
+        INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_UNKNOWN;
 
     const hasAndroidTrial =
       Platform.OS === "android" &&
       (!!monthlyPackage.product.defaultOption?.freePhase ||
         introPrice?.price === 0);
 
-
-    const hasiOSTrial =
-      Platform.OS === "ios" && isEligible && !!introTrial;
-
+    const hasiOSTrial = Platform.OS === "ios" && isEligible && !!introTrial;
 
     const hasTrial = hasAndroidTrial || hasiOSTrial;
-
 
     return {
       price,
@@ -89,12 +88,9 @@ const PricingPackageCard: React.FC<Props> = ({
     };
   };
 
-
   const { price: revenueCatPrice, hasTrial } = getPackageData();
 
-
   const formattedTrialInfo = hasTrial ? "14 days free" : null;
-
 
   const buttonTitle = () => {
     if (trialEligibility.isLoading) return "Loading...";
@@ -102,13 +98,11 @@ const PricingPackageCard: React.FC<Props> = ({
     return "Subscribe";
   };
 
-
   const openLink = (url: string) => {
     Linking.openURL(url).catch((err) =>
       console.error("Failed to open URL", err)
     );
   };
-
 
   return (
     <Box
@@ -124,7 +118,6 @@ const PricingPackageCard: React.FC<Props> = ({
             {selectedPlan} Plan
           </Text>
         </Box>
-
 
         {/* Toggle Buttons - Hide if injured */}
         {/* {!user?.isInjured && (
@@ -190,7 +183,6 @@ const PricingPackageCard: React.FC<Props> = ({
             </Box>
           ))}
         </Box>
-
 
         {/* Plan Selection */}
         <Box mt="sm" style={styles.planCard}>
@@ -343,6 +335,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
 export default PricingPackageCard;
-

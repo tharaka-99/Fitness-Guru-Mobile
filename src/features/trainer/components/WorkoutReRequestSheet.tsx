@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import { ChevronDown } from "lucide-react-native";
 import SelectDropdown from "react-native-select-dropdown";
@@ -13,6 +14,8 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetView,
+  BottomSheetScrollView,
+  BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
@@ -54,12 +57,12 @@ const WorkoutReRequestSheet: React.FC<Props> = ({
         disappearsOnIndex={-1}
       />
     ),
-    [],
+    []
   );
 
   const handleImageUpload = (
     name: keyof typeof images,
-    value: string | string[],
+    value: string | string[]
   ) => {
     setImages((prev) => ({
       ...prev,
@@ -149,15 +152,20 @@ const WorkoutReRequestSheet: React.FC<Props> = ({
       backdropComponent={sheetBackDrop}
       handleIndicatorStyle={{ backgroundColor: theme.colors.textPrimary }}
       backgroundStyle={{ backgroundColor: theme.colors.backgroundSecondary }}
-      keyboardBehavior="interactive"
+      keyboardBehavior="fillParent"
       keyboardBlurBehavior="restore"
       android_keyboardInputMode="adjustResize"
       enableHandlePanningGesture={true}
+      animateOnMount={true}
     >
-      <BottomSheetView
+      <Box
         style={{ flex: 1, backgroundColor: theme.colors.backgroundSecondary }}
       >
-        <ScrollView contentContainerStyle={{ padding: theme.spacing.md }}>
+        <ScrollView
+          contentContainerStyle={{ padding: theme.spacing.md }}
+          scrollEnabled={true}
+          automaticallyAdjustContentInsets={true}
+        >
           <Box gap="md">
             <Text variant="xlBold" textAlign="center" mb="md">
               Workout Re-Request
@@ -192,14 +200,16 @@ const WorkoutReRequestSheet: React.FC<Props> = ({
                       color={selectedItem ? "textPrimary" : "textSecondary"}
                     >
                       {selectedItem
-                        ? `${selectedItem} Day${selectedItem !== "1" ? "s" : ""}`
+                        ? `${selectedItem} Day${
+                            selectedItem !== "1" ? "s" : ""
+                          }`
                         : "Select Days"}
                     </Text>
                     <ChevronDown size={18} color={theme.colors.textSecondary} />
                   </Box>
                 )}
                 dropdownStyle={{
-                  marginTop: -20,
+                  marginTop: Platform.OS === "ios" ? 0 : -20,
                   backgroundColor: theme.colors.backgroundSecondary,
                   borderRadius: theme.borderRadii.xs,
                 }}
@@ -246,7 +256,7 @@ const WorkoutReRequestSheet: React.FC<Props> = ({
               />
             </Box>
 
-            <Box mt="md">
+            <Box pb="xl">
               <Button
                 title={isLoading ? "Submitting..." : "Submit Request"}
                 onPress={handleSubmit}
@@ -255,7 +265,7 @@ const WorkoutReRequestSheet: React.FC<Props> = ({
             </Box>
           </Box>
         </ScrollView>
-      </BottomSheetView>
+      </Box>
     </BottomSheet>
   );
 };

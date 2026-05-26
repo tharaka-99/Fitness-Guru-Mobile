@@ -1,17 +1,17 @@
-import api, { getApiForFormData } from '@utils/http/request';
+import api, { getApiForFormData } from "@utils/http/request";
 import {
   CreateTrainerRequestDto,
   MealReRequestPayload,
   ReRequestEligibility,
   Trainer,
   TrainerPackage,
-} from '@utils/types/trainersTypes';
-import axios from 'axios';
+} from "@utils/types/trainersTypes";
+import axios from "axios";
 
 //
 export const getTrainers = async (): Promise<Trainer[]> => {
   try {
-    const response = await api.get('/trainer');
+    const response = await api.get("/trainer");
     return response.data.data;
   } catch (error) {
     throw error;
@@ -34,7 +34,7 @@ export const postTrainerRequest = async (
   data: any
 ): Promise<CreateTrainerRequestDto> => {
   try {
-    const response = await getApiForFormData().post('/trainer-request', data);
+    const response = await getApiForFormData().post("/trainer-request", data);
 
     return response.data.data;
   } catch (error) {
@@ -42,14 +42,14 @@ export const postTrainerRequest = async (
       if (error.response) {
         const errorMessage =
           error.response.data?.message ||
-          'An error occurred while requesting the trainer.';
-        console.error('Error response data:', error.response.data);
+          "An error occurred while requesting the trainer.";
+        console.error("Error response data:", error.response.data);
         throw new Error(errorMessage);
       } else if (error.request) {
-        console.error('Error request:', error.request);
-        throw new Error('No response received from the server.');
+        console.error("Error request:", error.request);
+        throw new Error("No response received from the server.");
       } else {
-        console.error('Error message:', error.message);
+        console.error("Error message:", error.message);
         throw new Error(`Error: ${error.message}`);
       }
     }
@@ -62,7 +62,7 @@ export const postFitnessGuruRequest = async (
 ): Promise<CreateTrainerRequestDto> => {
   try {
     const response = await getApiForFormData().post(
-      '/trainer-request/fitness-guru',
+      "/trainer-request/fitness-guru",
       formData
     );
     return response.data.data;
@@ -71,14 +71,14 @@ export const postFitnessGuruRequest = async (
       if (error.response) {
         const errorMessage =
           error.response.data?.message ||
-          'An error occurred while requesting the trainer.';
-        console.error('Error response data:', error.response.data);
+          "An error occurred while requesting the trainer.";
+        console.error("Error response data:", error.response.data);
         throw new Error(errorMessage);
       } else if (error.request) {
-        console.error('Error request:', error.request);
-        throw new Error('No response received from the server.');
+        console.error("Error request:", error.request);
+        throw new Error("No response received from the server.");
       } else {
-        console.error('Error message:', error.message);
+        console.error("Error message:", error.message);
         throw new Error(`Error: ${error.message}`);
       }
     }
@@ -110,38 +110,57 @@ export const getFitnessGuruRequest = async (): Promise<any> => {
   }
 };
 
-export const getScheduleReRequestEligibility = async (): Promise<ReRequestEligibility> => {
-  try {
-    const response = await api.get('/trainer-request/schedule-re-request/eligibility');
-    return response.data.data;
-  } catch (error) {
-    throw error;
-  }
-};
+export const getScheduleReRequestEligibility =
+  async (): Promise<ReRequestEligibility> => {
+    try {
+      const response = await api.get(
+        "/trainer-request/schedule-re-request/eligibility"
+      );
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  };
 
-export const postWorkoutReRequest = async (formData: FormData): Promise<any> => {
+export const postWorkoutReRequest = async (
+  formData: FormData
+): Promise<any> => {
   try {
-    const response = await getApiForFormData().post('/trainer-request/schedule-re-request/workout',
-      formData);
+    const response = await getApiForFormData().post(
+      "/trainer-request/schedule-re-request/workout",
+      formData
+    );
+
     return response.data.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response) {
-        throw new Error(error.response.data?.message || 'Error creating workout re-request');
+        console.log("🚨 Server Error Status:", error.response.status);
+        console.log("🚨 Server Raw Response Data:", error.response.data);
+        throw new Error(
+          error.response.data?.message || "Error creating workout re-request"
+        );
       }
     }
     throw error;
   }
 };
 
-export const postMealReRequest = async (payload: MealReRequestPayload): Promise<any> => {
+export const postMealReRequest = async (
+  payload: MealReRequestPayload
+): Promise<any> => {
   try {
-    const response = await api.post('/trainer-request/schedule-re-request/meal', payload);
+    const response = await api.post(
+      "/trainer-request/schedule-re-request/meal",
+      payload
+    );
     return response.data.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response) {
-        throw new Error(error.response.data?.message || 'Error creating meal re-request');
+        throw new Error(
+          error.response.data?.message || "Error creating meal re-request"
+        );
       }
     }
     throw error;

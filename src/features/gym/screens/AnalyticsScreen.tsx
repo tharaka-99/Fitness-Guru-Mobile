@@ -60,8 +60,8 @@ const AnalyticsScreen: React.FC<
       getLogHistoryByWorkoutDayExercise(
         selectedExercise?.exercise?._id,
         selectedWorkoutId,
-        selectedDay,
-      ), // Function reference
+        selectedDay
+      ) // Function reference
   );
   const {
     isLoading: isLastWeekAnalyticsByWorkoutDayExerciseLoading,
@@ -78,8 +78,8 @@ const AnalyticsScreen: React.FC<
       getLastWeekAnalyticsByWorkoutDayExercise(
         selectedExercise?.exercise?._id,
         selectedWorkoutId,
-        selectedDay,
-      ), // Function reference
+        selectedDay
+      ) // Function reference
   );
 
   const handleBoxPress = (box: string) => {
@@ -138,16 +138,15 @@ const AnalyticsScreen: React.FC<
       showsVerticalScrollIndicator={false}
       enableOnAndroid={true}
       extraScrollHeight={20}
-    //  behavior={Platform.OS === "ios" ? "padding" : "height"}
-    //         style={{flex:1, marginBottom:64}}
-    //         // contentContainerStyle={{padding:16, gap:16}}
-    //         bottemoffset
-    //         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+      //  behavior={Platform.OS === "ios" ? "padding" : "height"}
+      //         style={{flex:1, marginBottom:64}}
+      //         // contentContainerStyle={{padding:16, gap:16}}
+      //         bottemoffset
+      //         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View>
           <PageWrapper>
-
             <PageHeader
               leftComponent={
                 <Box flexDirection="row" alignItems="center" gap="md">
@@ -158,7 +157,12 @@ const AnalyticsScreen: React.FC<
                       color={theme.colors.PrimaryGreen}
                     />
                   </TouchableOpacity>
-                  <Text style={{ textTransform: "capitalize", width: "80%" }} color="PrimaryGreen" variant="lgBold" numberOfLines={1}>
+                  <Text
+                    style={{ textTransform: "capitalize", width: "80%" }}
+                    color="PrimaryGreen"
+                    variant="lgBold"
+                    numberOfLines={1}
+                  >
                     {selectedExercise?.exercise?.name}
                   </Text>
                 </Box>
@@ -170,7 +174,7 @@ const AnalyticsScreen: React.FC<
                 flexDirection="row"
                 justifyContent="space-around"
                 marginVertical="base"
-              // flex={1}
+                // flex={1}
               >
                 <BoxTab
                   title="Exercise"
@@ -241,7 +245,7 @@ const AnalyticsScreen: React.FC<
                   alreadyLogged={isTodayInLogs(
                     logHistoryByWorkoutDayExercise
                       ? logHistoryByWorkoutDayExercise
-                      : [],
+                      : []
                   )}
                 />
               )}

@@ -1,9 +1,9 @@
-import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import {
   CompositeScreenProps,
   NavigatorScreenParams,
-} from '@react-navigation/native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+} from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 // App Navigator Types
 export type RootStackParamList = {
@@ -24,7 +24,7 @@ export type RootStackParamList = {
   Register: undefined;
   Home: undefined;
   GeneralWorkoutRoutine: undefined;
-  AnalyticsScreen: {hideTabs?: boolean}|undefined;
+  AnalyticsScreen: { hideTabs?: boolean } | undefined;
   MyDashboardScreen: undefined;
   PersonalInfo: undefined;
   ExercisesAnalytics: undefined;
