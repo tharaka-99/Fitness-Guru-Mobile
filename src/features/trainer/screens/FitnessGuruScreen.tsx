@@ -49,21 +49,6 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   const { user } = store.getState()["feature/auth"];
   const greetingMessage: string = greetingTime(new Date());
   const { height: screenHeight } = useWindowDimensions();
-  const isMountedRef = useRef(true);
-
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  const queryOptions = {
-    staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    retry: 1,
-  };
 
   const {
     isLoading: isFitnessGuruRequestLoading,

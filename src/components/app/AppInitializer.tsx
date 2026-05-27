@@ -128,7 +128,7 @@ const AppInitializer = () => {
         const result = await checkAppVersion({
           // Set to a mock latest version if you want to test the force update prompt, e.g.:
           // mockLatestVersion: "1.0.5",
-          forceMock: true,
+          //forceMock: true,
         });
         setUpdateInfo({
           required: result.updateRequired,
