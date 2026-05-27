@@ -135,8 +135,6 @@ export const postWorkoutReRequest = async (
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response) {
-        console.log("🚨 Server Error Status:", error.response.status);
-        console.log("🚨 Server Raw Response Data:", error.response.data);
         throw new Error(
           error.response.data?.message || "Error creating workout re-request"
         );

@@ -120,18 +120,8 @@ const useProfileSetup = () => {
             dinner: omitCalPerUnit(gymData.mealDetails?.dinner || []),
           };
 
-          console.log(
-            "Creating workout with data:",
-            JSON.stringify(transformedDays, null, 2)
-          );
-          console.log(
-            "Creating meal plan with data:",
-            JSON.stringify(mealDetailsWithoutCalPerUnit, null, 2)
-          );
-
           try {
             await createWorkout(transformedDays);
-            console.log("✅ Workout created successfully");
           } catch (workoutError) {
             console.error("❌ Workout creation failed:", workoutError);
             throw workoutError;
@@ -139,7 +129,6 @@ const useProfileSetup = () => {
 
           try {
             await createMealPlan(mealDetailsWithoutCalPerUnit);
-            console.log("✅ Meal plan created successfully");
           } catch (mealError) {
             console.error("❌ Meal plan creation failed:", mealError);
             throw mealError;
@@ -149,7 +138,6 @@ const useProfileSetup = () => {
         // Always set profile info
         try {
           await setClientProfileInfo(profile);
-          console.log("✅ Profile info set successfully");
         } catch (profileError) {
           console.error("❌ Profile setup failed:", profileError);
           throw profileError;
@@ -235,13 +223,23 @@ const usePurchaseHandler = (options: any) => {
         const currentUser = (store.getState() as any)["feature/auth"].user;
         const hasSubscription = hasPremiumAccess(currentUser);
 
-        if (hasSubscription) {
+        console.log("options.pendingApplication", options.pendingApplication);
+
+        if (options.pendingApplication) {
           Toast.show({
             type: "success",
             text1: "Success",
-            text2: "Activated subscription successfully!",
+            text2:
+              "Trainer subscription activated successfully, waiting for approval!",
           });
+          setTimeout(() => {
+            options.dispatch(authActions.setSubscription({ status: true }));
+          }, 1000);
+        } else {
+          options.navigation.navigate("Tab", { screen: "FitnessGuru" });
+        }
 
+        if (hasSubscription) {
           // Check if user has complete workout data
           const hasWorkoutData =
             options.gymData?.days?.exerciseDays &&
@@ -250,11 +248,6 @@ const usePurchaseHandler = (options: any) => {
           const hasMealData =
             options.gymData?.mealDetails &&
             Object.keys(options.gymData.mealDetails).length > 0;
-
-          console.log("hasMealData>>", hasMealData);
-          console.log("hasWorkoutData>>", hasWorkoutData);
-          console.log("options.profile>>", options.profile);
-          console.log("user>>", options.user);
 
           // If user has both workout AND meal data, setup them
           if (hasWorkoutData && hasMealData) {
@@ -273,6 +266,7 @@ const usePurchaseHandler = (options: any) => {
                 text1: "Success",
                 text2: "Profile setup and workout created successfully!",
               });
+              options.navigation.navigate("Tab", { screen: "FitnessGuru" });
             } catch (setupError: any) {
               console.error("Error during setup:", setupError);
 
@@ -296,29 +290,11 @@ const usePurchaseHandler = (options: any) => {
             Toast.show({
               type: "success",
               text1: "Success",
-              text2: "Premium activated! Complete your profile.",
+              text2: "Activated subscription successfully!",
             });
-
             options.navigation.navigate("Tab", { screen: "FitnessGuru" });
             return;
           }
-        }
-
-        // Handle trainer pending application
-        if (options.pendingApplication) {
-          setTimeout(() => {
-            options.dispatch(authActions.setSubscription({ status: true }));
-            options.navigation.goBack();
-          }, 1000);
-
-          Toast.show({
-            type: "success",
-            text1: "Success",
-            text2:
-              "Trainer subscription activated successfully, waiting for approval!",
-          });
-        } else {
-          options.navigation.navigate("Tab", { screen: "FitnessGuru" });
         }
       } catch (error: any) {
         if (!error?.userCancelled) {
@@ -349,9 +325,9 @@ const PricingPackagesScreen: React.FC<
   const dispatch = useDispatch();
 
   // Redux selectors
-  const { pendingApplication } = useSelector((state: RootState) => ({
-    pendingApplication: state["feature/trainer"].pendingApplication,
-  }));
+  const pendingApplication = useSelector(
+    (state: RootState) => state["feature/trainer"].pendingApplication
+  );
 
   const { profile } = store.getState()["feature/overview"];
 

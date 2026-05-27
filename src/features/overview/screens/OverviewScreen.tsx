@@ -89,9 +89,9 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
       const fetchData = async () => {
         try {
           await profileRefetch();
-          await workoutRefetch();
-          await mealRefetch();
-          await defaultWorkoutRefetch();
+          // await workoutRefetch();
+          //await mealRefetch();
+          //await defaultWorkoutRefetch();
         } catch (error) {
           console.error("Error fetching profile info:", error);
           Toast.show({
@@ -102,7 +102,12 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
         }
       };
       fetchData();
-    }, [profileRefetch, workoutRefetch, mealRefetch, defaultWorkoutRefetch])
+    }, [
+      profileRefetch,
+      //workoutRefetch,
+      // mealRefetch,
+      //defaultWorkoutRefetch
+    ])
   );
 
   React.useEffect(() => {

@@ -43,6 +43,7 @@ import { useSelector, useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ArrowLeft } from "lucide-react-native";
+import { useQueryClient } from "react-query";
 
 const initialFormValues: CreateTrainerRequestDto = {
   trainerId: "",
@@ -81,6 +82,7 @@ const TrainerApplicationScreen: React.FC<
   MyStackNavigatorScreenProps<"TrainerApplication">
 > = ({ route, navigation }) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const { user } = useSelector((state: any) => state["feature/auth"]);
   const { trainerId, packageId } = route.params;
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -208,7 +210,6 @@ const TrainerApplicationScreen: React.FC<
 
   const logFormData = (formData: FormData) => {
     for (let [key, value] of (formData as any).entries()) {
-      console.log(`${key}:`, value);
     }
   };
 
@@ -335,8 +336,10 @@ const TrainerApplicationScreen: React.FC<
       logFormData(formData);
 
       if (trainerId === "fitness-guru") {
-        await postFitnessGuruRequest(formData); // Adjust the API method to accept FormData
-        navigation.navigate("Tab", { screen: "FitnessGuru" });
+        // await postFitnessGuruRequest(formData); // Adjust the API method to accept FormData
+        const responseData = await postFitnessGuruRequest(formData);
+        queryClient.setQueryData("fitnessGuruRequest", responseData);
+        // navigation.navigate("Tab", { screen: "FitnessGuru" });
         Toast.show({
           type: "success",
           text1: "Success",

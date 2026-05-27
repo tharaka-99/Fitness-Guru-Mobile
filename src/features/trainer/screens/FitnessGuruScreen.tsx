@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { store } from "@/store";
-import PageWrapper, { PAGE_WIDTH } from "@components/app/PageWrapper";
+import PageWrapper from "@components/app/PageWrapper";
 import {
   Calendar,
   Users,
@@ -48,16 +48,22 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
 }) => {
   const { user } = store.getState()["feature/auth"];
   const greetingMessage: string = greetingTime(new Date());
-
   const { height: screenHeight } = useWindowDimensions();
-  const HEADER_OFFSET = 220;
-  const availableHeight = screenHeight - HEADER_OFFSET;
+  const isMountedRef = useRef(true);
 
-  const TILE_MIN_HEIGHT = 120;
-  const TILE_COUNT = 3;
-  const needsScroll = availableHeight < TILE_MIN_HEIGHT * TILE_COUNT + 60;
-  const topTileHeight = needsScroll ? TILE_MIN_HEIGHT * 1.4 : undefined;
-  const bottomTileHeight = needsScroll ? TILE_MIN_HEIGHT * 1.4 : undefined;
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const queryOptions = {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  };
 
   const {
     isLoading: isFitnessGuruRequestLoading,
@@ -208,9 +214,10 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
 
   const isLoading =
     !user ||
-    !user.subscription === undefined ||
+    user.subscription === undefined ||
     fitnessGuruRequest === undefined ||
     profile === undefined;
+
   if (isLoading) {
     return <FullScreenLoader />;
   }
@@ -370,16 +377,13 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                   })
                 }
               />
-            ) : (
-              !filteredWorkout?.length &&
-              !filteredMeal?.length && (
-                <InfoCard
-                  title="Your Schedule is on the way"
-                  description="Your data have been shared with your fitnessguru. You will be displayed your workout routines and meal plans once the fitnessguru shared with you."
-                  imageSource={require("assets/images/green-tick.png")}
-                />
-              )
-            )}
+            ) : !filteredWorkout?.length && !filteredMeal?.length ? (
+              <InfoCard
+                title="Your Schedule is on the way"
+                description="Your data have been shared with your fitnessguru. You will be displayed your workout routines and meal plans once the fitnessguru shared with you."
+                imageSource={require("assets/images/green-tick.png")}
+              />
+            ) : null}
 
             {((filteredWorkout?.length ?? 0) > 0 ||
               (filteredMeal?.length ?? 0) > 0) && (

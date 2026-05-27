@@ -235,8 +235,9 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
         const purchaseError = error as { userCancelled?: boolean };
         if (!purchaseError?.userCancelled) {
           console.error("Error purchasing package:", error);
-          throw error;
+          //throw error;
         }
+        throw error;
       } finally {
         setIsPurchasing(false);
       }

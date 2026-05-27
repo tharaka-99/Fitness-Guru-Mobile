@@ -25,7 +25,6 @@ const ForceUpdateModal: React.FC<ForceUpdateModalProps> = ({
   latestVersion,
 }) => {
   const handleUpdate = () => {
-    console.log("storeUrl", storeUrl);
     Linking.openURL(storeUrl).catch((err) =>
       console.error("Failed to open store link:", err)
     );
