@@ -1,8 +1,8 @@
 import api from '@utils/http/request';
-import { Exercises, SearchExercises, Workout } from '@utils/types/types';
+import { DefaultWorkout, SearchExercises, Workout } from '@utils/types/types';
 
 //
-export const getClientWorkouts = async (): Promise<Exercises[]> => {
+export const getClientWorkouts = async (): Promise<Workout[]> => {
   try {
     const response = await api.get('/workout');
     return response.data.data;
@@ -11,7 +11,7 @@ export const getClientWorkouts = async (): Promise<Exercises[]> => {
   }
 };
 //
-export const getClientDefaultWorkouts = async (): Promise<Exercises[]> => {
+export const getClientDefaultWorkouts = async (): Promise<DefaultWorkout[]> => {
   try {
     const response = await api.get('/workout/default-workouts');
 
