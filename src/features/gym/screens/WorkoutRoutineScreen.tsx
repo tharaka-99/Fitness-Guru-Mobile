@@ -1,27 +1,50 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { FlatList, TouchableOpacity } from "react-native";
 import Box from "@components/atoms/Box";
-import { store } from "@/store";
+import { RootState, store } from "@/store";
 import PageWrapper from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
 import { theme } from "@utils/styles/theme";
 import WorkoutDayCard from "../components/WorkoutDayCard";
 import { gymActions } from "../context/slice";
-import { WorkoutType } from "@utils/types/types";
+import { Workout, WorkoutType } from "@utils/types/types";
 // import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Icon } from "react-native-paper";
 import Text from "@components/atoms/Text";
 import { ArrowLeft } from "lucide-react-native";
 import Toast from "react-native-toast-message";
 import useSubscription from "@features/subscription/hooks/useSubscription";
+import { useQuery } from "react-query";
+import { getClientWorkouts } from "@utils/services/workoutService";
+import { useSelector } from "react-redux";
+import FullScreenLoader from "@components/atoms/FullScreenLoader";
+import { useFocusEffect } from "@react-navigation/native";
 
 const WorkoutRoutineScreen: React.FC<
   MyStackNavigatorScreenProps<"WorkoutRoutine">
 > = ({ navigation }) => {
-  const { workouts, selectedWorkout, selectedGeneralDay, defaultWorkouts } =
-    store.getState()["feature/gym"];
+  const { selectedWorkout, selectedGeneralDay, defaultWorkouts } = useSelector(
+    (state: RootState) => state["feature/gym"]
+  );
+  const {
+    data: workouts = [],
+    isLoading: isWorkoutLoading,
+    refetch: workoutRefetch,
+  } = useQuery<Workout[]>("workout", getClientWorkouts);
   const { isSubscribed } = useSubscription();
+
+  useFocusEffect(
+    useCallback(() => {
+      workoutRefetch();
+    }, [workoutRefetch])
+  );
+
+  useEffect(() => {
+    if (workouts.length > 0) {
+      store.dispatch(gymActions.setWorkouts(workouts));
+    }
+  }, [workouts]);
 
   const handleAddWorkout = () => {
     if (!isSubscribed) {
@@ -36,8 +59,7 @@ const WorkoutRoutineScreen: React.FC<
     navigation.navigate("GenerateWorkout");
   };
 
-  // Filter out only the data with type "SelfCreated" and "Default"
-  let filteredData;
+  let filteredData: Workout[];
   if (selectedWorkout.WorkoutType === WorkoutType.TrainerCreated) {
     filteredData = workouts?.filter(
       (item) =>
@@ -64,6 +86,10 @@ const WorkoutRoutineScreen: React.FC<
     // Navigate to WorkoutList screen
     navigation.push("WorkoutList");
   };
+
+  if (isWorkoutLoading && workouts.length === 0) {
+    return <FullScreenLoader />;
+  }
 
   return (
     <PageWrapper>
