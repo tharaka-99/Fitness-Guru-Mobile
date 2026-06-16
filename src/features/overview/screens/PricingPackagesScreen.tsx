@@ -19,6 +19,7 @@ import PricingPackageCard from "../components/PricingPackageCard";
 import { theme } from "@utils/styles/theme";
 import useSubscription from "@features/subscription/hooks/useSubscription";
 import Text from "@components/atoms/Text";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { authActions } from "@features/auth/context/slice";
 import { gymActions } from "@features/gym/context/slice";
@@ -80,6 +81,7 @@ const usePackageService = () => {
  */
 const useProfileSetup = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const setupProfile = useCallback(
     async (profile: any, gymData: any, user: any) => {
@@ -122,6 +124,8 @@ const useProfileSetup = () => {
 
           try {
             await createWorkout(transformedDays);
+            queryClient.invalidateQueries({ queryKey: ["workout"] });
+            queryClient.invalidateQueries({ queryKey: ["currentWorkout"] });
           } catch (workoutError) {
             console.error("❌ Workout creation failed:", workoutError);
             throw workoutError;
@@ -129,6 +133,8 @@ const useProfileSetup = () => {
 
           try {
             await createMealPlan(mealDetailsWithoutCalPerUnit);
+            queryClient.invalidateQueries({ queryKey: ["mealPlan"] });
+            queryClient.invalidateQueries({ queryKey: ["currentMealPlan"] });
           } catch (mealError) {
             console.error("❌ Meal plan creation failed:", mealError);
             throw mealError;
@@ -138,6 +144,7 @@ const useProfileSetup = () => {
         // Always set profile info
         try {
           await setClientProfileInfo(profile);
+          queryClient.invalidateQueries({ queryKey: ["profile"] });
         } catch (profileError) {
           console.error("❌ Profile setup failed:", profileError);
           throw profileError;
@@ -360,6 +367,7 @@ const PricingPackagesScreen: React.FC<
 
   // Effects
   useEffect(() => {
+    console.log("isSubscribed--------", isSubscribed);
     if (isSubscribed) {
       dispatch(authActions.setSubscription({ status: true }));
     }
@@ -427,6 +435,7 @@ const PricingPackagesScreen: React.FC<
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           scrollEnabled={!isLoading}
+          overScrollMode="never"
         >
           {isLoading && !packages.length ? (
             <View style={styles.loadingContainer}>

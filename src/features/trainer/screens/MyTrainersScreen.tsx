@@ -5,7 +5,7 @@ import PageHeader from '@components/app/header/PageHeader';
 import PageWrapper, { PAGE_WIDTH } from '@components/app/PageWrapper';
 import { MyTabNavigatorScreenProps } from '@navigation/types';
 import ExploreTrainersCard from '../components/ExploreTrainersCard';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getTrainers } from '@utils/services/trainersService';
 import { Role, Trainer } from '@utils/types/trainersTypes';
 import { store } from '@/store';
@@ -26,7 +26,12 @@ const MyTrainersScreen: React.FC<MyTabNavigatorScreenProps<'MyTrainer'>> = ({
     isLoading: isTrainersLoading,
     data: trainers,
     refetch: trainersRefetch,
-  } = useQuery('trainers', getTrainers);
+  } = useQuery(
+    {
+      queryKey: ["trainers"],
+      queryFn: getTrainers
+    }
+  );
 
   const goToTrainerProfile = (trainer: Trainer) => {
     store.dispatch(trainerActions.setSelectedTrainer(trainer));

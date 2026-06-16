@@ -57,22 +57,22 @@ export const updateMealPlan = async (
   }
 };
 //
-export const getCurrentMealPlan = async (): Promise<MealPlan[]> => {
-  try {
-    const response = await api.get('/meal-plan');
+// export const getCurrentMealPlan = async (): Promise<MealPlan[]> => {
+//   try {
+//     const response = await api.get('/meal-plan');
 
-    return response.data.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-//
-export const getClientMealForTrainerView = async (): Promise<MealPlan[]> => {
-  try {
-    const response = await api.get('/meal-plan');
-    return response.data.data;
-  } catch (error) {
-    throw error;
-  }
-};
+//     return response.data.data;
+//   } catch (error) {
+//     console.log(error);
+//     throw error;
+//   }
+// };
+// //
+// export const getClientMealForTrainerView = async (): Promise<MealPlan[]> => {
+//   try {
+//     const response = await api.get('/meal-plan');
+//     return response.data.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };

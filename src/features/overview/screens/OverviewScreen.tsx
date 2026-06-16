@@ -27,25 +27,20 @@ import {
 } from "@utils/services/workoutService";
 import { WorkoutType } from "@utils/types/types";
 import Toast from "react-native-toast-message";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { gymActions } from "../../gym/context/slice";
 import { MealPlanType } from "@utils/types/mealPlanTypes";
 import { getMealPlan } from "@utils/services/mealPlanService";
 import { Button } from "react-native-paper";
 import FullScreenLoader from "@components/atoms/FullScreenLoader";
+import { useSelector } from "react-redux";
 
 const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
   navigation,
 }) => {
-  const { user } = store.getState()["feature/auth"];
-  const {
-    selectedDay,
-    workouts,
-    selectedWorkout,
-    selectedGeneralDay,
-    defaultWorkouts,
-  } = store.getState()["feature/gym"];
-  const greetingMessage: string = greetingTime(new Date());
+  const { user } = useSelector((state: any) => state["feature/auth"]);
+  const { showCreatePlanCard } = useSelector((state: any) => state["feature/gym"]);
+
 
   const { height: screenHeight } = useWindowDimensions();
 
@@ -61,68 +56,66 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     isLoading: isProfileLoading,
     data: profile,
     refetch: profileRefetch,
-  } = useQuery("profile", getClientProfileInfo);
+  } = useQuery({
+    queryKey: ["profile"],
+    queryFn: getClientProfileInfo,
+  });
 
   const {
     isLoading: isWorkoutLoading,
     data: workout,
-    error: workoutError,
     refetch: workoutRefetch,
-  } = useQuery("workout", getClientWorkouts);
-  //
+  } = useQuery({
+    queryKey: ["UserWorkouts"],
+    queryFn: getClientWorkouts,
+  });
+
   const {
     isLoading: isMealLoading,
     data: mealPlan,
-    error: mealError,
     refetch: mealRefetch,
-  } = useQuery("mealPlan", getMealPlan);
+  } = useQuery({
+    queryKey: ["mealPlan"],
+    queryFn: getMealPlan,
+  });
 
   const {
     isLoading: isDefaultWorkoutLoading,
     data: defaultWorkout,
-    error: defaultWorkoutError,
     refetch: defaultWorkoutRefetch,
-  } = useQuery("defaultWorkout", getClientDefaultWorkouts);
+  } = useQuery({
+    queryKey: ["defaultWorkout"],
+    queryFn: getClientDefaultWorkouts,
+  });
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchData = async () => {
-        try {
-          await profileRefetch();
-          // await workoutRefetch();
-          //await mealRefetch();
-          //await defaultWorkoutRefetch();
-        } catch (error) {
-          console.error("Error fetching profile info:", error);
-          Toast.show({
-            type: "error",
-            text1: "Error",
-            text2: "Error fetching profile info.",
-          });
-        }
-      };
-      fetchData();
+      Promise.all([
+        // profileRefetch(),
+        // workoutRefetch(),
+        // mealRefetch(),
+        // defaultWorkoutRefetch(),
+      ]).catch((error) => {
+        console.error("Error refreshing data:", error);
+        Toast.show({ type: "error", text1: "Error", text2: "Error fetching data." });
+      });
     }, [
-      profileRefetch,
-      //workoutRefetch,
-      // mealRefetch,
-      //defaultWorkoutRefetch
+      // profileRefetch,
+      // workoutRefetch,
+      // mealRefetch
     ])
   );
 
-  React.useEffect(() => {
-    if (workout) {
-      store.dispatch(gymActions.setWorkouts(workout));
-    }
+
+  const selfCreatedMelaplan = React.useMemo(() => {
+    return mealPlan?.filter((plan) => plan.type === MealPlanType.SelfCreated) ?? [];
+  }, [mealPlan]);
+
+  const selfCreatedWorkoutPlan = React.useMemo(() => {
+    return workout?.filter((work) => work.type === WorkoutType.SelfCreated) ?? [];
   }, [workout]);
 
-  const selfCreatedMelaplan =
-    mealPlan?.filter((plan) => plan.type === MealPlanType.SelfCreated) ?? [];
-
-  const selfCreatedWorkoutPlan =
-    workout?.filter((work) => work.type === WorkoutType.SelfCreated) ?? [];
-
-  const calculateCalorieRequirements = React.useCallback((profile: any) => {
+  const calculateCalorieRequirements = React.useCallback((profile: { calculatedMetrics?: { dci?: number }, fitnessInfo?: { goal?: string } } | undefined | null) => {
     if (!profile?.calculatedMetrics?.dci || !profile?.fitnessInfo?.goal) {
       return null;
     }
@@ -198,6 +191,12 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     }
   }, [defaultWorkout]);
 
+  React.useEffect(() => {
+    if (workout) {
+      store.dispatch(gymActions.setWorkouts(workout));
+    }
+  }, [workout]);
+
   const isDataMissing = !profile || !workout || !mealPlan;
 
   if (isProfileLoading && isDataMissing) {
@@ -205,15 +204,16 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
   }
 
   return (
-    <Box flex={1} mb="xs">
-      <PageWrapper>
+    <Box flex={1}>
+      <PageWrapper noBottomPadding>
         <PageHeader title="My Fitness" />
         <ScrollView
+          overScrollMode="never"
           showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
           contentContainerStyle={{
             flexGrow: 1,
-            paddingBottom: theme.spacing.sm,
+            paddingBottom: theme.spacing.base,
           }}
         >
           <Box flexDirection="row" alignItems="center" gap="md" pb="md">
@@ -274,9 +274,9 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                   <Text variant="md" numberOfLines={1}>
                     {profile?.fitnessInfo?.goal
                       ? profile.fitnessInfo.goal.replace(
-                          /([a-z])([A-Z])/g,
-                          "$1 $2"
-                        )
+                        /([a-z])([A-Z])/g,
+                        "$1 $2"
+                      )
                       : "Not Set"}
                   </Text>
                 </Box>
@@ -439,8 +439,8 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                       selfCreatedMelaplan.length > 0
                         ? navigation.navigate("MealPlan")
                         : navigation.navigate("Onboard", {
-                            fromMealPlan: true,
-                          });
+                          fromMealPlan: true,
+                        });
                     }}
                   >
                     {selfCreatedMelaplan.length > 0 ? (

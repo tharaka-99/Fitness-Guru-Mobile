@@ -11,7 +11,7 @@ import {
 import { LastWeekAnalytics } from '@utils/types/analyticsTypes';
 import React from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import { ArrowLeft } from 'lucide-react-native';
 import { theme } from '@utils/styles/theme';
@@ -29,8 +29,10 @@ const ExercisesAnalyticsScreen: React.FC<
     data: logHistoryByWorkoutDayExercise,
     refetch: logHistoryByWorkoutDayExerciseRefetch,
   } = useQuery(
-    ['getLogHistoryByExerciseId', selectedExercise?.exercise?._id], // Adjust to your actual parameters
-    () => getLogHistoryByExerciseId(selectedExercise?.exercise?._id) // Function reference
+    {
+      queryKey: ['getLogHistoryByExerciseId', selectedExercise?.exercise?._id], // Adjust to your actual parameters
+      queryFn: () => getLogHistoryByExerciseId(selectedExercise?.exercise?._id) // Function reference
+    }
   );
 
 
@@ -39,8 +41,10 @@ const ExercisesAnalyticsScreen: React.FC<
     data: lastWeekAnalyticsByWorkoutDayExercise,
     refetch: lastWeekAnalyticsByWorkoutDayExerciseRefetch,
   } = useQuery(
-    ['getLastWeekAnalyticsByExerciseId', selectedExercise?.exercise?._id], // Adjust to your actual parameters
-    () => getLastWeekAnalyticsByExerciseId(selectedExercise?.exercise?._id) // Function reference
+    {
+      queryKey: ['getLastWeekAnalyticsByExerciseId', selectedExercise?.exercise?._id], // Adjust to your actual parameters
+      queryFn: () => getLastWeekAnalyticsByExerciseId(selectedExercise?.exercise?._id) // Function reference
+    }
   );
 
 

@@ -1,8 +1,7 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useRef, useState } from "react";
 import { FlatList, TouchableOpacity } from "react-native";
-
-
+import { useSelector } from "react-redux";
 import PageWrapper from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
@@ -10,7 +9,7 @@ import { constants, theme } from "@utils/styles/theme";
 import WorkoutInfoSheet from "../components/WorkoutInfoSheet";
 import WorkoutListItem from "../components/WorkoutListItem";
 import { store } from "@/store";
-import { DefaultExercise, Exercises, WorkoutType } from "@utils/types/types";
+import { DefaultExercise, ExerciseDay, Exercises, Workout, WorkoutType } from "@utils/types/types";
 import { gymActions } from "../context/slice";
 import { Icon } from "react-native-paper";
 import { ArrowLeft } from "lucide-react-native";
@@ -25,6 +24,7 @@ const WorkoutListScreen: React.FC<
   MyStackNavigatorScreenProps<"WorkoutList">
 > = ({ navigation }) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedWorkoutInfo, setSelectedWorkoutInfo] =
     useState<Exercises | null>(null);
 
@@ -34,6 +34,7 @@ const WorkoutListScreen: React.FC<
 
 
   const openWorkoutInfoSheet = () => {
+    setSheetOpen(true);
     bottomSheetRef.current?.snapToIndex(0);
   };
 
@@ -44,24 +45,24 @@ const WorkoutListScreen: React.FC<
     selectedWorkout,
     selectedGeneralDay,
     defaultWorkouts,
-  } = store.getState()["feature/gym"];
+  } = useSelector((state: any) => state["feature/gym"]);
 
 
   // Find the selected workout
   const selectedWorkoutData = workouts.find(
-    (workout) => workout.type === selectedWorkout.WorkoutType
+    (workout: any) => workout.type === selectedWorkout.WorkoutType
   );
 
 
   // Filter exercises based on selected day
   const filteredExercises =
     selectedWorkoutData?.exerciseDays.find(
-      (exerciseDay) => exerciseDay.day === selectedDay
+      (exerciseDay: any) => exerciseDay.day === selectedDay
     )?.exercises ?? [];
   // Filter general exercises based on selected day
   const filteredGeneralExercises =
     defaultWorkouts[selectedGeneralDay]?.exerciseDays.find(
-      (exerciseDay) => exerciseDay.day === selectedDay
+      (exerciseDay: any) => exerciseDay.day === selectedDay
     )?.exercises ?? [];
   // Function to handle onPress event of workout item
   const handleWorkoutItemPress = (item: any) => {
@@ -92,113 +93,115 @@ const WorkoutListScreen: React.FC<
 
 
   return (
-    <PageWrapper>
-      <PageHeader
-        leftComponent={
-          <Box flexDirection="row" alignItems="center" gap="md">
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
-            </TouchableOpacity>
-            <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
-              {`Day ${selectedDay}`}
-            </Text>
-          </Box>
-
-        }
-      />
-
-      {selectedWorkout.WorkoutType === WorkoutType.Default ? (
-        <FlatList
-          data={filteredGeneralExercises}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={({ _id }) => String(_id)}
-          contentContainerStyle={{ gap: theme.spacing.sm }}
-          renderItem={({ item }) => {
-            const { exercise, order, reps, rest, sets, _id, imageUrl } = item;
-
-            const description = `${sets} Sets | ${reps} Reps | ${rest} Rest`;
-            return (
-              <TouchableOpacity
-                onPress={() => handleGeneralWorkoutItemPress(item)}
-                activeOpacity={constants.activeOpacity}
-              >
-                <WorkoutListItem
-                  key={String(_id)}
-                  title={exercise?.name}
-                  image={exercise.url ? exercise.url : sampleImage}
-                  description={description}
-                />
+    <>
+      <PageWrapper>
+        <PageHeader
+          leftComponent={
+            <Box flexDirection="row" alignItems="center" gap="md">
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
               </TouchableOpacity>
-            );
-          }}
-        />
-      ) : (
-        <FlatList
-          data={filteredExercises}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={({ _id }) => String(_id)}
-          contentContainerStyle={{ gap: theme.spacing.sm }}
-          renderItem={({ item }) => {
-            const { exercise, order, reps, rest, sets, _id } = item;
-            const description = `${sets} Sets | ${reps} Reps | ${rest} Rest`;
-            return (
-              <TouchableOpacity
-                onPress={() => handleWorkoutItemPress(item)}
-                activeOpacity={constants.activeOpacity}
-              >
-                <WorkoutListItem
-                  key={String(_id)}
-                  title={exercise.name}
-                  image={exercise?.url || sampleImage}
-                  description={description}
-                />
-              </TouchableOpacity>
-            );
-          }}
-        />
-      )}
+              <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
+                {`Day ${selectedDay}`}
+              </Text>
+            </Box>
 
+          }
+        />
 
-      {selectedWorkout.WorkoutType === WorkoutType.Default ? (
-        <WorkoutInfoSheet
-          bottomSheetRef={bottomSheetRef}
-          workoutInfo={{
-            workoutName: selectedGeneralWorkoutInfo?.exercise?.name,
-            description:
-              "Curls work the bicep muscles at the front of the upper arm and the muscles of the lower arm—the brachialis and brachioradialis.1 You use these muscles anytime you pick something up, which is common throughout daily life.", //NOTE: get the description from api
-            image: sampleImage,
-            additionalInfo: [
-              {
-                title: "Sets",
-                value: selectedGeneralWorkoutInfo?.sets?.toString(),
-              },
-              {
-                title: "Reps",
-                value: selectedGeneralWorkoutInfo?.reps.toString(),
-              },
-              {
-                title: "Rest",
-                value: `${selectedGeneralWorkoutInfo?.rest} sec`,
-              },
-            ],
-          }}
-        />
-      ) : (
-        <WorkoutInfoSheet
-          bottomSheetRef={bottomSheetRef}
-          workoutInfo={{
-            workoutName: selectedWorkoutInfo?.exercise?.name,
-            description: selectedWorkoutInfo?.exercise?.description,
-            image: selectedWorkoutInfo?.exercise?.url || sampleImage,
-            additionalInfo: [
-              { title: "Sets", value: selectedWorkoutInfo?.sets?.toString() },
-              { title: "Reps", value: selectedWorkoutInfo?.reps.toString() },
-              { title: "Rest", value: `${selectedWorkoutInfo?.rest} sec` },
-            ],
-          }}
-        />
+        {selectedWorkout.WorkoutType === WorkoutType.Default ? (
+          <FlatList
+            data={filteredGeneralExercises}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={({ _id }) => String(_id)}
+            contentContainerStyle={{ gap: theme.spacing.sm }}
+            renderItem={({ item }) => {
+              const { exercise, order, reps, rest, sets, _id, imageUrl } = item;
+
+              const description = `${sets} Sets | ${reps} Reps | ${rest} Rest`;
+              return (
+                <TouchableOpacity
+                  onPress={() => handleGeneralWorkoutItemPress(item)}
+                  activeOpacity={constants.activeOpacity}
+                >
+                  <WorkoutListItem
+                    key={String(_id)}
+                    title={exercise?.name}
+                    image={exercise.url ? exercise.url : sampleImage}
+                    description={description}
+                  />
+                </TouchableOpacity>
+              );
+            }}
+          />
+        ) : (
+          <FlatList
+            data={filteredExercises}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={({ _id }) => String(_id)}
+            contentContainerStyle={{ gap: theme.spacing.sm }}
+            renderItem={({ item }) => {
+              const { exercise, order, reps, rest, sets, _id } = item;
+              const description = `${sets} Sets | ${reps} Reps | ${rest} Rest`;
+              return (
+                <TouchableOpacity
+                  onPress={() => handleWorkoutItemPress(item)}
+                  activeOpacity={constants.activeOpacity}
+                >
+                  <WorkoutListItem
+                    key={String(_id)}
+                    title={exercise.name}
+                    image={exercise?.url || sampleImage}
+                    description={description}
+                  />
+                </TouchableOpacity>
+              );
+            }}
+          />
+        )}
+      </PageWrapper>
+      {sheetOpen && (
+        selectedWorkout.WorkoutType === WorkoutType.Default ? (
+          <WorkoutInfoSheet
+            bottomSheetRef={bottomSheetRef}
+            workoutInfo={{
+              workoutName: selectedGeneralWorkoutInfo?.exercise?.name,
+              description:
+                "Curls work the bicep muscles at the front of the upper arm and the muscles of the lower arm—the brachialis and brachioradialis.1 You use these muscles anytime you pick something up, which is common throughout daily life.", //NOTE: get the description from api
+              image: sampleImage,
+              additionalInfo: [
+                {
+                  title: "Sets",
+                  value: selectedGeneralWorkoutInfo?.sets?.toString(),
+                },
+                {
+                  title: "Reps",
+                  value: selectedGeneralWorkoutInfo?.reps.toString(),
+                },
+                {
+                  title: "Rest",
+                  value: `${selectedGeneralWorkoutInfo?.rest} sec`,
+                },
+              ],
+            }}
+          />
+        ) : (
+          <WorkoutInfoSheet
+            bottomSheetRef={bottomSheetRef}
+            workoutInfo={{
+              workoutName: selectedWorkoutInfo?.exercise?.name,
+              description: selectedWorkoutInfo?.exercise?.description,
+              image: selectedWorkoutInfo?.exercise?.url || sampleImage,
+              additionalInfo: [
+                { title: "Sets", value: selectedWorkoutInfo?.sets?.toString() },
+                { title: "Reps", value: selectedWorkoutInfo?.reps.toString() },
+                { title: "Rest", value: `${selectedWorkoutInfo?.rest} sec` },
+              ],
+            }}
+          />
+        )
       )}
-    </PageWrapper>
+    </>
   );
 };
 

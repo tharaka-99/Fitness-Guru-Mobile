@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
   View,
   TouchableOpacity,
@@ -24,9 +24,11 @@ import ImageInput from "@components/atoms/ImageInput";
 import { theme, constants } from "@utils/styles/theme";
 import { postWorkoutReRequest } from "@utils/services/trainersService";
 import Toast from "react-native-toast-message";
+import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
+
 
 interface Props {
-  bottomSheetRef: React.RefObject<BottomSheet>;
+  bottomSheetRef: React.RefObject<BottomSheetMethods | null>;
   onSuccess: () => void;
 }
 
@@ -145,10 +147,10 @@ const WorkoutReRequestSheet: React.FC<Props> = ({
 
   return (
     <BottomSheet
+      ref={bottomSheetRef}
       index={-1}
       snapPoints={["90%"]}
-      ref={bottomSheetRef}
-      enablePanDownToClose
+      enableDynamicSizing={false}
       backdropComponent={sheetBackDrop}
       handleIndicatorStyle={{ backgroundColor: theme.colors.textPrimary }}
       backgroundStyle={{ backgroundColor: theme.colors.backgroundSecondary }}
@@ -158,114 +160,115 @@ const WorkoutReRequestSheet: React.FC<Props> = ({
       enableHandlePanningGesture={true}
       animateOnMount={true}
     >
-      <Box
+      {/* <BottomSheetView
         style={{ flex: 1, backgroundColor: theme.colors.backgroundSecondary }}
+      > */}
+      <BottomSheetScrollView
+        contentContainerStyle={{
+          padding: theme.spacing.md,
+          paddingBottom: theme.spacing.xl,
+        }}
+        scrollEnabled={true}
+        automaticallyAdjustContentInsets={true}
       >
-        <ScrollView
-          contentContainerStyle={{ padding: theme.spacing.md }}
-          scrollEnabled={true}
-          automaticallyAdjustContentInsets={true}
-        >
-          <Box gap="md">
-            <Text variant="xlBold" textAlign="center" mb="md">
-              Workout Re-Request
+        <Box gap="md">
+          <Text variant="xlBold" textAlign="center" mb="md">
+            Workout Re-Request
+          </Text>
+
+          <Box>
+            <Text variant="md" mb="xs">
+              Workout Days Per Week
             </Text>
-
-            <Box>
-              <Text variant="md" mb="xs">
-                Workout Days Per Week
-              </Text>
-              <SelectDropdown
-                data={["1", "2", "3", "4", "5", "6"]}
-                onSelect={(selectedItem) => setWorkoutDaysPerWeek(selectedItem)}
-                defaultButtonText="Select Days"
-                buttonStyle={{
-                  width: "100%",
-                  height: 50,
-                  backgroundColor: theme.colors.backgroundSecondary,
-                  borderRadius: theme.borderRadii.xs,
-                  borderWidth: 1,
-                  borderColor: theme.colors.SecondaryGrey,
-                }}
-                renderCustomizedButtonChild={(selectedItem) => (
-                  <Box
-                    flex={1}
-                    flexDirection="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    paddingHorizontal="sm"
+            <SelectDropdown
+              data={["1", "2", "3", "4", "5", "6"]}
+              onSelect={(selectedItem) => setWorkoutDaysPerWeek(selectedItem)}
+              defaultButtonText="Select Days"
+              buttonStyle={{
+                width: "100%",
+                height: 50,
+                backgroundColor: theme.colors.backgroundSecondary,
+                borderRadius: theme.borderRadii.xs,
+                borderWidth: 1,
+                borderColor: theme.colors.SecondaryGrey,
+              }}
+              renderCustomizedButtonChild={(selectedItem) => (
+                <Box
+                  flex={1}
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  paddingHorizontal="sm"
+                >
+                  <Text
+                    variant="sm"
+                    color={selectedItem ? "textPrimary" : "textSecondary"}
                   >
-                    <Text
-                      variant="sm"
-                      color={selectedItem ? "textPrimary" : "textSecondary"}
-                    >
-                      {selectedItem
-                        ? `${selectedItem} Day${
-                            selectedItem !== "1" ? "s" : ""
-                          }`
-                        : "Select Days"}
-                    </Text>
-                    <ChevronDown size={18} color={theme.colors.textSecondary} />
-                  </Box>
-                )}
-                dropdownStyle={{
-                  marginTop: Platform.OS === "ios" ? 0 : -20,
-                  backgroundColor: theme.colors.backgroundSecondary,
-                  borderRadius: theme.borderRadii.xs,
-                }}
-                rowStyle={{
-                  borderBottomColor: theme.colors.borderSecondary,
-                  borderBottomWidth: 1,
-                }}
-                renderCustomizedRowChild={(item) => (
-                  <Box
-                    flex={1}
-                    paddingLeft="xl"
-                    alignItems="flex-start"
-                    justifyContent="center"
-                    paddingVertical="sm"
-                  >
-                    <Text variant="sm" color="textPrimary">
-                      {item} Day{item !== "1" ? "s" : ""}
-                    </Text>
-                  </Box>
-                )}
-              />
-            </Box>
-
-            <Box gap="sm">
-              <ImageInput
-                label="Front View"
-                selectionLimit={1}
-                onImageUpload={(val) => handleImageUpload("frontView", val)}
-              />
-              <ImageInput
-                label="Back View"
-                selectionLimit={1}
-                onImageUpload={(val) => handleImageUpload("backView", val)}
-              />
-              <ImageInput
-                label="Side View"
-                selectionLimit={1}
-                onImageUpload={(val) => handleImageUpload("sideView", val)}
-              />
-              <ImageInput
-                label="Lower Body View"
-                selectionLimit={1}
-                onImageUpload={(val) => handleImageUpload("lowerBodyView", val)}
-              />
-            </Box>
-
-            <Box pb="xl">
-              <Button
-                title={isLoading ? "Submitting..." : "Submit Request"}
-                onPress={handleSubmit}
-                disabled={isLoading}
-              />
-            </Box>
+                    {selectedItem
+                      ? `${selectedItem} Day${selectedItem !== "1" ? "s" : ""}`
+                      : "Select Days"}
+                  </Text>
+                  <ChevronDown size={18} color={theme.colors.textSecondary} />
+                </Box>
+              )}
+              dropdownStyle={{
+                marginTop: Platform.OS === "ios" ? 0 : -20,
+                backgroundColor: theme.colors.backgroundSecondary,
+                borderRadius: theme.borderRadii.xs,
+              }}
+              rowStyle={{
+                borderBottomColor: theme.colors.borderSecondary,
+                borderBottomWidth: 1,
+              }}
+              renderCustomizedRowChild={(item) => (
+                <Box
+                  flex={1}
+                  paddingLeft="xl"
+                  alignItems="flex-start"
+                  justifyContent="center"
+                  paddingVertical="sm"
+                >
+                  <Text variant="sm" color="textPrimary">
+                    {item} Day{item !== "1" ? "s" : ""}
+                  </Text>
+                </Box>
+              )}
+            />
           </Box>
-        </ScrollView>
-      </Box>
+
+          <Box gap="sm">
+            <ImageInput
+              label="Front View"
+              selectionLimit={1}
+              onImageUpload={(val) => handleImageUpload("frontView", val)}
+            />
+            <ImageInput
+              label="Back View"
+              selectionLimit={1}
+              onImageUpload={(val) => handleImageUpload("backView", val)}
+            />
+            <ImageInput
+              label="Side View"
+              selectionLimit={1}
+              onImageUpload={(val) => handleImageUpload("sideView", val)}
+            />
+            <ImageInput
+              label="Lower Body View"
+              selectionLimit={1}
+              onImageUpload={(val) => handleImageUpload("lowerBodyView", val)}
+            />
+          </Box>
+
+          <Box pb="xl">
+            <Button
+              title={isLoading ? "Submitting..." : "Submit Request"}
+              onPress={handleSubmit}
+              disabled={isLoading}
+            />
+          </Box>
+        </Box>
+      </BottomSheetScrollView>
+      {/* </BottomSheetView> */}
     </BottomSheet>
   );
 };

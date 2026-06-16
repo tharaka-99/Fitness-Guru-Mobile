@@ -17,16 +17,16 @@ import {
   CirclePlus,
 } from "lucide-react-native";
 import { MyTabNavigatorScreenProps } from "@navigation/types";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   getFitnessGuruRequest,
   getScheduleReRequestEligibility,
 } from "@utils/services/trainersService";
 import { getClientWorkoutsForTrainerView } from "@utils/services/workoutService";
-import { getClientMealForTrainerView } from "@utils/services/mealPlanService";
+import { getMealPlan } from "@utils/services/mealPlanService";
 import WorkoutReRequestSheet from "../components/WorkoutReRequestSheet";
 import MealReRequestSheet from "../components/MealReRequestSheet";
-import BottomSheet from "@gorhom/bottom-sheet";
+import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
 import { useRef } from "react";
 import { gymActions } from "@features/gym/context/slice";
 import { WorkoutType } from "@utils/types/types";
@@ -42,14 +42,16 @@ import PageHeader from "@components/app/header/PageHeader";
 import Toast from "react-native-toast-message";
 import { getClientProfileInfo } from "@utils/services/authServices";
 import { useFocusEffect } from "@react-navigation/native";
+import useSubscription from "@features/subscription/hooks/useSubscription";
+import { useSelector } from "react-redux";
 
 const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   navigation,
 }) => {
-  const { user } = store.getState()["feature/auth"];
+  const { user } = useSelector((state: any) => state["feature/auth"]);
   const greetingMessage: string = greetingTime(new Date());
-  const { height: screenHeight } = useWindowDimensions();
   const isMountedRef = useRef(true);
+  const { isSubscribed } = useSubscription();
 
   useEffect(() => {
     return () => {
@@ -57,63 +59,85 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
     };
   }, []);
 
-  const queryOptions = {
-    staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    retry: 1,
-  };
-
   const {
     isLoading: isFitnessGuruRequestLoading,
     data: fitnessGuruRequest,
     refetch: fitnessGuruRequestRefetch,
-  } = useQuery("fitnessGuruRequest", getFitnessGuruRequest);
+  } = useQuery(
+    {
+      queryKey: ["fitnessGuruRequest"],
+      queryFn: getFitnessGuruRequest
+    }
+  );
 
   const { data: eligibility, refetch: eligibilityRefetch } = useQuery(
-    "scheduleReRequestEligibility",
-    getScheduleReRequestEligibility
+    {
+      queryKey: ["scheduleReRequestEligibility"],
+      queryFn: getScheduleReRequestEligibility
+    }
   );
 
   const {
     isLoading: isProfileLoading,
     data: profile,
     refetch: profileRefetch,
-  } = useQuery("profile", getClientProfileInfo);
+  } = useQuery(
+    {
+      queryKey: ["profile"],
+      queryFn: getClientProfileInfo
+    }
+  );
 
-  const workoutSheetRef = useRef<BottomSheet>(null);
-  const mealSheetRef = useRef<BottomSheet>(null);
+  const workoutSheetRef = useRef<BottomSheetMethods | null>(null);
+  const mealSheetRef = useRef<BottomSheetMethods | null>(null);
 
   const {
     isLoading: isWorkoutLoading,
     data: workout,
     refetch: workoutRefetch,
-  } = useQuery("workout", getClientWorkoutsForTrainerView);
+  } = useQuery(
+    {
+      queryKey: ["trainerWorkouts"],
+      queryFn: getClientWorkoutsForTrainerView
+    }
+  );
 
   const {
     isLoading: isMealLoading,
     data: meal,
     refetch: mealRefetch,
-  } = useQuery("meal", getClientMealForTrainerView);
-
-  const filteredWorkout = workout?.filter(
-    (w) => w.type === "FitnessGuruCreated"
+  } = useQuery(
+    {
+      queryKey: ["trainerMeals"],
+      queryFn: getMealPlan
+    }
   );
 
-  const filteredMeal = meal?.filter((m) => m.type === "FitnessGuruCreated");
+  const filteredWorkout = React.useMemo(() => {
+    return workout?.filter((w) => w.type === "FitnessGuruCreated");
+  }, [workout]);
 
-  useEffect(() => {}, [user]);
+  const filteredMeal = React.useMemo(() => {
+    return meal?.filter((m) => m.type === "FitnessGuruCreated");
+  }, [meal]);
+
+  React.useEffect(() => {
+    if (workout) {
+      store.dispatch(gymActions.setWorkouts(workout));
+    }
+  }, [workout]);
 
   useFocusEffect(
     React.useCallback(() => {
       const fetchData = async () => {
         try {
-          await fitnessGuruRequestRefetch();
-          await eligibilityRefetch();
-          await profileRefetch();
-          await workoutRefetch();
-          await mealRefetch();
+          await Promise.all([
+            fitnessGuruRequestRefetch(),
+            eligibilityRefetch(),
+            profileRefetch(),
+            workoutRefetch(),
+            mealRefetch(),
+          ]);
         } catch (error) {
           console.error("Error fetching profile info:", error);
           Toast.show({
@@ -149,7 +173,7 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   };
 
   const handleWorkoutRequest = () => {
-    if (!user?.subscription?.status) {
+    if (!isSubscribed) {
       workoutSheetRef.current?.close();
       Toast.show({
         type: "info",
@@ -167,8 +191,8 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
         text1: "Request Not Available",
         text2: eligibility?.workout?.nextRequestAt
           ? `You can request again on ${formatDate(
-              eligibility?.workout?.nextRequestAt
-            )}`
+            eligibility?.workout?.nextRequestAt
+          )}`
           : "Meal plan and workout plan from Fitness Guru are required",
       });
       return;
@@ -177,7 +201,7 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   };
 
   const handleMealRequest = () => {
-    if (!user?.subscription?.status) {
+    if (!isSubscribed) {
       mealSheetRef.current?.close();
       Toast.show({
         type: "info",
@@ -194,8 +218,8 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
         text1: "Request Not Available",
         text2: eligibility?.meal?.nextRequestAt
           ? `You can request again on ${formatDate(
-              eligibility?.meal?.nextRequestAt
-            )}`
+            eligibility?.meal?.nextRequestAt
+          )}`
           : "Meal plan from Fitness Guru is required",
       });
       return;
@@ -223,170 +247,170 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   }
 
   return (
-    <Box flex={1}>
-      <PageWrapper>
-        <PageHeader title="Home" />
+    <PageWrapper noBottomPadding>
+      <PageHeader title="Home" />
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom: theme.spacing.sm,
-            flexGrow: 1,
-          }}
-        >
-          <Box flex={1} gap="md">
-            <Box flexDirection="row" alignItems="center" gap="md">
-              <Box flexDirection="row" alignItems="center">
-                <Box>
-                  {user?.profileImageFileUrl ? (
-                    <Image
-                      source={{ uri: user.profileImageFileUrl }}
-                      style={{ width: 60, height: 60, borderRadius: 30 }}
-                    />
-                  ) : (
-                    <Box
-                      width={60}
-                      height={60}
-                      borderRadius="full"
-                      backgroundColor="SecondaryGrey"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Text variant="lgBold" color="PrimaryWhite">
-                        {(capitalizeString(profile?.firstName?.[0] ?? "") ||
-                          "") +
-                          (capitalizeString(profile?.lastName?.[0] ?? "") ||
-                            "")}
-                      </Text>
-                    </Box>
-                  )}
-                </Box>
-                <Box
-                  style={{ marginLeft: -10 }}
-                  width={60}
-                  height={60}
-                  borderRadius="full"
-                  backgroundColor="PrimaryGreen"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Image
-                    source={require("assets/images/green_logo_icon.png")}
-                    style={{ width: 35, height: 35 }}
-                    resizeMode="contain"
-                  />
-                </Box>
-              </Box>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        overScrollMode="never"
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: theme.spacing.base
+        }}
+      >
+        <Box flex={1} gap="md">
+          <Box flexDirection="row" alignItems="center" gap="md">
+            <Box flexDirection="row" alignItems="center">
               <Box>
-                <Text variant="lgBold" numberOfLines={1}>
-                  {capitalizeString(greetingMessage)},{" "}
-                  {profile?.firstName || ""}
-                </Text>
-                <Text variant="md" color="textSecondary">
-                  {new Date().toLocaleDateString("en-US", {
-                    weekday: "short",
-                    day: "numeric",
-                    month: "long",
-                  })}
-                </Text>
+                {user?.profileImageFileUrl ? (
+                  <Image
+                    source={{ uri: user.profileImageFileUrl }}
+                    style={{ width: 60, height: 60, borderRadius: 30 }}
+                  />
+                ) : (
+                  <Box
+                    width={60}
+                    height={60}
+                    borderRadius="full"
+                    backgroundColor="SecondaryGrey"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text variant="lgBold" color="PrimaryWhite">
+                      {(capitalizeString(profile?.firstName?.[0] ?? "") ||
+                        "") +
+                        (capitalizeString(profile?.lastName?.[0] ?? "") ||
+                          "")}
+                    </Text>
+                  </Box>
+                )}
+              </Box>
+              <Box
+                style={{ marginLeft: -10 }}
+                width={60}
+                height={60}
+                borderRadius="full"
+                backgroundColor="PrimaryGreen"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Image
+                  source={require("assets/images/green_logo_icon.png")}
+                  style={{ width: 35, height: 35 }}
+                  resizeMode="contain"
+                />
               </Box>
             </Box>
+            <Box>
+              <Text variant="lgBold" numberOfLines={1}>
+                {capitalizeString(greetingMessage)},{" "}
+                {profile?.firstName || ""}
+              </Text>
+              <Text variant="md" color="textSecondary">
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "long",
+                })}
+              </Text>
+            </Box>
+          </Box>
 
-            <Box flexDirection="row" gap="sm">
-              <Box
-                flex={1}
-                borderRadius="sm"
-                borderWidth={1}
-                borderColor="borderSecondary"
-                flexDirection="row"
-                overflow="hidden"
-              >
-                <Box flex={1} p="sm">
-                  <Text variant="sm" color="textSecondary">
-                    Goal
-                  </Text>
-                  <Text variant="md" numberOfLines={1}>
-                    {fitnessGuruRequest?.goal
-                      ? fitnessGuruRequest?.goal.replace(
-                          /([a-z])([A-Z])/g,
-                          "$1 $2"
-                        )
-                      : "Not Set"}
-                  </Text>
-                </Box>
-                <Box width={8} backgroundColor="PrimaryGreen" />
+          <Box flexDirection="row" gap="sm">
+            <Box
+              flex={1}
+              borderRadius="sm"
+              borderWidth={1}
+              borderColor="borderSecondary"
+              flexDirection="row"
+              overflow="hidden"
+            >
+              <Box flex={1} p="sm">
+                <Text variant="sm" color="textSecondary">
+                  Goal
+                </Text>
+                <Text variant="md" numberOfLines={1}>
+                  {fitnessGuruRequest?.goal
+                    ? fitnessGuruRequest?.goal.replace(
+                      /([a-z])([A-Z])/g,
+                      "$1 $2"
+                    )
+                    : "Not Set"}
+                </Text>
               </Box>
-
-              <Box
-                flex={1}
-                borderRadius="sm"
-                borderWidth={1}
-                borderColor="borderSecondary"
-                flexDirection="row"
-                overflow="hidden"
-              >
-                <Box flex={1} p="sm">
-                  <Text variant="sm" color="textSecondary">
-                    DCI
-                  </Text>
-                  <Text variant="md" numberOfLines={1}>
-                    {fitnessGuruRequest?.calculatedMetrics?.dci
-                      ? `${Math.round(
-                          fitnessGuruRequest?.calculatedMetrics?.dci
-                        )} Cal`
-                      : "0 Cal"}
-                  </Text>
-                </Box>
-                <Box width={8} backgroundColor="PrimaryGreen" />
-              </Box>
-
-              <Box
-                flex={1}
-                borderRadius="sm"
-                borderWidth={1}
-                borderColor="borderSecondary"
-                flexDirection="row"
-                overflow="hidden"
-              >
-                <Box flex={1} p="sm">
-                  <Text variant="sm" color="textSecondary">
-                    BMR
-                  </Text>
-                  <Text variant="md" numberOfLines={1}>
-                    {fitnessGuruRequest?.calculatedMetrics?.bmr
-                      ? `${Math.round(
-                          fitnessGuruRequest?.calculatedMetrics?.bmr
-                        )} Cal`
-                      : "0 Cal"}
-                  </Text>
-                </Box>
-                <Box width={8} backgroundColor="PrimaryGreen" />
-              </Box>
+              <Box width={8} backgroundColor="PrimaryGreen" />
             </Box>
 
-            {fitnessGuruRequest?.status !== "Pending" ? (
-              <InfoCard
-                title="Train with Fitness Guru"
-                description="Start your journey with guided workouts, progress tracking, and personalized plans designed to support your fitness goals."
-                imageSource={require("assets/images/trainer-with-form.png")}
-                buttonTitle="Invest in Yourself"
-                buttonOnPress={() =>
-                  navigation.push("TrainerApplication", {
-                    trainerId: "fitness-guru",
-                    packageId: "456",
-                  })
-                }
-              />
-            ) : !filteredWorkout?.length && !filteredMeal?.length ? (
-              <InfoCard
-                title="Your Schedule is on the way"
-                description="Your data have been shared with your fitnessguru. You will be displayed your workout routines and meal plans once the fitnessguru shared with you."
-                imageSource={require("assets/images/green-tick.png")}
-              />
-            ) : null}
+            <Box
+              flex={1}
+              borderRadius="sm"
+              borderWidth={1}
+              borderColor="borderSecondary"
+              flexDirection="row"
+              overflow="hidden"
+            >
+              <Box flex={1} p="sm">
+                <Text variant="sm" color="textSecondary">
+                  DCI
+                </Text>
+                <Text variant="md" numberOfLines={1}>
+                  {fitnessGuruRequest?.calculatedMetrics?.dci
+                    ? `${Math.round(
+                      fitnessGuruRequest?.calculatedMetrics?.dci
+                    )} Cal`
+                    : "0 Cal"}
+                </Text>
+              </Box>
+              <Box width={8} backgroundColor="PrimaryGreen" />
+            </Box>
 
-            {((filteredWorkout?.length ?? 0) > 0 ||
-              (filteredMeal?.length ?? 0) > 0) && (
+            <Box
+              flex={1}
+              borderRadius="sm"
+              borderWidth={1}
+              borderColor="borderSecondary"
+              flexDirection="row"
+              overflow="hidden"
+            >
+              <Box flex={1} p="sm">
+                <Text variant="sm" color="textSecondary">
+                  BMR
+                </Text>
+                <Text variant="md" numberOfLines={1}>
+                  {fitnessGuruRequest?.calculatedMetrics?.bmr
+                    ? `${Math.round(
+                      fitnessGuruRequest?.calculatedMetrics?.bmr
+                    )} Cal`
+                    : "0 Cal"}
+                </Text>
+              </Box>
+              <Box width={8} backgroundColor="PrimaryGreen" />
+            </Box>
+          </Box>
+
+          {fitnessGuruRequest?.status !== "Pending" ? (
+            <InfoCard
+              title="Train with Fitness Guru"
+              description="Start your journey with guided workouts, progress tracking, and personalized plans designed to support your fitness goals."
+              imageSource={require("assets/images/trainer-with-form.png")}
+              buttonTitle="Invest in Yourself"
+              buttonOnPress={() =>
+                navigation.push("TrainerApplication", {
+                  trainerId: "fitness-guru",
+                  packageId: "456",
+                })
+              }
+            />
+          ) : !filteredWorkout?.length && !filteredMeal?.length ? (
+            <InfoCard
+              title="Your Schedule is on the way"
+              description="Your data have been shared with your fitnessguru. You will be displayed your workout routines and meal plans once the fitnessguru shared with you."
+              imageSource={require("assets/images/green-tick.png")}
+            />
+          ) : null}
+
+          {((filteredWorkout?.length ?? 0) > 0 ||
+            (filteredMeal?.length ?? 0) > 0) && (
               <>
                 <Box gap="sm" flex={1}>
                   {filteredWorkout && filteredWorkout.length > 0 && (
@@ -479,8 +503,8 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                   )}
                 </Box>
 
-                <Box mb="xs">
-                  <Text variant="lgBold">Request new schedules</Text>
+                <Box>
+                  <Text variant="lgBold">Request New Schedules</Text>
                   <Box
                     flexDirection="row"
                     justifyContent="space-between"
@@ -522,22 +546,21 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                 </Box>
               </>
             )}
-          </Box>
-        </ScrollView>
-        <WorkoutReRequestSheet
-          bottomSheetRef={workoutSheetRef}
-          onSuccess={() => {
-            eligibilityRefetch();
-          }}
-        />
-        <MealReRequestSheet
-          bottomSheetRef={mealSheetRef}
-          onSuccess={() => {
-            eligibilityRefetch();
-          }}
-        />
-      </PageWrapper>
-    </Box>
+        </Box>
+      </ScrollView>
+      <WorkoutReRequestSheet
+        bottomSheetRef={workoutSheetRef}
+        onSuccess={() => {
+          eligibilityRefetch();
+        }}
+      />
+      <MealReRequestSheet
+        bottomSheetRef={mealSheetRef}
+        onSuccess={() => {
+          eligibilityRefetch();
+        }}
+      />
+    </PageWrapper>
   );
 };
 

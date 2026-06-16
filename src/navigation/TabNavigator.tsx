@@ -27,9 +27,12 @@ const IN_APP_DELETED_EVENT = "notifications.in_app_deleted";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
+
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const tabBarHeight = 48 + (Platform.OS === "ios" ? insets.bottom * 0.5 : 10);
 
   const refreshUnreadCount = useCallback(async () => {
     try {
@@ -80,15 +83,21 @@ const TabNavigator = () => {
         tabBarAllowFontScaling: false,
         tabBarActiveTintColor: theme.colors.PrimaryGreen,
         tabBarInactiveTintColor: theme.colors.textSecondary,
-        tabBarStyle: {
-          backgroundColor: theme.colors.backgroundPrimary,
-        },
+        tabBarStyle: [
+          {
+            //height: tabBarHeight,
+            //paddingBottom: Platform.OS === "ios" ? insets.bottom * 0.5 : 12,
+            backgroundColor: theme.colors.backgroundPrimary,
+          },
+        ],
         tabBarItemStyle: {
-          paddingTop: 4,
+          paddingTop: 12,
         },
         tabBarLabelStyle: {
           fontSize: theme.textVariants.xs.fontSize,
           fontWeight: "600",
+          marginTop: 5,
+          // paddingBottom: 5,
         },
       }}
     >
@@ -149,5 +158,17 @@ const TabNavigator = () => {
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  badge: {
+    fontSize: 9,
+    fontWeight: "bold",
+    lineHeight: 14,
+    height: 15,
+    minWidth: 15,
+    borderRadius: 7.5,
+    marginTop: 2,
+  },
+});
 
 export default TabNavigator;

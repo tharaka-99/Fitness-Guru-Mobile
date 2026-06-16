@@ -6,12 +6,9 @@
     "orientation": "portrait",
     "icon": "./assets/logo-Icon-new.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/dark-splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0D0D0D"
-    },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.fitnessguru.mobile",
@@ -39,8 +36,7 @@
         "com.google.android.gms.permission.AD_ID"
       ],
       "package": "com.fitnessguru.mobile",
-      "versionCode": 25,
-      "targetSdkVersion": 35
+      "versionCode": 28
     },
     "web": {
       "favicon": "./assets/favicon.png"

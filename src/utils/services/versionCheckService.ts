@@ -21,7 +21,7 @@ export async function checkAppVersion(options?: {
   const currentVersion =
     Application.nativeApplicationVersion ||
     VersionCheck.getCurrentVersion() ||
-    "1.0.3";
+    "1.0.4";
 
   let latestVersion = currentVersion;
   let storeUrl = "";

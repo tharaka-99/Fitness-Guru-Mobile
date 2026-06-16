@@ -39,6 +39,7 @@ import { gymActions } from "@features/gym/context/slice";
 import { Icon } from "react-native-paper";
 import { ArrowLeft } from "lucide-react-native";
 import { useIsFocused } from "@react-navigation/native";
+import { useQueryClient } from "@tanstack/react-query";
 
 const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   navigation,
@@ -65,6 +66,7 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const isFocused = useIsFocused();
+  const queryClient = useQueryClient();
 
   const goToNextStep = () => {
     // Validation for Personal Info (Step 0)
@@ -112,13 +114,13 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
     const convertedValues =
       unit === Unit.Imperial
         ? {
-            weight: +(weight * 2.20462).toFixed(1), // kg to lbs
-            height: +(height * 0.393701).toFixed(1), // cm to inches
-          }
+          weight: +(weight * 2.20462).toFixed(1), // kg to lbs
+          height: +(height * 0.393701).toFixed(1), // cm to inches
+        }
         : {
-            weight: +(weight / 2.20462).toFixed(1), // lbs to kg
-            height: +(height / 0.393701).toFixed(1), // inches to cm
-          };
+          weight: +(weight / 2.20462).toFixed(1), // lbs to kg
+          height: +(height / 0.393701).toFixed(1), // inches to cm
+        };
     setHeight(convertedValues.height);
     setWeight(convertedValues.weight);
   };
@@ -290,6 +292,8 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
           perMealUpperLimit,
         })
       );
+
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
 
       setIsProfileSaved(true);
 
@@ -476,9 +480,8 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                       </View>
                       <TextInput
                         value={weight ? weight.toString() : ""}
-                        label={`Weight in ${
-                          unit === Unit.Metric ? "kg" : "lbs"
-                        }`}
+                        label={`Weight in ${unit === Unit.Metric ? "kg" : "lbs"
+                          }`}
                         keyboardType="number-pad"
                         placeholder="Enter your weight"
                         onChangeText={(text) =>
@@ -487,9 +490,8 @@ const OnboardScreen: React.FC<MyStackNavigatorScreenProps<"Onboard">> = ({
                       />
                       <TextInput
                         value={height ? height.toString() : ""}
-                        label={`Height in ${
-                          unit === Unit.Metric ? "cm" : "inches"
-                        }`}
+                        label={`Height in ${unit === Unit.Metric ? "cm" : "inches"
+                          }`}
                         keyboardType="number-pad"
                         placeholder="Enter your height"
                         onChangeText={(text) =>

@@ -18,7 +18,7 @@ import SearchBar from "@components/atoms/SearchBar";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
 import {
   createMealPlan,
-  getCurrentMealPlan,
+  getMealPlan,
   getMealItems,
   updateMealPlan,
 } from "@utils/services/mealPlanService";
@@ -32,7 +32,7 @@ import {
 import { StyleSheet } from "react-native";
 import { Modal, Button } from "react-native-paper";
 import Toast from "react-native-toast-message";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import AddMealCard from "../components/AddMealSheet";
 import MealCalorieInfoCard, {
@@ -48,11 +48,13 @@ const GenerateMealPlanScreen: React.FC<
   const { user } = useSelector((state: any) => state["feature/auth"]);
   const { profile } = useSelector((state: any) => state["feature/overview"]);
   const goal = profile?.fitnessInfo?.goal;
+  const queryClient = useQueryClient();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedMealItem, setSelectedMealItem] = useState<MealItem>();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const [nextMealType, setNextMealType] = useState<MealType>(
     MealType.Breakfast
   );
@@ -73,13 +75,21 @@ const GenerateMealPlanScreen: React.FC<
     isLoading: isMealItemsLoading,
     data: mealItems,
     refetch: mealItemsRefetch,
-  } = useQuery("mealItems", getMealItems);
+  } = useQuery({
+    queryKey: ["mealItems"],
+    queryFn: getMealItems
+  });
 
   const {
     isLoading: isCurrentMealPlan,
     data: currentMealPlan,
     refetch: currentMealPlanRefetch,
-  } = useQuery("currentMealPlan", getCurrentMealPlan);
+  } = useQuery(
+    {
+      queryKey: ["currentMealPlan"],
+      queryFn: getMealPlan
+    }
+  );
 
   useEffect(() => {
     if (currentMealPlan?.length && user?.subscription?.status === true) {
@@ -196,7 +206,7 @@ const GenerateMealPlanScreen: React.FC<
   const handleMealItemPress = (mealItem: MealItem) => {
     Keyboard.dismiss();
     setSelectedMealItem(mealItem);
-    bottomSheetRef.current?.snapToIndex(0);
+    setSheetOpen(true);
   };
 
   const handleAddMealItem = (count: number) => {
@@ -208,7 +218,7 @@ const GenerateMealPlanScreen: React.FC<
         unitAmount: selectedMealItem?.unitAmount ?? 100,
       })
     );
-    bottomSheetRef.current?.close();
+    setSheetOpen(false);
   };
 
   const handleRemoveMealItem = (mealItem: any) => {
@@ -342,6 +352,9 @@ const GenerateMealPlanScreen: React.FC<
           text1: "Success",
           text2: result?.message || "Meal plan saved successfully!",
         });
+
+        queryClient.invalidateQueries({ queryKey: ["mealPlan"] });
+        queryClient.invalidateQueries({ queryKey: ["currentMealPlan"] });
 
         store.dispatch(gymActions.setSelectedMealType(MealType.Breakfast));
         store.dispatch(gymActions.resetMeals());
@@ -531,9 +544,8 @@ const GenerateMealPlanScreen: React.FC<
                       title={name}
                       image={url || image}
                       unitCount={selected ? formatUnitCount(count, unit) : ""}
-                      description={`${calPerUnit}Cal per unit (${
-                        unitAmount + unit
-                      })`}
+                      description={`${calPerUnit}Cal per unit (${unitAmount + unit
+                        })`}
                       theme={selected ? "green" : undefined}
                     />
                   </Box>
@@ -558,17 +570,22 @@ const GenerateMealPlanScreen: React.FC<
         />
       </Box>
 
-      <AddMealCard
-        image={selectedMealItem?.url || image}
-        mealName={selectedMealItem?.name || "Meal item"}
-        unit={selectedMealItem?.unit || "Unit"}
-        caloriesPerUnit={`${selectedMealItem?.calPerUnit}Cal per ${
-          selectedMealItem?.unitAmount + " " + selectedMealItem?.unit
-        }`}
-        bottomSheetRef={bottomSheetRef}
-        selectedMealItemcount={selectedMealItem?.count || 0}
-        handleAddMealItem={handleAddMealItem}
-      />
+      {sheetOpen && (
+        <AddMealCard
+          image={selectedMealItem?.url || image}
+          mealName={selectedMealItem?.name || "Meal item"}
+          unit={selectedMealItem?.unit || "Unit"}
+          caloriesPerUnit={`${selectedMealItem?.calPerUnit}Cal per ${selectedMealItem?.unitAmount + " " + selectedMealItem?.unit
+            }`}
+          bottomSheetRef={bottomSheetRef as any}
+          selectedMealItemcount={selectedMealItem?.count || 0}
+          handleAddMealItem={handleAddMealItem}
+          onClose={() => {
+            setSheetOpen(false);
+            setSelectedMealItem(undefined);
+          }}
+        />
+      )}
 
       <Modal
         visible={modalVisible}

@@ -36,17 +36,21 @@ const MealsListScreen: React.FC<MyStackNavigatorScreenProps<"MealsList">> = ({
       <FlatList
         data={selectedMealPlan}
         showsVerticalScrollIndicator={false}
-        keyExtractor={({ _id }) => String(_id)}
+        keyExtractor={(item, index) => item._id ? String(item._id) : String(index)}
         contentContainerStyle={{ gap: theme.spacing.base }}
         renderItem={({ item, index }) => {
-          const { mealItemId, count } = item;
-          const description = `${count} ${mealItemId.unit}`;
+          const { mealItemId, count = 0 } = item || {};
+          const unit = (mealItemId && typeof mealItemId === "object") ? mealItemId.unit : (item.unit || "");
+          const name = (mealItemId && typeof mealItemId === "object") ? mealItemId.name : (item.name || "Unknown Item");
+          const url = (mealItemId && typeof mealItemId === "object") ? mealItemId.url : (item.url || "");
+          const id = (mealItemId && typeof mealItemId === "object") ? mealItemId._id : (item._id || String(index));
+          const description = `${count} ${unit}`;
 
           return (
             <MealsListItem
-              key={mealItemId._id}
-              title={mealItemId.name ?? ""}
-              image={mealItemId.url ?? ""}
+              key={id}
+              title={name ?? ""}
+              image={url ?? ""}
               description={description ?? ""}
             />
           );

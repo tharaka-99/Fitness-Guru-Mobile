@@ -6,7 +6,7 @@ import PageWrapper from "@components/app/PageWrapper";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
 import { theme } from "@utils/styles/theme";
 import WorkoutDayCard from "../components/WorkoutDayCard";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getMealPlan } from "@utils/services/mealPlanService";
 import { store } from "@/store";
 import { MealPlanType, MealType } from "@utils/types/mealPlanTypes";
@@ -18,17 +18,28 @@ import Text from "@components/atoms/Text";
 import { ArrowLeft, Plus } from "lucide-react-native";
 import Toast from "react-native-toast-message";
 import useSubscription from "@features/subscription/hooks/useSubscription";
+import FullScreenLoader from "@components/atoms/FullScreenLoader";
+import { useSelector } from "react-redux";
 
 const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
   navigation,
 }) => {
   const { isSubscribed } = useSubscription();
-  const { selectedMealPlanType } = store.getState()["feature/gym"];
+  const selectedMealPlanType = useSelector((state: any) => state["feature/gym"].selectedMealPlanType);
   const {
     isLoading: isMealPlanLoading,
     data: mealPlan,
     refetch: mealPlanRefetch,
-  } = useQuery("mealPlan", getMealPlan);
+  } = useQuery(
+    {
+      queryKey: ["mealPlan"],
+      queryFn: getMealPlan
+    }
+  );
+
+  if (isMealPlanLoading) {
+    return <FullScreenLoader message="Loading..." />;
+  }
 
   const handleAddMealPlan = () => {
     // if (!isSubscribed) {
@@ -80,33 +91,29 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
 
       <FlatList
         data={selectedMeal}
-        keyExtractor={({ _id }) => String(_id)}
+        keyExtractor={(item, index) => item._id ? String(item._id) : String(index)}
         contentContainerStyle={{ gap: theme.spacing.sm, flexGrow: 1 }}
         ListEmptyComponent={
           <Box flex={1} justifyContent="center" alignItems="center" px="xl">
             <Text variant="lgBold" color="textSecondary" textAlign="center">
               No meal plans found
             </Text>
-            <Text variant="md" color="textSecondary" textAlign="center" mt="sm">
-              It looks like you don't have any meal plans for this category.
-              Tap the "+" button to create one!
-            </Text>
           </Box>
         }
         renderItem={({ item }) => {
-          const { breakfast, dinner, lunch, snack } = item;
+          const { breakfast = [], dinner = [], lunch = [], snack = [] } = item;
 
           const breakfastItems = breakfast.map((meal) => {
-            return meal.mealItemId.name;
+            return meal.mealItemId?.name || meal.name || "Unknown Item";
           });
           const lunchItems = lunch.map((meal) => {
-            return meal.mealItemId.name;
+            return meal.mealItemId?.name || meal.name || "Unknown Item";
           });
           const dinnerItems = dinner.map((meal) => {
-            return meal.mealItemId.name;
+            return meal.mealItemId?.name || meal.name || "Unknown Item";
           });
           const snackItems = snack.map((meal) => {
-            return meal.mealItemId.name;
+            return meal.mealItemId?.name || meal.name || "Unknown Item";
           });
 
           return (

@@ -8,20 +8,50 @@ import { MyStackNavigatorScreenProps } from "@navigation/types";
 import { theme } from "@utils/styles/theme";
 import WorkoutDayCard from "../components/WorkoutDayCard";
 import { gymActions } from "../context/slice";
-import { WorkoutType } from "@utils/types/types";
+import { WorkoutType, Workout, ExerciseDay, DefaultExercise, Exercises } from "@utils/types/types";
 // import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Icon } from "react-native-paper";
 import Text from "@components/atoms/Text";
-import { ArrowLeft } from "lucide-react-native";
+import { ArrowLeft, Plus } from "lucide-react-native";
 import Toast from "react-native-toast-message";
 import useSubscription from "@features/subscription/hooks/useSubscription";
+import { useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
+import { getClientDefaultWorkouts, getCurrentWorkout } from "@utils/services/workoutService";
+import FullScreenLoader from "@components/atoms/FullScreenLoader";
 
 const WorkoutRoutineScreen: React.FC<
   MyStackNavigatorScreenProps<"WorkoutRoutine">
 > = ({ navigation }) => {
-  const { workouts, selectedWorkout, selectedGeneralDay, defaultWorkouts } =
-    store.getState()["feature/gym"];
+  const { selectedWorkout, selectedGeneralDay } =
+    useSelector((state: any) => state["feature/gym"]);
   const { isSubscribed } = useSubscription();
+
+  const { data: workouts, isLoading: isWorkoutLoading } = useQuery({
+    queryKey: ["currentWorkout"],
+    queryFn: getCurrentWorkout,
+  });
+
+  const { data: defaultWorkouts, isLoading: isDefaultWorkoutLoading } = useQuery({
+    queryKey: ["defaultWorkout"],
+    queryFn: getClientDefaultWorkouts,
+  });
+
+  // React.useEffect(() => {
+  //   if (workouts) {
+  //     store.dispatch(gymActions.setWorkouts(workouts));
+  //   }
+  // }, [workouts]);
+
+  // React.useEffect(() => {
+  //   if (defaultWorkouts) {
+  //     store.dispatch(gymActions.setDefaultWorkouts(defaultWorkouts));
+  //   }
+  // }, [defaultWorkouts]);
+
+  if (isWorkoutLoading || isDefaultWorkoutLoading) {
+    return <FullScreenLoader message="Loading..." />;
+  }
 
   const handleAddWorkout = () => {
     // if (!isSubscribed) {
@@ -33,7 +63,7 @@ const WorkoutRoutineScreen: React.FC<
     //   navigation.push("PricingPackages");
     //   return;
     // }
-  navigation.navigate("Onboard");
+    navigation.navigate("Onboard");
   };
 
   // Filter out only the data with type "SelfCreated" and "Default"
@@ -51,10 +81,10 @@ const WorkoutRoutineScreen: React.FC<
   }
 
   // Extract exerciseDays from the filtered selfCreatedData
-  const exerciseDays = filteredData?.map((item) => item.exerciseDays).flat();
+  const exerciseDays = filteredData?.map((item: Workout) => item.exerciseDays).flat();
 
   // get the general workout list according to the selected day
-  const generalExerciseDays = defaultWorkouts[selectedGeneralDay]?.exerciseDays;
+  const generalExerciseDays = defaultWorkouts?.[selectedGeneralDay]?.exerciseDays;
 
   // Function to handle onPress event of WorkoutDayCard
   const handleWorkoutDayPress = (day: number) => {
@@ -82,11 +112,7 @@ const WorkoutRoutineScreen: React.FC<
         rightComponent={
           selectedWorkout.WorkoutType === WorkoutType.SelfCreated ? (
             <TouchableOpacity onPress={handleAddWorkout}>
-              <Icon
-                size={30}
-                source={"plus"}
-                color={theme.colors.PrimaryGreen}
-              />
+              <Plus size={30} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
           ) : null}
       />
@@ -98,11 +124,7 @@ const WorkoutRoutineScreen: React.FC<
           ListEmptyComponent={
             <Box flex={1} justifyContent="center" alignItems="center" px="xl">
               <Text variant="lgBold" color="textSecondary" textAlign="center">
-                No workouts available
-              </Text>
-              <Text variant="md" color="textSecondary" textAlign="center" mt="sm">
-                It looks like you don't have any workouts for this category.
-                Tap the "+" button to create one!
+                No Default Workouts Available
               </Text>
             </Box>
           }
@@ -111,7 +133,7 @@ const WorkoutRoutineScreen: React.FC<
 
             const exerciseNames =
               exercises
-                ?.map((exercise) => exercise?.exercise?.name)
+                ?.map((exercise: DefaultExercise) => exercise?.exercise?.name)
                 .filter(Boolean)
                 .join(", ") || "No exercises available";
             return (
@@ -126,20 +148,16 @@ const WorkoutRoutineScreen: React.FC<
       ) : (
         <FlatList
           contentContainerStyle={{ flexGrow: 1 }}
-          data={exerciseDays?.filter((item) => {
+          data={exerciseDays?.filter((item: ExerciseDay) => {
             const { exercises } = item;
             return (
-              exercises?.some((exercise) => exercise?.exercise?.name) || false
+              exercises?.some((exercise: Exercises) => exercise?.exercise?.name) || false
             );
           })}
           ListEmptyComponent={
             <Box flex={1} justifyContent="center" alignItems="center" px="xl">
               <Text variant="lgBold" color="textSecondary" textAlign="center">
                 No workouts available
-              </Text>
-              <Text variant="md" color="textSecondary" textAlign="center" mt="sm">
-                It looks like you don't have any workouts for this category.
-                Tap the "+" button to create one!
               </Text>
             </Box>
           }
@@ -148,7 +166,7 @@ const WorkoutRoutineScreen: React.FC<
             const { day, exercises } = item;
             const exerciseNames =
               exercises
-                ?.map((exercise) => exercise?.exercise?.name)
+                ?.map((exercise: Exercises) => exercise?.exercise?.name)
                 .filter(Boolean)
                 .join(", ") || "No exercises available";
             return (

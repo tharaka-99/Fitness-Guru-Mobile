@@ -23,7 +23,7 @@ import DraggableFlatList, {
   RenderItemParams,
 } from "react-native-draggable-flatlist";
 import { Swipeable } from "react-native-gesture-handler";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import AddWorkoutSheet from "../components/AddWorkoutSheet";
 import WorkoutListItem from "../components/WorkoutListItem";
@@ -138,6 +138,7 @@ const DayExercisesScreen: React.FC<
   const { days } = useSelector((state: any) => state["feature/gym"]);
   const sheetRef = useRef<BottomSheet>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<
     SearchExercises | undefined
   >();
@@ -151,7 +152,12 @@ const DayExercisesScreen: React.FC<
     isLoading: isExercisesLoading,
     data: exercises,
     refetch: exercisesRefetch,
-  } = useQuery("exercises", getExercises);
+  } = useQuery(
+    {
+      queryKey: ["exercises"],
+      queryFn: getExercises
+    }
+  );
 
   const handleAddExercise = useCallback(
     (exercise: Exercises) => {
@@ -175,7 +181,7 @@ const DayExercisesScreen: React.FC<
         handleAddExercise(exercise);
         setSearchTerm("");
         setSelectedExercise(undefined);
-        sheetRef.current?.close();
+        setSheetOpen(false);
       }
     },
     [handleAddExercise]
@@ -241,7 +247,7 @@ const DayExercisesScreen: React.FC<
   }, []);
 
   const handleSheetExpand = useCallback(() => {
-    sheetRef.current?.expand();
+    setSheetOpen(true);
   }, []);
 
   const hasExercises = mappedExercises.length > 0;
@@ -309,12 +315,18 @@ const DayExercisesScreen: React.FC<
         {!isSearching && !hasExercises && <EmptyState />}
       </KeyboardAvoidingView>
 
-      <AddWorkoutSheet
-        image={selectedExercise?.url ? selectedExercise?.url : sampleImage}
-        workoutName={selectedExercise || { _id: "", name: "" }}
-        bottomSheetRef={sheetRef}
-        onAddWorkout={handleAddWorkout}
-      />
+      {sheetOpen && (
+        <AddWorkoutSheet
+          image={selectedExercise?.url ? selectedExercise?.url : sampleImage}
+          workoutName={selectedExercise || { _id: "", name: "" }}
+          bottomSheetRef={sheetRef}
+          onAddWorkout={handleAddWorkout}
+          onClose={() => {
+            setSheetOpen(false);
+            setSelectedExercise(undefined);
+          }}
+        />
+      )}
     </PageWrapper>
   );
 };

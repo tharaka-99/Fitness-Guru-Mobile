@@ -16,7 +16,7 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { FlatList, ScrollView } from "react-native-gesture-handler";
 import Text from "@components/atoms/Text";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import FullScreenLoader from "@components/atoms/FullScreenLoader";
 import { ArrowLeft } from "lucide-react-native";
 
@@ -33,13 +33,21 @@ const MyDashboardScreen: React.FC<
     isLoading: isTrainersLoading,
     data: trainers,
     refetch: trainersRefetch,
-  } = useQuery("trainers", getTrainers);
+  } = useQuery({
+    queryKey: ["trainers"],
+    queryFn: getTrainers
+  });
 
   const {
     isLoading: isWorkoutsLoading,
     data: fetchedWorkouts,
     refetch: workoutsRefetch,
-  } = useQuery("dashboardWorkouts", getClientWorkouts);
+  } = useQuery(
+    {
+      queryKey: ["dashboardWorkouts"],
+      queryFn: getClientWorkouts
+    }
+  );
 
   useEffect(() => {
     if (fetchedWorkouts) {

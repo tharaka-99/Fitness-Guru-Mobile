@@ -17,7 +17,7 @@ import navigationTheme from "@navigation/theme";
 import { theme } from "@utils/styles/theme";
 
 
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
@@ -28,7 +28,6 @@ enableScreens();
 
 
 const queryClient = new QueryClient();
-
 configureReanimatedLogger({
   level: ReanimatedLogLevel.error,
   strict: true, // Reanimated runs in strict mode by default
@@ -45,7 +44,13 @@ export default function App() {
               <ReduxProvider store={store}>
                 <PersistGate persistor={reduxPersistor}>
                   <SubscriptionProvider>
-                    <SafeAreaView style={styles.container}>
+                    <SafeAreaView style={styles.container}
+                      edges={
+                        Platform.OS === "android"
+                          ? ["right", "top", "left"]
+                          : undefined
+                      }
+                    >
                       <StatusBar style="light" />
                       <AppInitializer />
                     </SafeAreaView>

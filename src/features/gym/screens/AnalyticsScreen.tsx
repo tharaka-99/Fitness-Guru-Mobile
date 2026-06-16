@@ -29,7 +29,7 @@ import {
   LogSetDto,
 } from "@utils/types/analyticsTypes";
 import Toast from "react-native-toast-message";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { View } from "react-native";
 import { theme } from "@utils/styles/theme";
 import { Icon } from "react-native-paper";
@@ -50,36 +50,40 @@ const AnalyticsScreen: React.FC<
     data: logHistoryByWorkoutDayExercise,
     refetch: logHistoryByWorkoutDayExerciseRefetch,
   } = useQuery(
-    [
-      "getLogHistoryByWorkoutDayExercise",
-      selectedExercise?.exercise?._id,
-      selectedWorkoutId,
-      selectedDay,
-    ], // Adjust to your actual parameters
-    () =>
-      getLogHistoryByWorkoutDayExercise(
+    {
+      queryKey: [
+        "getLogHistoryByWorkoutDayExercise",
         selectedExercise?.exercise?._id,
         selectedWorkoutId,
-        selectedDay
-      ) // Function reference
+        selectedDay,
+      ],
+      queryFn: () =>
+        getLogHistoryByWorkoutDayExercise(
+          selectedExercise?.exercise?._id,
+          selectedWorkoutId,
+          selectedDay
+        ) // Function reference
+    }
   );
   const {
     isLoading: isLastWeekAnalyticsByWorkoutDayExerciseLoading,
     data: lastWeekAnalyticsByWorkoutDayExercise,
     refetch: lastWeekAnalyticsByWorkoutDayExerciseRefetch,
   } = useQuery(
-    [
-      "getLastWeekAnalyticsByWorkoutDayExercise",
-      selectedExercise?.exercise?._id,
-      selectedWorkoutId,
-      selectedDay,
-    ], // Adjust to your actual parameters
-    () =>
-      getLastWeekAnalyticsByWorkoutDayExercise(
+    {
+      queryKey: [
+        "getLastWeekAnalyticsByWorkoutDayExercise",
         selectedExercise?.exercise?._id,
         selectedWorkoutId,
-        selectedDay
-      ) // Function reference
+        selectedDay,
+      ],
+      queryFn: () =>
+        getLastWeekAnalyticsByWorkoutDayExercise(
+          selectedExercise?.exercise?._id,
+          selectedWorkoutId,
+          selectedDay
+        )
+    }
   );
 
   const handleBoxPress = (box: string) => {
@@ -138,11 +142,11 @@ const AnalyticsScreen: React.FC<
       showsVerticalScrollIndicator={false}
       enableOnAndroid={true}
       extraScrollHeight={20}
-      //  behavior={Platform.OS === "ios" ? "padding" : "height"}
-      //         style={{flex:1, marginBottom:64}}
-      //         // contentContainerStyle={{padding:16, gap:16}}
-      //         bottemoffset
-      //         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+    //  behavior={Platform.OS === "ios" ? "padding" : "height"}
+    //         style={{flex:1, marginBottom:64}}
+    //         // contentContainerStyle={{padding:16, gap:16}}
+    //         bottemoffset
+    //         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View>
@@ -151,11 +155,7 @@ const AnalyticsScreen: React.FC<
               leftComponent={
                 <Box flexDirection="row" alignItems="center" gap="md">
                   <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Icon
-                      source="arrow-left"
-                      size={30}
-                      color={theme.colors.PrimaryGreen}
-                    />
+                    <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
                   </TouchableOpacity>
                   <Text
                     style={{ textTransform: "capitalize", width: "80%" }}
@@ -174,7 +174,7 @@ const AnalyticsScreen: React.FC<
                 flexDirection="row"
                 justifyContent="space-around"
                 marginVertical="base"
-                // flex={1}
+              // flex={1}
               >
                 <BoxTab
                   title="Exercise"

@@ -9,7 +9,7 @@ import ProfileHeaderCard from "@components/app/ProfileHeaderCard";
 import Box from "@components/atoms/Box";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
 import PricingPlanCard from "../components/PricingPlanCard";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   getTrainerPackagesById,
   getTrainerRequestById,
@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import { capitalizeString } from "@utils/helpers";
 import { getClientWorkoutsForTrainerView } from "@utils/services/workoutService";
 import PlanCategoryCard from "@features/overview/components/PlanCategoryCard";
-import { getClientMealForTrainerView } from "@utils/services/mealPlanService";
+import { getMealPlan } from "@utils/services/mealPlanService";
 import { store } from "@/store";
 import { gymActions } from "@features/gym/context/slice";
 import { WorkoutType } from "@utils/types/types";
@@ -41,30 +41,38 @@ const TrainerProfileScreen: React.FC<
     data: trainerPackages,
     refetch: trainerPackagesRefetch,
     error,
-  } = useQuery(["trainerPackages", trainer?._id], () =>
-    getTrainerPackagesById(trainer?._id)
-  );
+  } = useQuery({
+    queryKey: ["trainerPackages", trainer?._id],
+    queryFn: () => getTrainerPackagesById(trainer?._id)
+  });
 
   const {
     isLoading: isTrainerRequestLoading,
     data: trainerRequest,
     refetch: trainerRequestRefetch,
-  } = useQuery(["getTrainerRequestById", trainer?._id], () =>
-    getTrainerRequestById(trainer?._id)
-  );
+  } = useQuery({
+    queryKey: ["getTrainerRequestById", trainer?._id],
+    queryFn: () => getTrainerRequestById(trainer?._id)
+  });
   const {
     isLoading: isWorkoutLoading,
     data: workout,
     error: workoutError,
     refetch: workoutRefetch,
-  } = useQuery("workout", getClientWorkoutsForTrainerView);
+  } = useQuery({
+    queryKey: ["trainerWorkouts"],
+    queryFn: getClientWorkoutsForTrainerView
+  });
 
   const {
     isLoading: isMealLoading,
     data: meal,
     error: mealError,
     refetch: mealRefetch,
-  } = useQuery("meal", getClientMealForTrainerView);
+  } = useQuery({
+    queryKey: ["trainerMeals"],
+    queryFn: getMealPlan
+  });
 
   // Filter workouts to only include those with type 'TrainerCreated' and created by this trainer
   const filteredWorkout = workout?.filter(

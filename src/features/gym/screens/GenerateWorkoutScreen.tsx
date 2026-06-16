@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { store } from "@/store";
 import PageWrapper from "@components/app/PageWrapper";
@@ -27,7 +28,7 @@ import {
   WorkoutType,
 } from "@utils/types/types";
 import Toast from "react-native-toast-message";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import { gymActions } from "../context/slice";
 import { ArrowLeft, ArrowRight, X, PlusCircle } from "lucide-react-native";
@@ -39,12 +40,19 @@ const GenerateWorkoutScreen: React.FC<
 > = ({ navigation }) => {
   const { user } = store.getState()["feature/auth"];
   const { days } = useSelector((state: any) => state["feature/gym"]);
+  const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
   const exerciseDaysLength = days?.exerciseDays[0]?.exercises?.length || 0;
   const {
     isLoading: isCurrentWorkoutLoading,
     data: currentWorkout,
     refetch: CurrentWorkoutRefetch,
-  } = useQuery("currentWorkout", getCurrentWorkout);
+  } = useQuery(
+    {
+      queryKey: ["currentWorkout"],
+      queryFn: getCurrentWorkout
+    }
+  );
 
   useEffect(() => {
     if (currentWorkout?.length) {
@@ -146,9 +154,8 @@ const GenerateWorkoutScreen: React.FC<
                 numberOfLines={1}
                 style={{ textTransform: "capitalize" }}
               >
-                {`${item.exercises.length} ${
-                  item.exercises.length === 1 ? "exercise" : "exercises"
-                } added`}
+                {`${item.exercises.length} ${item.exercises.length === 1 ? "exercise" : "exercises"
+                  } added`}
               </Text>
             </Box>
 
@@ -197,13 +204,15 @@ const GenerateWorkoutScreen: React.FC<
       } else {
         await createWorkout(transformedDays);
       }
+      store.dispatch(gymActions.resetWorkouts());
       Toast.show({
         type: "success",
         text1: "Success",
         text2: "Workout saved successfully!",
       });
+      queryClient.invalidateQueries({ queryKey: ["UserWorkouts"] });
+      queryClient.invalidateQueries({ queryKey: ["currentWorkout"] });
       navigation.navigate("Home");
-      store.dispatch(gymActions.resetWorkouts());
     } catch (error) {
       console.error("Error saving workout:", error);
       Toast.show({
@@ -233,8 +242,9 @@ const GenerateWorkoutScreen: React.FC<
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 60 + insets.bottom }}
           keyboardShouldPersistTaps="handled"
+          overScrollMode="never"
         >
           <FlatList
             data={days.exerciseDays}
@@ -297,6 +307,7 @@ const GenerateWorkoutScreen: React.FC<
             backgroundColor: theme.colors.backgroundPrimary,
             paddingHorizontal: theme.spacing.sm,
             paddingVertical: theme.spacing.sm,
+            paddingBottom: theme.spacing.base,
             borderTopWidth: 1,
             borderTopColor: theme.colors.PrimaryGrey,
             flexDirection: "row",
@@ -312,8 +323,8 @@ const GenerateWorkoutScreen: React.FC<
               alignItems: "center",
               justifyContent: "center",
               borderRadius: 8,
-              paddingHorizontal: 16,
-              paddingVertical: 18,
+              paddingHorizontal: theme.spacing.md,
+              paddingVertical: theme.spacing.base,
               backgroundColor: theme.colors.PrimaryGreen,
             }}
           >

@@ -43,7 +43,7 @@ import { useSelector, useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ArrowLeft } from "lucide-react-native";
-import { useQueryClient } from "react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 const initialFormValues: CreateTrainerRequestDto = {
   trainerId: "",
@@ -338,7 +338,7 @@ const TrainerApplicationScreen: React.FC<
       if (trainerId === "fitness-guru") {
         // await postFitnessGuruRequest(formData); // Adjust the API method to accept FormData
         const responseData = await postFitnessGuruRequest(formData);
-        queryClient.setQueryData("fitnessGuruRequest", responseData);
+        queryClient.setQueryData(["fitnessGuruRequest"], responseData);
         // navigation.navigate("Tab", { screen: "FitnessGuru" });
         Toast.show({
           type: "success",
@@ -380,13 +380,13 @@ const TrainerApplicationScreen: React.FC<
     const convertedValues =
       unit === Unit.Imperial
         ? {
-            weight: +(formValues.weight * 2.20462).toFixed(1), // kg to lbs
-            height: +(formValues.height * 0.393701).toFixed(1), // cm to inches
-          }
+          weight: +(formValues.weight * 2.20462).toFixed(1), // kg to lbs
+          height: +(formValues.height * 0.393701).toFixed(1), // cm to inches
+        }
         : {
-            weight: +(formValues.weight / 2.20462).toFixed(1), // lbs to kg
-            height: +(formValues.height / 0.393701).toFixed(1), // inches to cm
-          };
+          weight: +(formValues.weight / 2.20462).toFixed(1), // lbs to kg
+          height: +(formValues.height / 0.393701).toFixed(1), // inches to cm
+        };
 
     setFormValues((prevValues) => ({
       ...prevValues,
@@ -412,8 +412,8 @@ const TrainerApplicationScreen: React.FC<
                 {trainerId === "fitness-guru"
                   ? "Fitness guru"
                   : capitalizeString(trainer?.firstName) +
-                    " " +
-                    trainer?.lastName}
+                  " " +
+                  trainer?.lastName}
               </Text>
             </Box>
           }
@@ -659,9 +659,8 @@ const TrainerApplicationScreen: React.FC<
                           color={selectedItem ? "textPrimary" : "textSecondary"}
                         >
                           {selectedItem
-                            ? `${selectedItem} Day${
-                                selectedItem !== "1" ? "s" : ""
-                              }`
+                            ? `${selectedItem} Day${selectedItem !== "1" ? "s" : ""
+                            }`
                             : "Select Days"}
                         </Text>
                         <ChevronDown

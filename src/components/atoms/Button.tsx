@@ -31,7 +31,7 @@ const Button: React.FC<ButtonProps> = ({
         onPress={onPress}
         activeOpacity={constants.activeOpacity}
         disabled={isButtonDisabled}
-        style={{ opacity: isButtonDisabled ? 0.5 : 1 }}
+        style={{ opacity: isButtonDisabled ? 0.5 : 1, paddingBottom: 20 }}
       >
         <LinearGradient
           start={{ x: 1, y: 0.5 }}
@@ -67,7 +67,7 @@ const Button: React.FC<ButtonProps> = ({
         onPress={onPress}
         activeOpacity={constants.activeOpacity}
         disabled={isButtonDisabled}
-        style={{ opacity: isButtonDisabled ? 0.5 : 1 }}
+        style={{ opacity: isButtonDisabled ? 0.5 : 1, paddingBottom: 20 }}
       >
         <Box style={[styles.buttonBase, styles.buttonOutline]}>
           <Box style={styles.buttonContent}>

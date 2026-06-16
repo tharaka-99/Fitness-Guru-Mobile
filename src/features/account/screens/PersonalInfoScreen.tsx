@@ -121,7 +121,7 @@ const PersonalInfoScreen: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper >
       <PageHeader
         title="Profile"
         leftComponent={
@@ -136,7 +136,7 @@ const PersonalInfoScreen: React.FC = () => {
         }
       />
       <Box flex={1}>
-        <ScrollView showsVerticalScrollIndicator={false} style={{ width: "100%" }} contentContainerStyle={{ alignItems: "center", paddingBottom: 30 }}>
+        <ScrollView overScrollMode="never" showsVerticalScrollIndicator={false} style={{ width: "100%" }} contentContainerStyle={{ alignItems: "center", paddingBottom: 30 }}>
           {/* Profile Image Section */}
           <TouchableOpacity
             onPress={handleImagePick}

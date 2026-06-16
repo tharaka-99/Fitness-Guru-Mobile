@@ -5,8 +5,9 @@ import BottomSheet, {
   BottomSheetView,
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
-import React, { useCallback, useEffect, useState } from "react";
-import { Image, TouchableOpacity, Keyboard } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Image, TouchableOpacity, Keyboard, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
@@ -21,6 +22,7 @@ interface Props {
   bottomSheetRef: React.RefObject<BottomSheet>;
   handleAddMealItem?: any;
   selectedMealItemcount: number;
+  onClose?: () => void;
 }
 
 const IMAGE_SIZE = 110;
@@ -33,6 +35,7 @@ const AddMealSheet: React.FC<Props> = ({
   bottomSheetRef,
   handleAddMealItem,
   selectedMealItemcount,
+  onClose,
 }) => {
   const [count, setCount] = useState(selectedMealItemcount);
   const sheetBackDrop = useCallback(
@@ -51,10 +54,11 @@ const AddMealSheet: React.FC<Props> = ({
     setCount(selectedMealItemcount);
   }, [selectedMealItemcount]);
 
+  const insets = useSafeAreaInsets();
+
   return (
     <BottomSheet
-      index={-1}
-      snapPoints={[300]}
+      index={0}
       ref={bottomSheetRef}
       enablePanDownToClose
       backdropComponent={sheetBackDrop}
@@ -62,17 +66,20 @@ const AddMealSheet: React.FC<Props> = ({
       backgroundStyle={{ backgroundColor: theme.colors.backgroundSecondary }}
       onClose={() => {
         setCount(0);
-        // Keyboard.dismiss();
+        onClose?.();
       }}
+      enableDynamicSizing
       keyboardBehavior="interactive"
       keyboardBlurBehavior="restore"
-      android_keyboardInputMode="adjustResize"
+      android_keyboardInputMode="adjustPan"
+      // android_keyboardInputMode="adjustResize"
       enableHandlePanningGesture={true}
     >
       <BottomSheetView
         style={{
           flex: 1,
           backgroundColor: theme.colors.backgroundSecondary,
+          paddingBottom: insets.bottom,
         }}
       >
         <Box gap="lg" p="base" borderRadius="sm" bg="backgroundSecondary">
@@ -165,8 +172,13 @@ const AddMealSheet: React.FC<Props> = ({
           <TouchableOpacity
             activeOpacity={constants.activeOpacity}
             onPress={() => handleAddMealItem(count)}
+            style={{
+              paddingVertical: theme.spacing.md,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
-            <Box py="sm" px="lg" alignItems="center">
+            <Box alignItems="center">
               <Text color="PrimaryGreen" variant="mdBold">
                 Add Meal
               </Text>
