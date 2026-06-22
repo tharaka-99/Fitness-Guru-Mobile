@@ -8,6 +8,8 @@ import Box from "@components/atoms/Box";
 import OfflineModal from "@components/atoms/OfflineModal";
 import { selectAuthTokens } from "@features/auth/context/selectors";
 import { authActions } from "@features/auth/context/slice";
+import { selectHasSeenGetStarted } from "@features/getStarted/context/selectors";
+import GetStartedScreen from "@features/getStarted/screens/GetStartedScreen";
 import AppNavigator from "@navigation/AppNavigator";
 import AuthNavigator from "@navigation/AuthNavigator";
 import CountdownGate from "./CountdownGate";
@@ -34,6 +36,7 @@ const AppInitializer = () => {
 
   const [authencaticated, setAuthencaticated] = useState<boolean | null>(null);
   const { accessToken, refreshToken } = useSelector(selectAuthTokens);
+  const hasSeenGetStarted = useSelector(selectHasSeenGetStarted);
 
   const [checkingVersion, setCheckingVersion] = useState<boolean>(true);
   const [updateInfo, setUpdateInfo] = useState<{
@@ -194,6 +197,8 @@ const AppInitializer = () => {
         </Box>
       );
     }
+
+    if (!hasSeenGetStarted) return <GetStartedScreen />;
 
     if (authencaticated === null)
       return (

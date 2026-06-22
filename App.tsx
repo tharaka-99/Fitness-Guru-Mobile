@@ -9,7 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider as ReduxProvider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-
+import { useFonts, Jost_400Regular, Jost_700Bold, Jost_900Black } from "@expo-google-fonts/jost";
 
 import { reduxPersistor, store } from "@/store";
 import AppInitializer from "@components/app/AppInitializer";
@@ -35,6 +35,16 @@ configureReanimatedLogger({
 
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Jost_400Regular,
+    Jost_700Bold,
+    Jost_900Black
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <ThemeProvider theme={theme}>

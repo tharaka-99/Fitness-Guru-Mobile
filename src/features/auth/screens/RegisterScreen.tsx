@@ -1,14 +1,15 @@
-import React, { useRef, useState, useCallback, useMemo } from "react";
+import React, { useState } from "react";
 import {
+  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import PagerView from "react-native-pager-view";
 import Toast from "react-native-toast-message";
-import { Check, Circle, X, ArrowLeft } from "lucide-react-native";
+import { Check, Circle, X, ArrowLeft, User, Mail, Lock, Phone, MapPin } from "lucide-react-native";
 
 import PageHeader from "@components/app/header/PageHeader";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
@@ -28,9 +29,7 @@ type InputKey = keyof UserData;
 const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
   navigation,
 }) => {
-  const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const pageViewRef = useRef<PagerView>(null);
 
   const [userData, setUserData] = useState<UserData>({
     firstName: "",
@@ -98,7 +97,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
       if (key === "password" || key === "confirmPassword") {
         setPasswordsMatch(
           updated.password === updated.confirmPassword &&
-            updated.confirmPassword.length > 0,
+          updated.confirmPassword.length > 0,
         );
       }
 
@@ -106,57 +105,47 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
     });
   };
 
-  const handleNext = () => {
-    if (currentStep === 0) {
-      if (
-        !userData.firstName ||
-        !userData.lastName ||
-        !userData.email ||
-        !userData.password ||
-        !userData.confirmPassword
-      ) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Please fill in all fields.",
-        });
-        return;
-      }
-      if (!isEmailValid(userData.email)) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Enter a valid email.",
-        });
-        return;
-      }
-      if (!passwordValidation.isValid) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Password requirements not met.",
-        });
-        return;
-      }
-      if (!passwordsMatch) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Passwords do not match.",
-        });
-        return;
-      }
-    }
-    pageViewRef.current?.setPage(currentStep + 1);
-  };
-
-  const handleBack = () => {
-    if (currentStep > 0) {
-      pageViewRef.current?.setPage(currentStep - 1);
-    }
-  };
-
   const handleRegister = async () => {
+    if (
+      !userData.firstName ||
+      !userData.lastName ||
+      !userData.email ||
+      !userData.password ||
+      !userData.confirmPassword ||
+      !userData.mobileNumber ||
+      !userData.city
+    ) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please fill in all fields.",
+      });
+      return;
+    }
+    if (!isEmailValid(userData.email)) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Enter a valid email.",
+      });
+      return;
+    }
+    if (!passwordValidation.isValid) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Password requirements not met.",
+      });
+      return;
+    }
+    if (!passwordsMatch) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Passwords do not match.",
+      });
+      return;
+    }
     if (!isPhoneNumberValid(userData.mobileNumber)) {
       Toast.show({
         type: "error",
@@ -186,13 +175,12 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
     }
   };
 
-  // Optimized Footer logic
   const renderFooter = () => {
     return (
-      <Box mt="lg">
+      <Box mt="md">
         <Button
-          onPress={currentStep === 0 ? handleNext : handleRegister}
-          title={currentStep === 0 ? "Continue" : "Register"}
+          onPress={handleRegister}
+          title="Create Account"
           isLoading={isLoading}
         />
         <Box
@@ -200,11 +188,11 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
           flexDirection="row"
           alignItems="center"
           justifyContent="center"
-          mt="md"
+          mb="lg"
         >
           <Text color="textSecondary">Already a member?</Text>
           <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-            <Text py="md" fontWeight="bold">
+            <Text fontWeight="bold">
               Login
             </Text>
           </TouchableOpacity>
@@ -215,175 +203,179 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
 
   return (
     <PageWrapper>
-      <PageHeader title="REGISTER" />
-      <PagerView
-        initialPage={0}
-        ref={pageViewRef}
-        style={{ flex: 1 }}
-        scrollEnabled={false}
-        onPageSelected={(e) => setCurrentStep(e.nativeEvent.position)}
-      >
-        {/* STEP 1 */}
-        <KeyboardAwareScrollView
-          key="1"
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
-          bounces={false}
-          showsVerticalScrollIndicator={false}
-          enableOnAndroid={true}
-          extraScrollHeight={20}
-        >
-          <Box gap="base">
-            <TextInput
-              label="First Name"
-              autoCapitalize="sentences"
-              placeholder="Enter Your First Name"
-              onChangeText={(t) => handleInputChange("firstName", t)}
-            />
-            <TextInput
-              label="Last Name"
-              autoCapitalize="sentences"
-              placeholder="Enter Your Last Name"
-              onChangeText={(t) => handleInputChange("lastName", t)}
-            />
-            <TextInput
-              label="Email"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              placeholder="Enter Your Email"
-              onChangeText={(t) => handleInputChange("email", t)}
-            />
-            <TextInput
-              secureTextEntry
-              label="Password"
-              autoCapitalize="none"
-              placeholder="Enter Your Password"
-              onChangeText={(t) => {
-                handleInputChange("password", t);
-                validatePasswordRealtime(t);
-                // Check password match when password changes
-                setPasswordsMatch(
-                  t === (userData.confirmPassword ?? "") &&
-                    (userData.confirmPassword?.length ?? 0) > 0,
-                );
-              }}
-            />
-            {userData.password.length > 0 && (
-              <Box gap="xs" px="xs">
-                <RequirementItem
-                  met={passwordValidation.hasMinLength}
-                  label="At least 8 characters"
-                />
-                <RequirementItem
-                  met={passwordValidation.hasUpperCase}
-                  label="One uppercase letter"
-                />
-                <RequirementItem
-                  met={passwordValidation.hasLowerCase}
-                  label="One lowercase letter"
-                />
-                <RequirementItem
-                  met={passwordValidation.hasNumber}
-                  label="One number"
-                />
-                <RequirementItem
-                  met={passwordValidation.hasSpecialChar}
-                  label="One special character"
-                />
-                <Text variant="xs" mt="xs">
-                  <Text variant="xs" color="SecondaryGrey">
-                    Password Strength:{" "}
-                  </Text>
-                  <Text
-                    variant="xs"
-                    color={
-                      passwordStrength === "Strong"
-                        ? "PrimaryGreen"
-                        : passwordStrength === "Medium"
-                          ? "PrimaryOrange"
-                          : "PrimaryRed"
-                    }
-                  >
-                    {passwordStrength}
-                  </Text>
-                </Text>
-              </Box>
-            )}
-
-            <TextInput
-              secureTextEntry
-              label="Confirm Password"
-              autoCapitalize="none"
-              placeholder="Enter Your Confirm Password"
-              onChangeText={(t) => handleInputChange("confirmPassword", t)}
-            />
-            {(userData.confirmPassword?.length ?? 0) > 0 && (
-              <Box px="xs">
-                <RequirementItem
-                  met={passwordsMatch}
-                  label={
-                    passwordsMatch
-                      ? "Passwords match"
-                      : "Passwords do not match"
-                  }
-                />
-              </Box>
-            )}
-            {renderFooter()}
-          </Box>
-        </KeyboardAwareScrollView>
-
-        {/* STEP 2 */}
-        <KeyboardAwareScrollView
-          key="2"
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
-          bounces={false}
-          showsVerticalScrollIndicator={false}
-          enableOnAndroid={true}
-          extraScrollHeight={20}
-        >
-          <Box gap="base">
-            <TouchableOpacity
-              onPress={handleBack}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginBottom: 10,
-              }}
-            >
-              <ArrowLeft size={20} color={theme.colors.PrimaryGreen} />
-              <Text color="PrimaryGreen" ml="sm">
-                Back
-              </Text>
+      {/* <PageHeader
+        leftComponent={
+          <Box flexDirection="row" alignItems="center" gap="md">
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
-
-            <TextInput
-              label="Mobile Number"
-              keyboardType="phone-pad"
-              placeholder="Your Mobile Number"
-              onChangeText={(t) => handleInputChange("mobileNumber", t)}
-            />
-            <TextInput
-              label="City"
-              placeholder="Your City"
-              autoCapitalize="sentences"
-              onChangeText={(t) => handleInputChange("city", t)}
-            />
-            <Select
-              label="Gender"
-              items={[
-                { id: "1", option: "Male", value: "Male" },
-                { id: "2", option: "Female", value: "Female" },
-              ]}
-              onSelect={(val) =>
-                handleInputChange("gender", val.value.toString())
-              }
-            />
-            {renderFooter()}
+            <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
+              Create Account
+            </Text>
           </Box>
-        </KeyboardAwareScrollView>
-      </PagerView>
+        }
+      /> */}
+      <KeyboardAwareScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        extraScrollHeight={20}
+      >
+        <Box gap="base">
+          <Box>
+            <Box alignItems="center" mt="2xl" mb="md">
+              <Text variant="2xlBold" color="PrimaryGreen">
+                Create Account
+              </Text>
+              <Text variant="md" color="textSecondary">
+                Join Fitness Guru today
+              </Text>
+            </Box>
+
+            <Box gap="base">
+              {/* --- Personal Details --- */}
+              <Text variant="lgBold" color="textPrimary">
+                Personal Details
+              </Text>
+
+              <TextInput
+                // label="First Name"
+                autoCapitalize="sentences"
+                placeholder="First Name"
+                leftIcon={<User color={theme.colors.PrimaryGreen} size={20} />}
+                onChangeText={(t) => handleInputChange("firstName", t)}
+              />
+              <TextInput
+                // label="Last Name"
+                autoCapitalize="sentences"
+                placeholder="Last Name"
+                leftIcon={<User color={theme.colors.PrimaryGreen} size={20} />}
+                onChangeText={(t) => handleInputChange("lastName", t)}
+              />
+              <TextInput
+                // label="Mobile Number"
+                keyboardType="phone-pad"
+                placeholder="Mobile Number"
+                leftIcon={<Phone color={theme.colors.PrimaryGreen} size={20} />}
+                onChangeText={(t) => handleInputChange("mobileNumber", t)}
+              />
+              <TextInput
+                // label="City"
+                placeholder="City"
+                autoCapitalize="sentences"
+                leftIcon={<MapPin color={theme.colors.PrimaryGreen} size={20} />}
+                onChangeText={(t) => handleInputChange("city", t)}
+              />
+              <Select
+                horizontal
+                // label="Gender"
+                items={[
+                  { id: "1", option: "Male", value: "Male" },
+                  { id: "2", option: "Female", value: "Female" },
+                ]}
+                onSelect={(val) =>
+                  handleInputChange("gender", val.value.toString())
+                }
+              />
+
+              {/* --- Account Details --- */}
+              <Text variant="lgBold" color="textPrimary" mt="base">
+                Account Details
+              </Text>
+
+              <TextInput
+                // label="Email"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                placeholder="Email"
+                leftIcon={<Mail color={theme.colors.PrimaryGreen} size={20} />}
+                onChangeText={(t) => handleInputChange("email", t)}
+              />
+              <TextInput
+                secureTextEntry
+                // label="Password"
+                autoCapitalize="none"
+                placeholder="Password"
+                leftIcon={<Lock color={theme.colors.PrimaryGreen} size={20} />}
+                onChangeText={(t) => {
+                  handleInputChange("password", t);
+                  validatePasswordRealtime(t);
+                  setPasswordsMatch(
+                    t === (userData.confirmPassword ?? "") &&
+                    (userData.confirmPassword?.length ?? 0) > 0,
+                  );
+                }}
+              />
+              {userData.password.length > 0 && (
+                <Box gap="xs" px="xs">
+                  <RequirementItem
+                    met={passwordValidation.hasMinLength}
+                    label="At least 8 characters"
+                  />
+                  <RequirementItem
+                    met={passwordValidation.hasUpperCase}
+                    label="One uppercase letter"
+                  />
+                  <RequirementItem
+                    met={passwordValidation.hasLowerCase}
+                    label="One lowercase letter"
+                  />
+                  <RequirementItem
+                    met={passwordValidation.hasNumber}
+                    label="One number"
+                  />
+                  <RequirementItem
+                    met={passwordValidation.hasSpecialChar}
+                    label="One special character"
+                  />
+                  <Text variant="xs" mt="xs">
+                    <Text variant="xs" color="SecondaryGrey">
+                      Password Strength:{" "}
+                    </Text>
+                    <Text
+                      variant="xs"
+                      color={
+                        passwordStrength === "Strong"
+                          ? "PrimaryGreen"
+                          : passwordStrength === "Medium"
+                            ? "PrimaryOrange"
+                            : "PrimaryRed"
+                      }
+                    >
+                      {passwordStrength}
+                    </Text>
+                  </Text>
+                </Box>
+              )}
+
+              <TextInput
+                secureTextEntry
+                // label="Re-enter Your Password"
+                autoCapitalize="none"
+                placeholder="Confirm Password"
+                leftIcon={<Lock color={theme.colors.PrimaryGreen} size={20} />}
+                onChangeText={(t) => handleInputChange("confirmPassword", t)}
+              />
+              {(userData.confirmPassword?.length ?? 0) > 0 && (
+                <Box px="xs">
+                  <RequirementItem
+                    met={passwordsMatch}
+                    label={
+                      passwordsMatch
+                        ? "Passwords match"
+                        : "Passwords do not match"
+                    }
+                  />
+                </Box>
+              )}
+
+              {renderFooter()}
+            </Box>
+          </Box>
+        </Box>
+      </KeyboardAwareScrollView>
     </PageWrapper>
   );
 };
@@ -403,3 +395,38 @@ const RequirementItem = ({ met, label }: { met: boolean; label: string }) => (
 );
 
 export default RegisterScreen;
+
+const styles = StyleSheet.create({
+  backButton: {
+    backgroundColor: "rgba(17,17,17,0.6)",
+    borderRadius: 20,
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+  },
+  cardWrapper: {
+    backgroundColor: theme.colors.PrimaryGreen,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 4,
+  },
+  cardContainer: {
+    flex: 1,
+    backgroundColor: "rgba(17, 17, 17, 1)",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: 40,
+  },
+  logoCircle: {
+    alignSelf: "center",
+    marginTop: -40,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: theme.colors.backgroundPrimary,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 3,
+    borderColor: theme.colors.PrimaryGreen,
+  },
+});

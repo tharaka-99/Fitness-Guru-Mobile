@@ -11,7 +11,8 @@ interface SelectProps {
   items: Item[];
   onSelect?: (item: Item) => void;
   label?: string;
-  value?: string | boolean | number; // Added value prop here
+  value?: string | boolean | number;
+  horizontal?: boolean;
 }
 interface Item {
   id: string;
@@ -21,7 +22,7 @@ interface Item {
 
 const { width } = Dimensions.get("window");
 
-const Select: React.FC<SelectProps> = ({ items, label, onSelect, value }) => {
+const Select: React.FC<SelectProps> = ({ items, label, onSelect, value, horizontal }) => {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
   // Sync state when incoming 'value' changes (e.g., loaded from Redux profile info)
@@ -44,15 +45,16 @@ const Select: React.FC<SelectProps> = ({ items, label, onSelect, value }) => {
 
   return (
     <Box gap="sm">
-      <InputLabel label={label} />
-      <Box gap="sm">
+      {label && <InputLabel label={label} />}
+      <Box gap="sm" flexDirection={horizontal ? "row" : "column"}>
         {items?.map((item) => (
-          <SelectItem
-            item={item}
-            key={item?.id}
-            onSelect={handleItemSelect}
-            selected={selectedItem?.id === item?.id}
-          />
+          <Box key={item?.id} flex={horizontal ? 1 : undefined}>
+            <SelectItem
+              item={item}
+              onSelect={handleItemSelect}
+              selected={selectedItem?.id === item?.id}
+            />
+          </Box>
         ))}
       </Box>
     </Box>

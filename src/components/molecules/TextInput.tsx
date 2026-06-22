@@ -19,10 +19,11 @@ const TextInput: React.FC<TextInputProps> = ({
   keyboardType,
   error,
   autoCapitalize,
+  leftIcon,
 }) => {
   return (
     <Box gap="sm">
-      <InputLabel label={label} />
+      {label ? <InputLabel label={label} /> : null}
       <Input
         value={value}
         onBlur={onBlur}
@@ -31,6 +32,7 @@ const TextInput: React.FC<TextInputProps> = ({
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
+        leftIcon={leftIcon}
       />
       {error && (
         <Text
