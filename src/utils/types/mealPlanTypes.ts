@@ -36,11 +36,11 @@ export interface CreateMealPlanDto {
 export interface MealItem {
   _id?: string;
   count: number;
-  mealItemId: MealItemID;
-  name: string;
-  unit: string;
-  calPerUnit: number;
-  unitAmount: number;
+  mealItemId: MealItemID | null;
+  name?: string;
+  unit?: string;
+  calPerUnit?: number;
+  unitAmount?: number;
   selected?: boolean;
   url?: string;
 }
@@ -53,7 +53,9 @@ export interface MealPlan {
   lunch: MealItem[];
   snack: MealItem[];
   dinner: MealItem[];
-  createdBy: string;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 //
 export interface MealItemID {
@@ -62,6 +64,26 @@ export interface MealItemID {
   unit: string;
   calPerUnit: number;
   unitAmount: number;
+  carbs?: number;
+  protein?: number;
+  fats?: number;
   selected?: boolean;
   url?: string;
+  imageUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+export interface MealPlanNutrition {
+  totalCalories: number;
+  totalCarbs: number;
+  totalFats: number;
+  totalProtein: number;
+  carbsCalories: number;
+  fatsCalories: number;
+  proteinCalories: number;
+  carbsPercent: number;
+  fatsPercent: number;
+  proteinPercent: number;
+}
+

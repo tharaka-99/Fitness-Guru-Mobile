@@ -6,11 +6,13 @@ import {
   TouchableOpacity,
   View,
   Text,
-  ActivityIndicator
+  ActivityIndicator,
+  Platform
 } from "react-native";
 import PagerView from "react-native-pager-view";
 import { useDispatch } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
 
 import Box from "@components/atoms/Box";
 
@@ -40,7 +42,7 @@ import {
 import PageWrapper from "@components/app/PageWrapper";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } =
-  Dimensions.get("window");
+  Dimensions.get("screen");
 
 // ─── Slide data matching your Figma designs ────────────────────────────────
 const SLIDES = [
@@ -165,7 +167,7 @@ const GetStartedScreen: React.FC = () => {
           <React.Fragment key={index}>
             <View style={styles.featureItem}>
               <View style={styles.featureIconCircle}>
-                <Icon size={30} color={theme.colors.PrimaryGreen} />
+                <Icon size={25} color={theme.colors.PrimaryGreen} />
               </View>
               <Text
                 style={[
@@ -200,8 +202,14 @@ const GetStartedScreen: React.FC = () => {
           resizeMode="cover"
         />
 
+        {/* <LinearGradient
+          colors={["transparent", "rgba(13,13,13,0.85)", "#0D0D0D"]}
+          locations={[0.0, 0.45, 0.65]}
+          style={[styles.gradient]}
+        /> */}
+
         {/* Top bar: dots + skip */}
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { top: Platform.OS === "ios" ? insets.top + 30 : insets.top + 16 }]}>
           {renderDots()}
           <TouchableOpacity
             onPress={handleFinish}
@@ -235,6 +243,9 @@ const GetStartedScreen: React.FC = () => {
                   // fontWeight: "bold",
                   color: part.color,
                   fontFamily: "Jost_900Black",
+                  textShadowColor: "black",
+                  textShadowOffset: { width: 1, height: 1 },
+                  textShadowRadius: 2,
                 }}
               >
                 {part.text}
@@ -298,13 +309,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: SCREEN_HEIGHT * 0.55,
+    height: SCREEN_HEIGHT * 0.45,
   },
 
   // ── Top bar ────────────────────────────────────────────────────────────
   topBar: {
     position: "absolute",
-    top: 50,
+    // top: 50,
     left: theme.spacing.md,
     right: theme.spacing.md,
     flexDirection: "row",
@@ -369,8 +380,8 @@ const styles = StyleSheet.create({
   },
 
   featureIconCircle: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 30,
     backgroundColor: "#455721",
     alignItems: "center",

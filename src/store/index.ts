@@ -28,7 +28,7 @@ const persistConfig: PersistConfig<RootState> = {
   key: 'root',
   storage: AsyncStorage,
   stateReconciler: autoMergeLevel2,
-  whitelist: ['feature/auth', 'feature/getStarted'],
+  whitelist: ['feature/auth', 'feature/getStarted', 'feature/gym'],
 };
 const persistedReducer = persistReducer(persistConfig, reducers);
 

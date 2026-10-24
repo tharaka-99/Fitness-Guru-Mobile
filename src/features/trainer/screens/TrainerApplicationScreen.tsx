@@ -293,31 +293,53 @@ const TrainerApplicationScreen: React.FC<
       );
     }
 
+    // if (imageUploads.frontView?.[0]) {
     formData.append("frontView", {
       uri: imageUploads.frontView[0],
       name: "frontView.jpg",
       type: "image/jpeg",
     });
+    // }
+    // if (imageUploads.backView?.[0]) {
     formData.append("backView", {
       uri: imageUploads.backView[0],
       name: "backView.jpg",
       type: "image/jpeg",
     });
+    // }
+    // if (imageUploads.sideView?.[0]) {
     formData.append("sideView", {
       uri: imageUploads.sideView[0],
       name: "sideView.jpg",
       type: "image/jpeg",
     });
+    // }
+    // if (imageUploads.lowerBodyView?.[0]) {
     formData.append("lowerBodyView", {
       uri: imageUploads.lowerBodyView[0],
       name: "lowerBodyView.jpg",
       type: "image/jpeg",
     });
+    // }
     return formData;
   };
 
   const handleSubmit = async () => {
     try {
+      // if (
+      //   !imageUploads.frontView.length ||
+      //   !imageUploads.backView.length ||
+      //   !imageUploads.sideView.length ||
+      //   !imageUploads.lowerBodyView.length
+      // ) {
+      //   Toast.show({
+      //     type: "error",
+      //     text1: "Error",
+      //     text2: "Please upload all 4 body images.",
+      //   });
+      //   return;
+      // }
+
       const isSubscribed = user?.subscription?.status === true;
 
       if (!isSubscribed) {

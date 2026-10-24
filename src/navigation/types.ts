@@ -28,6 +28,7 @@ export type RootStackParamList = {
   MyDashboardScreen: undefined;
   PersonalInfo: undefined;
   ExercisesAnalytics: undefined;
+  HabitHistory: { habitType: 'weight' | 'steps' | 'water' | 'sleep' };
 };
 export type MyStackNavigatorScreenProps<
   ScreenName extends keyof RootStackParamList

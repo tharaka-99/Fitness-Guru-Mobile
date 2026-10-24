@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { View, TouchableOpacity } from "react-native"; // Removed standard ScrollView
-import BottomSheet, {
+import {
+  BottomSheetModal,
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetScrollView,
@@ -23,10 +24,10 @@ import InputLabel from "@components/atoms/InputLabel";
 import { store } from "@/store";
 import { authActions } from "@features/auth/context/slice";
 import { gymActions } from "@features/gym/context/slice";
-import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
+import { BottomSheetModalMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
 
 interface Props {
-  bottomSheetRef: React.RefObject<BottomSheetMethods | null>;
+  bottomSheetRef: React.RefObject<BottomSheetModalMethods | null>;
   onSuccess: () => void;
 }
 
@@ -162,7 +163,7 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
         text2: "Meal plan re-request created successfully",
       });
       onSuccess();
-      bottomSheetRef.current?.close();
+      bottomSheetRef.current?.dismiss();
     } catch (error: any) {
       Toast.show({
         type: "error",
@@ -175,8 +176,8 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
   };
 
   return (
-    <BottomSheet
-      index={-1}
+    <BottomSheetModal
+      index={0}
       snapPoints={["90%"]}
       enableDynamicSizing={false}
       ref={bottomSheetRef}
@@ -382,7 +383,7 @@ const MealReRequestSheet: React.FC<Props> = ({ bottomSheetRef, onSuccess }) => {
         </Box>
       </BottomSheetScrollView>
       {/* </Box> */}
-    </BottomSheet>
+    </BottomSheetModal>
   );
 };
 

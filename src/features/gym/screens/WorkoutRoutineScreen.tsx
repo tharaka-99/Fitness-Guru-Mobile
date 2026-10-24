@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useRef } from "react";
 import { FlatList, TouchableOpacity } from "react-native";
 import Box from "@components/atoms/Box";
 import { store } from "@/store";
@@ -8,23 +8,42 @@ import { MyStackNavigatorScreenProps } from "@navigation/types";
 import { theme } from "@utils/styles/theme";
 import WorkoutDayCard from "../components/WorkoutDayCard";
 import { gymActions } from "../context/slice";
-import { WorkoutType, Workout, ExerciseDay, DefaultExercise, Exercises } from "@utils/types/types";
-// import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Icon } from "react-native-paper";
+import {
+  WorkoutType,
+  Workout,
+  ExerciseDay,
+  DefaultExercise,
+  Exercises,
+} from "@utils/types/types";
 import Text from "@components/atoms/Text";
+import Button from "@components/atoms/Button";
 import { ArrowLeft, Plus } from "lucide-react-native";
-import Toast from "react-native-toast-message";
 import useSubscription from "@features/subscription/hooks/useSubscription";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
-import { getClientDefaultWorkouts, getCurrentWorkout } from "@utils/services/workoutService";
+import {
+  getClientDefaultWorkouts,
+  getCurrentWorkout,
+} from "@utils/services/workoutService";
+import { getScheduleReRequestEligibility } from "@utils/services/trainersService";
+import WorkoutReRequestSheet from "@features/trainer/components/WorkoutReRequestSheet";
+import { BottomSheetModalMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
+import Toast from "react-native-toast-message";
 import FullScreenLoader from "@components/atoms/FullScreenLoader";
+import { useFocusEffect } from "@react-navigation/native";
+import {
+  useActiveWorkoutSession,
+  useWorkoutWeekCalendar,
+  isTodayWorkoutCompleted,
+  isWorkoutDayCompleted,
+} from "../hooks/useWorkoutSession";
 
 const WorkoutRoutineScreen: React.FC<
   MyStackNavigatorScreenProps<"WorkoutRoutine">
 > = ({ navigation }) => {
-  const { selectedWorkout, selectedGeneralDay } =
-    useSelector((state: any) => state["feature/gym"]);
+  const { selectedWorkout, selectedGeneralDay } = useSelector(
+    (state: any) => state["feature/gym"]
+  );
   const { isSubscribed } = useSubscription();
 
   const { data: workouts, isLoading: isWorkoutLoading } = useQuery({
@@ -37,33 +56,103 @@ const WorkoutRoutineScreen: React.FC<
     queryFn: getClientDefaultWorkouts,
   });
 
-  // React.useEffect(() => {
-  //   if (workouts) {
-  //     store.dispatch(gymActions.setWorkouts(workouts));
-  //   }
-  // }, [workouts]);
+  // Server-authoritative session and week calendar hooks
+  const {
+    data: activeSession,
+    isLoading: isActiveSessionLoading,
+    refetch: refetchActiveSession,
+  } = useActiveWorkoutSession();
 
-  // React.useEffect(() => {
-  //   if (defaultWorkouts) {
-  //     store.dispatch(gymActions.setDefaultWorkouts(defaultWorkouts));
-  //   }
-  // }, [defaultWorkouts]);
+  const {
+    data: weekCalendar,
+    isLoading: isWeekCalendarLoading,
+    refetch: refetchWeekCalendar,
+  } = useWorkoutWeekCalendar();
 
-  if (isWorkoutLoading || isDefaultWorkoutLoading) {
+  const workoutSheetRef = useRef<BottomSheetModalMethods | null>(null);
+
+  const { data: eligibility, refetch: eligibilityRefetch } = useQuery({
+    queryKey: ["scheduleReRequestEligibility"],
+    queryFn: getScheduleReRequestEligibility,
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      refetchActiveSession();
+      refetchWeekCalendar();
+      eligibilityRefetch();
+    }, [refetchActiveSession, refetchWeekCalendar, eligibilityRefetch])
+  );
+
+  if (isWorkoutLoading || isDefaultWorkoutLoading || isActiveSessionLoading || isWeekCalendarLoading) {
     return <FullScreenLoader message="Loading..." />;
   }
 
   const handleAddWorkout = () => {
-    // if (!isSubscribed) {
-    //   Toast.show({
-    //     type: "info",
-    //     text1: "Subscription Required",
-    //     text2: "Please subscribe to save your workouts.",
-    //   });
-    //   navigation.push("PricingPackages");
-    //   return;
-    // }
     navigation.navigate("Onboard");
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "";
+    return new Intl.DateTimeFormat("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(new Date(dateString));
+  };
+
+  const handleWorkoutRequest = () => {
+    if (!isSubscribed) {
+      workoutSheetRef.current?.dismiss();
+      Toast.show({
+        type: "info",
+        text1: "Subscription Required",
+        text2: "Please subscribe to request a workouts plan.",
+      });
+      navigation.navigate("PricingPackages");
+      return;
+    }
+
+    if (!eligibility?.workout?.canRequest) {
+      workoutSheetRef.current?.dismiss();
+      Toast.show({
+        type: "info",
+        text1: "Request Not Available",
+        text2: eligibility?.workout?.nextRequestAt
+          ? `You can request again on ${formatDate(eligibility?.workout?.nextRequestAt)}`
+          : "Meal plan and workout plan from Fitness Guru are required",
+      });
+      return;
+    }
+    workoutSheetRef.current?.present();
+  };
+
+  const getWorkoutEligibilityText = () => {
+    if (!eligibility?.workout) return null;
+    if (eligibility.workout.canRequest) {
+      return {
+        text: "You are eligible to request a new workout routine now",
+        isEligible: true,
+      };
+    }
+    if (eligibility.workout.remainingDays && eligibility.workout.remainingDays > 0) {
+      const days = eligibility.workout.remainingDays;
+      const dateStr = formatDate(eligibility.workout.nextRequestAt);
+      return {
+        text: `Next request available in ${days} day${days > 1 ? "s" : ""}${dateStr ? ` (${dateStr})` : ""}`,
+        isEligible: false,
+      };
+    }
+    if (eligibility.workout.nextRequestAt) {
+      return {
+        text: `Next request available on ${formatDate(eligibility.workout.nextRequestAt)}`,
+        isEligible: false,
+      };
+    }
+    return {
+      text: "A workout plan from Fitness Guru is required to request an update",
+      isEligible: false,
+    };
   };
 
   // Filter out only the data with type "SelfCreated" and "Default"
@@ -95,10 +184,17 @@ const WorkoutRoutineScreen: React.FC<
     navigation.push("WorkoutList");
   };
 
+  const isSessionInProgress = Boolean(
+    activeSession &&
+    (activeSession.workoutId || activeSession.exerciseDay != null || activeSession._id) &&
+    activeSession.status &&
+    activeSession.status !== "completed"
+  );
+  const isAnyCompletedToday = isTodayWorkoutCompleted(weekCalendar);
+
   return (
     <PageWrapper>
       <PageHeader
-        // title="Workout Routine"
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">
             <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -136,11 +232,26 @@ const WorkoutRoutineScreen: React.FC<
                 ?.map((exercise: DefaultExercise) => exercise?.exercise?.name)
                 .filter(Boolean)
                 .join(", ") || "No exercises available";
+
+            const defaultWorkoutId =
+              defaultWorkouts?.[selectedGeneralDay]?._id ?? "default-workout-id";
+            const isCompletedThisWeek = isWorkoutDayCompleted(day, weekCalendar, defaultWorkoutId);
+            const isActiveSession = Boolean(
+              isSessionInProgress &&
+              activeSession?.exerciseDay === day &&
+              (activeSession?.workoutId === defaultWorkoutId ||
+                !activeSession?.workoutId)
+            );
+
             return (
               <WorkoutDayCard
                 title={`Day ${day?.toString()}`}
                 description={exerciseNames}
                 onPress={() => handleWorkoutDayPress(day)}
+                isActiveSession={isActiveSession}
+                isSessionInProgress={isSessionInProgress}
+                isCompleted={isCompletedThisWeek}
+                isDailyLocked={isAnyCompletedToday && !isCompletedThisWeek}
               />
             );
           }}
@@ -169,16 +280,67 @@ const WorkoutRoutineScreen: React.FC<
                 ?.map((exercise: Exercises) => exercise?.exercise?.name)
                 .filter(Boolean)
                 .join(", ") || "No exercises available";
+
+            const isSelfCreated =
+              selectedWorkout.WorkoutType === WorkoutType.SelfCreated;
+            const workoutId = filteredData?.[0]?._id || "";
+            const isCompletedThisWeek =
+              !isSelfCreated &&
+              isWorkoutDayCompleted(day, weekCalendar, workoutId);
+            const isActiveSession = Boolean(
+              !isSelfCreated &&
+              isSessionInProgress &&
+              activeSession?.exerciseDay === day &&
+              (activeSession?.workoutId === workoutId || !activeSession?.workoutId)
+            );
+
             return (
               <WorkoutDayCard
                 title={`Day ${day?.toString()}`}
                 description={exerciseNames}
                 onPress={() => handleWorkoutDayPress(day)}
+                isActiveSession={isActiveSession}
+                isSessionInProgress={!isSelfCreated && isSessionInProgress}
+                isCompleted={isCompletedThisWeek}
+                isDailyLocked={!isSelfCreated && isAnyCompletedToday && !isCompletedThisWeek}
               />
             );
           }}
         />
       )}
+
+      {selectedWorkout.WorkoutType !== WorkoutType.SelfCreated &&
+        selectedWorkout.WorkoutType !== WorkoutType.Default && (
+          <Box pt="sm">
+            <Button
+              type="outline"
+              title="Request New Workout Schedule"
+              onPress={handleWorkoutRequest}
+            />
+            {(() => {
+              const info = getWorkoutEligibilityText();
+              if (!info) return null;
+              return (
+                <Text
+                  variant="xs"
+                  color={"textSecondary"}
+                  textAlign="center"
+                  style={{ marginTop: -12 }}
+                  mb="sm"
+                >
+                  {info.text}
+                </Text>
+              );
+            })()}
+          </Box>
+        )}
+
+      <WorkoutReRequestSheet
+        bottomSheetRef={workoutSheetRef}
+        onSuccess={() => {
+          eligibilityRefetch();
+        }}
+      />
     </PageWrapper>
   );
 };

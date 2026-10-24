@@ -11,6 +11,7 @@ export interface CreateLogSetDto {
   workoutId: string;
   exerciseId: string;
   exerciseDay: number;
+  timezoneOffsetMinutes?: number;
   logSets: LogSetDto[];
 }
 
@@ -31,5 +32,21 @@ export interface LastWeekAnalytics {
   weight: number;
   weightIncrement: number;
   kgPerRep: number;
-  kgPerRepIncrement: number;
+  kgPerRepIncrement?: number;
+}
+
+export interface WeeklyCalendarDay {
+  date: string;
+  status: 'completed' | 'rest' | 'missed' | 'none';
+  completed?: boolean;
+  restDay?: boolean;
+  exerciseDay?: number | null;
+  workoutId?: string | null;
+  sessions?: any[];
+}
+
+export interface WeeklyProgressData {
+  sets: { current: number; target: number };
+  days: { current: number; target: number };
+  exercises: { current: number; target: number };
 }

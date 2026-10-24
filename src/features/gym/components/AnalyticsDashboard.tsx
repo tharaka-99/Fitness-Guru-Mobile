@@ -3,10 +3,10 @@ import React from 'react';
 import Box from '@components/atoms/Box';
 import WorkoutSummaryCard from './WorkoutSummaryCard';
 import WorkoutSummaryTable from './WorkoutSummeryTable';
-import { LastWeekAnalytics, LogResponseDto } from '@utils/types/analyticsTypes';
+import { LastWeekAnalytics, LogEntryDto } from '@utils/types/analyticsTypes';
 
 interface Props {
-  logHistoryByWorkoutDayExercise: LogResponseDto[];
+  logHistoryByWorkoutDayExercise: LogEntryDto[];
   lastWeekAnalytics: LastWeekAnalytics;
 }
 const AnalyticsDashboard: React.FC<Props> = ({

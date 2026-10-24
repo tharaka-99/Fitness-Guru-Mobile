@@ -27,6 +27,8 @@ import { enableScreens } from "react-native-screens";
 enableScreens();
 
 
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+
 const queryClient = new QueryClient();
 configureReanimatedLogger({
   level: ReanimatedLogLevel.error,
@@ -50,24 +52,26 @@ export default function App() {
       <ThemeProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
           <PaperProvider theme={MD2DarkTheme}>
-            <NavigationContainer theme={navigationTheme}>
-              <ReduxProvider store={store}>
-                <PersistGate persistor={reduxPersistor}>
-                  <SubscriptionProvider>
-                    <SafeAreaView style={styles.container}
-                      edges={
-                        Platform.OS === "android"
-                          ? ["right", "top", "left"]
-                          : undefined
-                      }
-                    >
-                      <StatusBar style="light" />
-                      <AppInitializer />
-                    </SafeAreaView>
-                  </SubscriptionProvider>
-                </PersistGate>
-              </ReduxProvider>
-            </NavigationContainer>
+            <BottomSheetModalProvider>
+              <NavigationContainer theme={navigationTheme}>
+                <ReduxProvider store={store}>
+                  <PersistGate persistor={reduxPersistor}>
+                    <SubscriptionProvider>
+                      <SafeAreaView style={styles.container}
+                        edges={
+                          Platform.OS === "android"
+                            ? ["right", "top", "left"]
+                            : undefined
+                        }
+                      >
+                        <StatusBar style="light" />
+                        <AppInitializer />
+                      </SafeAreaView>
+                    </SubscriptionProvider>
+                  </PersistGate>
+                </ReduxProvider>
+              </NavigationContainer>
+            </BottomSheetModalProvider>
             <Toast />
           </PaperProvider>
         </QueryClientProvider>

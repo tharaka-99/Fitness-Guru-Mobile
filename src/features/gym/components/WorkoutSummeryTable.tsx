@@ -3,11 +3,11 @@ import { View, StyleSheet } from 'react-native';
 import Box from '@components/atoms/Box';
 import Text from '@components/atoms/Text';
 import { Divider } from 'react-native-paper';
-import { LogEntryDto, LogResponseDto } from '@utils/types/analyticsTypes';
+import { LogEntryDto } from '@utils/types/analyticsTypes';
 import { Unit } from '@utils/types/types';
 
 interface Props {
-  tableData: LogResponseDto[];
+  tableData: LogEntryDto[];
 }
 
 const WorkoutSummaryTable: React.FC<Props> = ({ tableData }) => {

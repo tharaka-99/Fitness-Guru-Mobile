@@ -24,15 +24,31 @@ const BoxTab: React.FC<BoxTabProps> = ({
 }) => {
   return (
     <TouchableOpacity
-      style={[styles.box, style, selected && styles.selectedBox]}
+      style={[
+        styles.box,
+        style,
+        selected && styles.selectedBox,
+        disabled && styles.disabledBox,
+      ]}
       onPress={onPress}
       disabled={disabled}
+      activeOpacity={disabled ? 1 : undefined}
     >
       {icon?.icon({
-        color: selected ? theme.colors.PrimaryBlack : theme.colors.PrimaryWhite,
+        color: selected
+          ? theme.colors.PrimaryBlack
+          : disabled
+          ? theme.colors.SecondaryGrey
+          : theme.colors.PrimaryWhite,
         size: 22,
       })}
-      <Text style={[styles.boxText, selected && styles.selectedBoxText]}>
+      <Text
+        style={[
+          styles.boxText,
+          selected && styles.selectedBoxText,
+          disabled && styles.disabledBoxText,
+        ]}
+      >
         {title.toLocaleUpperCase()}
       </Text>
     </TouchableOpacity>
@@ -57,6 +73,12 @@ const styles = StyleSheet.create({
   },
   selectedBoxText: {
     color: theme.colors.PrimaryBlack,
+  },
+  disabledBox: {
+    opacity: 0.4,
+  },
+  disabledBoxText: {
+    color: theme.colors.SecondaryGrey,
   },
 });
 
