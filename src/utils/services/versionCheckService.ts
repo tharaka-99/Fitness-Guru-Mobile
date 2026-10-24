@@ -50,7 +50,7 @@ export async function checkAppVersion(options?: {
       // Retrieve official store URLs dynamically if available
       const officialUrl =
         Platform.OS === "ios"
-          ? await VersionCheck.getAppStoreUrl({ appID: BUNDLE_ID })
+          ? await VersionCheck.getAppStoreUrl({ appID: "6743677433" })
           : await VersionCheck.getPlayStoreUrl({ packageName: BUNDLE_ID });
 
       if (officialUrl) {

@@ -10,12 +10,14 @@ interface PageWrapperProps {
   children: React.ReactNode;
   noPadding?: boolean;
   noBottomPadding?: boolean;
+  noTopPadding?: boolean;
 }
 
 const PageWrapper: React.FC<PageWrapperProps> = ({
   children,
   noPadding = false,
-  noBottomPadding = false
+  noBottomPadding = false,
+  noTopPadding = false,
 }) => {
   const insets = useSafeAreaInsets();
   return (
@@ -24,7 +26,10 @@ const PageWrapper: React.FC<PageWrapperProps> = ({
       width={SCREEN_WIDTH}
       px={noPadding ? undefined : "md"}
       pt="sm"
-      style={{ paddingBottom: noBottomPadding ? undefined : insets.bottom }}
+      style={{
+        paddingBottom: noBottomPadding ? undefined : insets.bottom,
+        paddingTop: noTopPadding ? undefined : insets.top,
+      }}
     >
       {children}
     </Box>

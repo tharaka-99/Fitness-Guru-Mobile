@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   View,
   Text,
-  ActivityIndicator
+  ActivityIndicator,
+  Platform,
 } from "react-native";
 import PagerView from "react-native-pager-view";
 import { useDispatch } from "react-redux";
@@ -35,14 +36,12 @@ import {
   Goal,
   Repeat,
   ChartLine,
-  SlidersVertical
+  SlidersVertical,
 } from "lucide-react-native";
 import PageWrapper from "@components/app/PageWrapper";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } =
-  Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-// ─── Slide data matching your Figma designs ────────────────────────────────
 const SLIDES = [
   {
     image: require("assets/images/FG_Onbaord01.png"),
@@ -102,7 +101,6 @@ const SLIDES = [
   },
 ];
 
-// ─── Component ─────────────────────────────────────────────────────────────
 const SlideImage = ({ source, style, resizeMode }: any) => {
   const [loading, setLoading] = useState(true);
 
@@ -115,7 +113,17 @@ const SlideImage = ({ source, style, resizeMode }: any) => {
         onLoadEnd={() => setLoading(false)}
       />
       {loading && (
-        <View style={[StyleSheet.absoluteFill, { height: SCREEN_HEIGHT * 0.7, justifyContent: "center", alignItems: "center", zIndex: 0 }]}>
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              height: SCREEN_HEIGHT * 0.7,
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 0,
+            },
+          ]}
+        >
           <ActivityIndicator size="small" color={theme.colors.PrimaryGreen} />
         </View>
       )}
@@ -141,7 +149,6 @@ const GetStartedScreen: React.FC = () => {
     dispatch(getStartedActions.markGetStartedSeen());
   };
 
-  // ── Progress dots ──────────────────────────────────────────────────────
   const renderDots = () => (
     <View style={styles.dotsContainer}>
       {SLIDES.map((_, index) => (
@@ -156,8 +163,9 @@ const GetStartedScreen: React.FC = () => {
     </View>
   );
 
-  // ── Feature pills row ─────────────────────────────────────────────────
-  const renderFeatures = (features: { text: string; icon: React.ElementType }[]) => (
+  const renderFeatures = (
+    features: { text: string; icon: React.ElementType }[]
+  ) => (
     <View style={styles.featuresRow}>
       {features.map((feature, index) => {
         const Icon = feature.icon;
@@ -165,7 +173,7 @@ const GetStartedScreen: React.FC = () => {
           <React.Fragment key={index}>
             <View style={styles.featureItem}>
               <View style={styles.featureIconCircle}>
-                <Icon size={30} color={theme.colors.PrimaryGreen} />
+                <Icon size={25} color={theme.colors.PrimaryGreen} />
               </View>
               <Text
                 style={[
@@ -174,34 +182,44 @@ const GetStartedScreen: React.FC = () => {
                     fontSize: 12,
                     color: theme.colors.SecondaryGrey,
                     textAlign: "center",
-                    fontFamily: "Jost_400Regular"
+                    fontFamily: "Jost_400Regular",
                   },
                 ]}
               >
                 {feature.text}
               </Text>
             </View>
-            {index < features.length - 1 && <View style={styles.featureDivider} />}
+            {index < features.length - 1 && (
+              <View style={styles.featureDivider} />
+            )}
           </React.Fragment>
         );
       })}
     </View>
   );
 
-  // ── Single slide ───────────────────────────────────────────────────────
   const renderSlide = (slideIndex: number) => {
     const slide = SLIDES[slideIndex];
     return (
       <View key={slideIndex} style={[styles.slide]}>
-        {/* Background image */}
         <SlideImage
           source={slide.image}
           style={[styles.backgroundImage, { height: SCREEN_HEIGHT }]}
           resizeMode="cover"
         />
 
-        {/* Top bar: dots + skip */}
-        <View style={styles.topBar}>
+        {/* <LinearGradient
+          colors={["transpate", "rgba(13,13,13,0.85)", "#0D0D0D"]}
+          locations={[0.0, 0.45, 0.75]}
+          style={[styles.gradient, { height: SCREEN_HEIGHT }]}
+        /> */}
+
+        <View
+          style={[
+            styles.topBar,
+            { top: Platform.OS === "ios" ? insets.top + 30 : 50 },
+          ]}
+        >
           {renderDots()}
           <TouchableOpacity
             onPress={handleFinish}
@@ -214,9 +232,12 @@ const GetStartedScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Bottom content */}
-        <View style={[styles.bottomContent]}>
-          {/* Title */}
+        <View
+          style={[
+            styles.bottomContent,
+            { bottom: Platform.OS === "ios" ? insets.bottom + 20 : 0 },
+          ]}
+        >
           <Text
             style={[
               styles.title,
@@ -235,6 +256,9 @@ const GetStartedScreen: React.FC = () => {
                   // fontWeight: "bold",
                   color: part.color,
                   fontFamily: "Jost_900Black",
+                  textShadowColor: "black",
+                  textShadowOffset: { width: 1, height: 1 },
+                  textShadowRadius: 2,
                 }}
               >
                 {part.text}
@@ -242,14 +266,13 @@ const GetStartedScreen: React.FC = () => {
             ))}
           </Text>
 
-          {/* Feature pills */}
           {renderFeatures(slide.features)}
 
-          {/* CTA Button */}
           <Box width={"100%"}>
             <Button
               title={isLastSlide ? "Get Started" : "Next"}
-              onPress={isLastSlide ? handleFinish : handleNext} />
+              onPress={isLastSlide ? handleFinish : handleNext}
+            />
           </Box>
         </View>
       </View>
@@ -257,7 +280,7 @@ const GetStartedScreen: React.FC = () => {
   };
 
   return (
-    <PageWrapper noPadding>
+    <PageWrapper noPadding noTopPadding noBottomPadding>
       <PagerView
         ref={pagerRef}
         style={styles.pager}
@@ -273,7 +296,6 @@ const GetStartedScreen: React.FC = () => {
 
 export default GetStartedScreen;
 
-// ─── Styles ────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   pager: {
     flex: 1,
@@ -290,7 +312,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT
+    height: SCREEN_HEIGHT,
   },
 
   gradient: {
@@ -301,10 +323,8 @@ const styles = StyleSheet.create({
     height: SCREEN_HEIGHT * 0.55,
   },
 
-  // ── Top bar ────────────────────────────────────────────────────────────
   topBar: {
     position: "absolute",
-    top: 50,
     left: theme.spacing.md,
     right: theme.spacing.md,
     flexDirection: "row",
@@ -335,10 +355,8 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 
-  // ── Bottom content ────────────────────────────────────────────────────
   bottomContent: {
     position: "absolute",
-    bottom: 0,
     left: 0,
     right: 0,
     paddingHorizontal: theme.spacing.md,
@@ -346,18 +364,17 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    marginBottom: 15,
+    marginBottom: 10,
     textTransform: "uppercase",
     lineHeight: 42,
     fontFamily: "Jost_700Bold",
   },
 
-  // ── Features row ──────────────────────────────────────────────────────
   featuresRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "flex-start",
-    marginBottom: 15,
+    marginBottom: 10,
     width: "100%",
     paddingHorizontal: theme.spacing.sm,
   },
@@ -369,8 +386,8 @@ const styles = StyleSheet.create({
   },
 
   featureIconCircle: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 30,
     backgroundColor: "#455721",
     alignItems: "center",
@@ -388,5 +405,4 @@ const styles = StyleSheet.create({
     opacity: 0.3,
     marginTop: 8,
   },
-
 });
