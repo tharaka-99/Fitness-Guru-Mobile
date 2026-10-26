@@ -1,13 +1,18 @@
-import React, { useRef, useState } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
-import PagerView from 'react-native-pager-view';
-import { TrendingUp, TrendingDown, GitCompare, GripVertical } from 'lucide-react-native';
+import React, { useRef, useState } from "react";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
+import PagerView from "react-native-pager-view";
+import {
+  TrendingUp,
+  TrendingDown,
+  GitCompare,
+  GripVertical,
+} from "lucide-react-native";
 
-import Box from '@components/atoms/Box';
-import PaginationDots from '@components/atoms/PaginationDots';
-import Text from '@components/atoms/Text';
-import { theme } from '@utils/styles/theme';
-import { LastWeekAnalytics } from '@utils/types/analyticsTypes';
+import Box from "@components/atoms/Box";
+import PaginationDots from "@components/atoms/PaginationDots";
+import Text from "@components/atoms/Text";
+import { theme } from "@utils/styles/theme";
+import { LastWeekAnalytics } from "@utils/types/analyticsTypes";
 
 interface Props {
   lastWeekAnalytics: LastWeekAnalytics;
@@ -32,10 +37,10 @@ const WorkoutSummaryCard: React.FC<Props> = ({ lastWeekAnalytics }) => {
       borderLeftWidth={8}
       borderRadius="sm"
       pl="md"
-      width={'100%'}
+      width={"100%"}
     >
       <Text variant="mdBold">{title}</Text>
-      <Text color={value < 0 ? 'PrimaryRed' : 'SecondaryGrey'} variant="md">
+      <Text color={value < 0 ? "PrimaryRed" : "SecondaryGrey"} variant="md">
         {value ? value : 0}
       </Text>
       <Box
@@ -45,20 +50,14 @@ const WorkoutSummaryCard: React.FC<Props> = ({ lastWeekAnalytics }) => {
         gap="xs"
       >
         {change > 0 ? (
-          <TrendingUp
-            color={theme.colors.PrimaryGreen}
-            size={30}
-          />
+          <TrendingUp color={theme.colors.PrimaryGreen} size={30} />
         ) : (
-          <TrendingDown
-            color={theme.colors.PrimaryRed}
-            size={30}
-          />
+          <TrendingDown color={theme.colors.PrimaryRed} size={30} />
         )}
 
         <Text
           color={
-            !change ? 'SecondaryGrey' : change < 0 ? 'PrimaryRed' : changeColor
+            !change ? "SecondaryGrey" : change < 0 ? "PrimaryRed" : changeColor
           }
           variant="md"
         >
@@ -80,7 +79,7 @@ const WorkoutSummaryCard: React.FC<Props> = ({ lastWeekAnalytics }) => {
       borderLeftWidth={8}
       borderRadius="sm"
       pl="md"
-      width={'100%'}
+      width={"100%"}
     >
       <Text variant="mdBold">{title}</Text>
       <Text color="SecondaryGrey" variant="md">
@@ -106,7 +105,7 @@ const WorkoutSummaryCard: React.FC<Props> = ({ lastWeekAnalytics }) => {
               gap="xs"
             >
               <GitCompare color="white" size={25} />
-              <Text style={styles.title}>Compared to last week</Text>
+              <Text style={styles.title}>Compared to last workout</Text>
             </Box>
             <Box
               p="base"
@@ -121,21 +120,21 @@ const WorkoutSummaryCard: React.FC<Props> = ({ lastWeekAnalytics }) => {
                 alignItems="center"
                 flexDirection="column"
                 justifyContent="space-between"
-                width={'50%'}
+                width={"50%"}
               >
                 {renderComparisonBox(
-                  'Sets',
+                  "Sets",
                   lastWeekAnalytics?.sets,
                   lastWeekAnalytics?.setsIncrement,
-                  'PrimaryPurple',
-                  'SecondaryGrey'
+                  "PrimaryPurple",
+                  "SecondaryGrey"
                 )}
                 {renderComparisonBox(
-                  'Volume (kg)',
+                  "Volume (kg)",
                   Number(lastWeekAnalytics?.weight?.toFixed(2)),
                   Number(lastWeekAnalytics?.weightIncrement?.toFixed(2)),
-                  'LightBlue',
-                  'PrimaryGreen'
+                  "LightBlue",
+                  "PrimaryGreen"
                 )}
               </Box>
               <Box
@@ -144,21 +143,21 @@ const WorkoutSummaryCard: React.FC<Props> = ({ lastWeekAnalytics }) => {
                 alignItems="center"
                 flexDirection="column"
                 justifyContent="space-between"
-                width={'50%'}
+                width={"50%"}
               >
                 {renderComparisonBox(
-                  'Repetitions',
+                  "Repetitions",
                   lastWeekAnalytics?.reps,
                   lastWeekAnalytics?.repsIncrement,
-                  'PrimaryRed',
-                  'PrimaryGreen'
+                  "PrimaryRed",
+                  "PrimaryGreen"
                 )}
                 {renderComparisonBox(
-                  'kg/rep',
+                  "kg/rep",
                   Number(lastWeekAnalytics?.kgPerRep?.toFixed(2)),
                   Number(lastWeekAnalytics?.kgPerRepIncrement?.toFixed(2)),
-                  'PrimaryOrange',
-                  'PrimaryGreen'
+                  "PrimaryOrange",
+                  "PrimaryGreen"
                 )}
               </Box>
             </Box>
@@ -180,7 +179,7 @@ const WorkoutSummaryCard: React.FC<Props> = ({ lastWeekAnalytics }) => {
               alignItems="center"
               flexDirection="row"
               justifyContent="space-between"
-              width={'50%'}
+              width={"50%"}
             >
               <Box
                 p="base"
@@ -190,14 +189,14 @@ const WorkoutSummaryCard: React.FC<Props> = ({ lastWeekAnalytics }) => {
                 justifyContent="space-between"
               >
                 {renderSummaryBox(
-                  'Total Sets',
+                  "Total Sets",
                   lastWeekAnalytics?.sets,
-                  'PrimaryPurple'
+                  "PrimaryPurple"
                 )}
                 {renderSummaryBox(
-                  'Total Volume (kg)',
+                  "Total Volume (kg)",
                   Number(lastWeekAnalytics?.weight?.toFixed(2)),
-                  'LightBlue'
+                  "LightBlue"
                 )}
               </Box>
               <Box
@@ -208,14 +207,14 @@ const WorkoutSummaryCard: React.FC<Props> = ({ lastWeekAnalytics }) => {
                 justifyContent="space-between"
               >
                 {renderSummaryBox(
-                  'Total Reps',
+                  "Total Reps",
                   lastWeekAnalytics?.reps,
-                  'PrimaryRed'
+                  "PrimaryRed"
                 )}
                 {renderSummaryBox(
-                  'Total kg/rep',
+                  "Total kg/rep",
                   Number(lastWeekAnalytics?.kgPerRep?.toFixed(2)),
-                  'PrimaryOrange'
+                  "PrimaryOrange"
                 )}
               </Box>
             </Box>
@@ -233,6 +232,6 @@ export default WorkoutSummaryCard;
 const styles = StyleSheet.create({
   title: {
     fontSize: 18,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
 });

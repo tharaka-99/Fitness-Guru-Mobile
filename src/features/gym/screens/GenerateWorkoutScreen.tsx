@@ -47,12 +47,10 @@ const GenerateWorkoutScreen: React.FC<
     isLoading: isCurrentWorkoutLoading,
     data: currentWorkout,
     refetch: CurrentWorkoutRefetch,
-  } = useQuery(
-    {
-      queryKey: ["currentWorkout"],
-      queryFn: getCurrentWorkout
-    }
-  );
+  } = useQuery({
+    queryKey: ["currentWorkout"],
+    queryFn: getCurrentWorkout,
+  });
 
   useEffect(() => {
     if (currentWorkout?.length) {
@@ -133,19 +131,16 @@ const GenerateWorkoutScreen: React.FC<
         >
           <Box
             mb="xs"
+            p="md"
             height={80}
             borderRadius="sm"
             overflow="hidden"
             width={PAGE_WIDTH}
             flexDirection="row"
             backgroundColor="backgroundSecondary"
+            alignItems="center"
           >
-            <Box
-              px="lg"
-              flex={1}
-              alignItems="flex-start"
-              justifyContent="center"
-            >
+            <Box flex={1} alignItems="flex-start" justifyContent="center">
               <Text variant="mdBold" numberOfLines={1}>
                 DAY {item.day}
               </Text>
@@ -154,19 +149,22 @@ const GenerateWorkoutScreen: React.FC<
                 numberOfLines={1}
                 style={{ textTransform: "capitalize" }}
               >
-                {`${item.exercises.length} ${item.exercises.length === 1 ? "exercise" : "exercises"
-                  } added`}
+                {`${item.exercises.length} ${
+                  item.exercises.length === 1 ? "exercise" : "exercises"
+                } added`}
               </Text>
             </Box>
 
             <Box
-              width="16%"
-              height="100%"
+              width={44}
+              height={44}
+              borderRadius="full"
               alignItems="center"
               justifyContent="center"
-              backgroundColor="PrimaryGreen"
+              backgroundColor={"PrimaryGreen"}
+              style={{ backgroundColor: "rgba(160, 226, 32, 0.15)" }}
             >
-              <ArrowRight size={23} color={theme.colors.PrimaryBlack} />
+              <ArrowRight size={22} color={theme.colors.PrimaryGreen} />
             </Box>
           </Box>
         </TouchableOpacity>
@@ -242,7 +240,10 @@ const GenerateWorkoutScreen: React.FC<
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 60 + insets.bottom }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: 60 + insets.bottom,
+          }}
           keyboardShouldPersistTaps="handled"
           overScrollMode="never"
         >

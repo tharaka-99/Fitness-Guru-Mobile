@@ -1,41 +1,18 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  useWindowDimensions,
-} from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, Image, TouchableOpacity, ScrollView } from "react-native";
 import { store } from "@/store";
 import PageWrapper from "@components/app/PageWrapper";
-import {
-  Calendar,
-  Users,
-  Bike,
-  Utensils,
-  BicepsFlexed,
-  CirclePlus,
-} from "lucide-react-native";
 import { MyTabNavigatorScreenProps } from "@navigation/types";
 import { useQuery } from "@tanstack/react-query";
-import {
-  getFitnessGuruRequest,
-  getScheduleReRequestEligibility,
-} from "@utils/services/trainersService";
+import { getFitnessGuruRequest } from "@utils/services/trainersService";
 import { getClientWorkoutsForTrainerView } from "@utils/services/workoutService";
 import { getMealPlan } from "@utils/services/mealPlanService";
-import WorkoutReRequestSheet from "../components/WorkoutReRequestSheet";
-import MealReRequestSheet from "../components/MealReRequestSheet";
-import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
-import { useRef } from "react";
 import { gymActions } from "@features/gym/context/slice";
 import { WorkoutType } from "@utils/types/types";
 import { MealPlanType } from "@utils/types/mealPlanTypes";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
 import FullScreenLoader from "@components/atoms/FullScreenLoader";
-import { theme, constants } from "@utils/styles/theme";
-import InfoCard from "@components/app/InfoCard";
 import greetingTime from "greeting-time";
 import { capitalizeString } from "@utils/helpers";
 import PageHeader from "@components/app/header/PageHeader";
@@ -44,10 +21,76 @@ import { getClientProfileInfo } from "@utils/services/authServices";
 import { useFocusEffect } from "@react-navigation/native";
 import useSubscription from "@features/subscription/hooks/useSubscription";
 import { useSelector } from "react-redux";
+import { useBottomTabPadding } from "@/hooks/useBottomTabPadding";
+
+// NEW SECTIONS
+import CalendarSection from "../components/fitness-guru/CalendarSection";
+import WeeklyGoalSection from "../components/fitness-guru/WeeklyGoalSection";
+import MonthlySchedulesSection from "../components/fitness-guru/MonthlySchedulesSection";
+import DailyHabitsSection from "../components/fitness-guru/DailyHabitsSection";
+import PersonalisedPlanCard from "../components/fitness-guru/PersonalisedPlanCard";
+
+// NEW HOOKS
+import { useWeeklyOverview } from "../hooks/useWeeklyOverview";
+import { useDailyHabits } from "../hooks/useDailyHabits";
+
+const QUOTES = [
+  "Stronger Than Yesterday 🔥",
+  "Progress Over Perfection 💪",
+  "Built By Discipline ⚡",
+  "Every Rep Counts 🔥",
+  "Your Only Competition Is You 💪",
+  "Earn Your Progress 🏆",
+  "Keep Showing Up 🔥",
+  "One Day Stronger 💪",
+  "Push Beyond Limits ⚡",
+  "Consistency Builds Champions 🏆",
+  "Make Every Day Count 🔥",
+  "Small Steps. Big Results. 💪",
+  "Trust The Process ⚡",
+  "No Limits. Just Progress. 🔥",
+  "Become Your Strongest Self 💪",
+  "Discipline Creates Results 🎯",
+  "Better Every Single Day 🔥",
+  "Your Journey. Your Strength. 💪",
+  "Progress Starts With You ⚡",
+  "Keep Going. Keep Growing. 🚀",
+  "Greatness Takes Consistency 🔥",
+  "Show Up. Get Stronger. 💪",
+  "Make Yourself Proud ⚡",
+  "Chase Progress, Not Perfection 🎯",
+  "Your Effort Defines You 🔥",
+  "Stronger With Every Rep 💪",
+  "Keep The Momentum Going 🚀",
+  "Hard Work Pays Off 🏆",
+  "One Rep At A Time 💪",
+  "Every Workout Matters 🔥",
+  "Sweat Today. Shine Tomorrow. ⚡",
+  "Push Hard. Stay Humble. 💪",
+  "Strength Starts Within 🔥",
+  "Turn Effort Into Results 🎯",
+  "Believe. Achieve. Repeat. 🚀",
+  "Stay Hungry. Stay Strong. 💪",
+  "Your Goals Are Waiting 🔥",
+  "Rise. Train. Conquer. ⚡",
+  "Make Today Your Day 💪",
+  "No Excuses. Just Action. 🔥",
+  "Build Strength. Build Confidence. 🏆",
+  "You’re Getting Better Daily 💪",
+  "Strong Habits. Strong Results. ⚡",
+  "Commit To Your Goals 🎯",
+  "Train With Purpose 🔥",
+  "Never Settle For Average 💪",
+  "The Grind Builds Greatness ⚡",
+  "Own Your Fitness Journey 🚀",
+  "Today’s Effort. Tomorrow’s Strength. 🔥",
+  "Keep Moving Forward 💪",
+];
 
 const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   navigation,
 }) => {
+  const bottomPadding = useBottomTabPadding();
   const { user } = useSelector((state: any) => state["feature/auth"]);
   const greetingMessage: string = greetingTime(new Date());
   const isMountedRef = useRef(true);
@@ -59,63 +102,79 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
     };
   }, []);
 
+  // EXISTING DATA FETCHING
   const {
     isLoading: isFitnessGuruRequestLoading,
     data: fitnessGuruRequest,
     refetch: fitnessGuruRequestRefetch,
-  } = useQuery(
-    {
-      queryKey: ["fitnessGuruRequest"],
-      queryFn: getFitnessGuruRequest
-    }
-  );
-
-  const { data: eligibility, refetch: eligibilityRefetch } = useQuery(
-    {
-      queryKey: ["scheduleReRequestEligibility"],
-      queryFn: getScheduleReRequestEligibility
-    }
-  );
+  } = useQuery({
+    queryKey: ["fitnessGuruRequest"],
+    queryFn: getFitnessGuruRequest,
+  });
 
   const {
     isLoading: isProfileLoading,
     data: profile,
     refetch: profileRefetch,
-  } = useQuery(
-    {
-      queryKey: ["profile"],
-      queryFn: getClientProfileInfo
-    }
-  );
-
-  const workoutSheetRef = useRef<BottomSheetMethods | null>(null);
-  const mealSheetRef = useRef<BottomSheetMethods | null>(null);
+  } = useQuery({
+    queryKey: ["profile"],
+    queryFn: getClientProfileInfo,
+  });
 
   const {
     isLoading: isWorkoutLoading,
     data: workout,
     refetch: workoutRefetch,
-  } = useQuery(
-    {
-      queryKey: ["trainerWorkouts"],
-      queryFn: getClientWorkoutsForTrainerView
-    }
-  );
+  } = useQuery({
+    queryKey: ["trainerWorkouts"],
+    queryFn: getClientWorkoutsForTrainerView,
+  });
 
   const {
     isLoading: isMealLoading,
     data: meal,
     refetch: mealRefetch,
-  } = useQuery(
-    {
-      queryKey: ["trainerMeals"],
-      queryFn: getMealPlan
-    }
-  );
+  } = useQuery({
+    queryKey: ["trainerMeals"],
+    queryFn: getMealPlan,
+  });
 
   const filteredWorkout = React.useMemo(() => {
     return workout?.filter((w) => w.type === "FitnessGuruCreated");
   }, [workout]);
+
+  const targetWorkout = filteredWorkout?.[0] || workout?.[0];
+
+  // QUOTE: new random quote every time the screen is opened/focused
+  const [quote, setQuote] = useState("");
+  const lastQuoteRef = useRef("");
+
+  useFocusEffect(
+    React.useCallback(() => {
+      let next = lastQuoteRef.current;
+      while (next === lastQuoteRef.current && QUOTES.length > 1) {
+        next = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      }
+      lastQuoteRef.current = next;
+      setQuote(next);
+    }, [])
+  );
+
+  // NEW DATA FETCHING (Server-authoritative weekly sessions & targets)
+  const {
+    data: weeklyOverview,
+    isLoading: isWeeklyOverviewLoading,
+    refetch: weeklyOverviewRefetch,
+  } = useWeeklyOverview(targetWorkout);
+  const calendarData = weeklyOverview?.calendar;
+  const progressData = weeklyOverview?.progress;
+  const {
+    data: habitsData,
+    logHabit,
+    isLogging,
+    isLoading: isHabitsLoading,
+    refetch: habitsRefetch,
+  } = useDailyHabits();
 
   const filteredMeal = React.useMemo(() => {
     return meal?.filter((m) => m.type === "FitnessGuruCreated");
@@ -133,10 +192,11 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
         try {
           await Promise.all([
             fitnessGuruRequestRefetch(),
-            eligibilityRefetch(),
             profileRefetch(),
             workoutRefetch(),
             mealRefetch(),
+            habitsRefetch(),
+            weeklyOverviewRefetch(),
           ]);
         } catch (error) {
           console.error("Error fetching profile info:", error);
@@ -152,86 +212,19 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
       profileRefetch,
       workoutRefetch,
       mealRefetch,
-      eligibilityRefetch,
       fitnessGuruRequestRefetch,
+      habitsRefetch,
+      weeklyOverviewRefetch,
     ])
   );
-
-  const formattedDate = new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    day: "numeric",
-    month: "long",
-  }).format(new Date());
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "";
-    return new Intl.DateTimeFormat("en-US", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(dateString));
-  };
-
-  const handleWorkoutRequest = () => {
-    if (!isSubscribed) {
-      workoutSheetRef.current?.close();
-      Toast.show({
-        type: "info",
-        text1: "Subscription Required",
-        text2: "Please subscribe to request a workouts plan.",
-      });
-      navigation.navigate("PricingPackages");
-      return;
-    }
-
-    if (!eligibility?.workout?.canRequest) {
-      workoutSheetRef.current?.close();
-      Toast.show({
-        type: "info",
-        text1: "Request Not Available",
-        text2: eligibility?.workout?.nextRequestAt
-          ? `You can request again on ${formatDate(
-            eligibility?.workout?.nextRequestAt
-          )}`
-          : "Meal plan and workout plan from Fitness Guru are required",
-      });
-      return;
-    }
-    workoutSheetRef.current?.expand();
-  };
-
-  const handleMealRequest = () => {
-    if (!isSubscribed) {
-      mealSheetRef.current?.close();
-      Toast.show({
-        type: "info",
-        text1: "Subscription Required",
-        text2: "Please subscribe to request a meal plan.",
-      });
-      navigation.navigate("PricingPackages");
-      return;
-    }
-    if (!eligibility?.meal?.canRequest) {
-      mealSheetRef.current?.close();
-      Toast.show({
-        type: "info",
-        text1: "Request Not Available",
-        text2: eligibility?.meal?.nextRequestAt
-          ? `You can request again on ${formatDate(
-            eligibility?.meal?.nextRequestAt
-          )}`
-          : "Meal plan from Fitness Guru is required",
-      });
-      return;
-    }
-    mealSheetRef.current?.expand();
-  };
 
   if (
     isFitnessGuruRequestLoading ||
     isWorkoutLoading ||
     isMealLoading ||
-    isProfileLoading
+    isProfileLoading ||
+    isWeeklyOverviewLoading ||
+    isHabitsLoading
   ) {
     return <FullScreenLoader />;
   }
@@ -246,45 +239,54 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
     return <FullScreenLoader />;
   }
 
+  const isPending = fitnessGuruRequest?.status === "Pending";
+  const hasActivePlans =
+    (filteredWorkout?.length ?? 0) > 0 || (filteredMeal?.length ?? 0) > 0;
+
   return (
-    <PageWrapper noBottomPadding>
-      <PageHeader title="Home" />
+    <PageWrapper noPadding>
+      <Box px={"md"}>
+        <PageHeader title="Home" />
+      </Box>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         overScrollMode="never"
+        style={{ flex: 1 }}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingBottom: theme.spacing.base
+          paddingBottom: bottomPadding,
         }}
       >
-        <Box flex={1} gap="md">
-          <Box flexDirection="row" alignItems="center" gap="md">
+        <Box
+          px={"md"}
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Box flexDirection="row" alignItems="center" flex={1}>
+            {/* Dual overlapping avatar badge */}
             <Box flexDirection="row" alignItems="center">
-              <Box>
-                {user?.profileImageFileUrl ? (
-                  <Image
-                    source={{ uri: user.profileImageFileUrl }}
-                    style={{ width: 60, height: 60, borderRadius: 30 }}
-                  />
-                ) : (
-                  <Box
-                    width={60}
-                    height={60}
-                    borderRadius="full"
-                    backgroundColor="SecondaryGrey"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text variant="lgBold" color="PrimaryWhite">
-                      {(capitalizeString(profile?.firstName?.[0] ?? "") ||
-                        "") +
-                        (capitalizeString(profile?.lastName?.[0] ?? "") ||
-                          "")}
-                    </Text>
-                  </Box>
-                )}
-              </Box>
+              {user?.profileImageFileUrl ? (
+                <Image
+                  source={{ uri: profile.profileImageFileUrl }}
+                  style={{ width: 60, height: 60, borderRadius: 30 }}
+                />
+              ) : (
+                <Box
+                  width={60}
+                  height={60}
+                  borderRadius="full"
+                  backgroundColor="SecondaryGrey"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Text variant="lgBold" color="PrimaryWhite">
+                    {(capitalizeString(profile?.firstName?.[0] ?? "") || "") +
+                      (capitalizeString(profile?.lastName?.[0] ?? "") || "")}
+                  </Text>
+                </Box>
+              )}
               <Box
                 style={{ marginLeft: -10 }}
                 width={60}
@@ -301,265 +303,106 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                 />
               </Box>
             </Box>
-            <Box>
-              <Text variant="lgBold" numberOfLines={1}>
-                {capitalizeString(greetingMessage)},{" "}
-                {profile?.firstName || ""}
+            <Box ml="md" flex={1}>
+              <Text variant="lgBold" color="PrimaryWhite" numberOfLines={1}>
+                Welcome Back,{" "}
+                {capitalizeString(profile?.firstName || user?.name || "User")}
               </Text>
-              <Text variant="md" color="textSecondary">
-                {new Date().toLocaleDateString("en-US", {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "long",
-                })}
-              </Text>
+              {!!quote && (
+                <Text
+                  mt="xs"
+                  variant="sm"
+                  color="textSecondary"
+                  numberOfLines={2}
+                >
+                  {quote}
+                </Text>
+              )}
             </Box>
           </Box>
+        </Box>
 
-          <Box flexDirection="row" gap="sm">
-            <Box
-              flex={1}
-              borderRadius="sm"
-              borderWidth={1}
-              borderColor="borderSecondary"
-              flexDirection="row"
-              overflow="hidden"
-            >
-              <Box flex={1} p="sm">
-                <Text variant="sm" color="textSecondary">
-                  Goal
-                </Text>
-                <Text variant="md" numberOfLines={1}>
-                  {fitnessGuruRequest?.goal
-                    ? fitnessGuruRequest?.goal.replace(
-                      /([a-z])([A-Z])/g,
-                      "$1 $2"
-                    )
-                    : "Not Set"}
-                </Text>
-              </Box>
-              <Box width={8} backgroundColor="PrimaryGreen" />
-            </Box>
-
-            <Box
-              flex={1}
-              borderRadius="sm"
-              borderWidth={1}
-              borderColor="borderSecondary"
-              flexDirection="row"
-              overflow="hidden"
-            >
-              <Box flex={1} p="sm">
-                <Text variant="sm" color="textSecondary">
-                  DCI
-                </Text>
-                <Text variant="md" numberOfLines={1}>
-                  {fitnessGuruRequest?.calculatedMetrics?.dci
-                    ? `${Math.round(
-                      fitnessGuruRequest?.calculatedMetrics?.dci
-                    )} Cal`
-                    : "0 Cal"}
-                </Text>
-              </Box>
-              <Box width={8} backgroundColor="PrimaryGreen" />
-            </Box>
-
-            <Box
-              flex={1}
-              borderRadius="sm"
-              borderWidth={1}
-              borderColor="borderSecondary"
-              flexDirection="row"
-              overflow="hidden"
-            >
-              <Box flex={1} p="sm">
-                <Text variant="sm" color="textSecondary">
-                  BMR
-                </Text>
-                <Text variant="md" numberOfLines={1}>
-                  {fitnessGuruRequest?.calculatedMetrics?.bmr
-                    ? `${Math.round(
-                      fitnessGuruRequest?.calculatedMetrics?.bmr
-                    )} Cal`
-                    : "0 Cal"}
-                </Text>
-              </Box>
-              <Box width={8} backgroundColor="PrimaryGreen" />
-            </Box>
-          </Box>
-
-          {fitnessGuruRequest?.status !== "Pending" ? (
-            <InfoCard
-              title="Train with Fitness Guru"
-              description="Start your journey with guided workouts, progress tracking, and personalized plans designed to support your fitness goals."
-              imageSource={require("assets/images/trainer-with-form.png")}
-              buttonTitle="Invest in Yourself"
-              buttonOnPress={() =>
+        {/* If no active plans, show the Personalised Plan onboarding stepper */}
+        {!hasActivePlans && (
+          <Box flex={1}>
+            <PersonalisedPlanCard
+              stage={isPending ? "pending" : "requesting"}
+              onCompleteProfile={() =>
                 navigation.push("TrainerApplication", {
                   trainerId: "fitness-guru",
                   packageId: "456",
                 })
               }
             />
-          ) : !filteredWorkout?.length && !filteredMeal?.length ? (
-            <InfoCard
-              title="Your Schedule is on the way"
-              description="Your data have been shared with your fitnessguru. You will be displayed your workout routines and meal plans once the fitnessguru shared with you."
-              imageSource={require("assets/images/green-tick.png")}
-            />
-          ) : null}
+          </Box>
+        )}
 
-          {((filteredWorkout?.length ?? 0) > 0 ||
-            (filteredMeal?.length ?? 0) > 0) && (
-              <>
-                <Box gap="sm" flex={1}>
-                  {filteredWorkout && filteredWorkout.length > 0 && (
-                    <TouchableOpacity
-                      style={{
-                        flexGrow: 1,
-                        backgroundColor: theme.colors.backgroundSecondary,
-                        borderWidth: 1,
-                        borderColor: theme.colors.borderSecondary,
-                        borderRadius: theme.borderRadii.sm,
-                        padding: theme.spacing.sm,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: theme.spacing.sm,
-                      }}
-                      activeOpacity={constants.activeOpacity}
-                      onPress={() => {
-                        store.dispatch(
-                          gymActions.setSelectedWorkout({
-                            WorkoutType: WorkoutType.FitnessGuruCreated,
-                            createdBy: fitnessGuruRequest?.trainerId,
-                          })
-                        );
-                        navigation.navigate("WorkoutRoutine");
-                      }}
-                    >
-                      <BicepsFlexed
-                        color={theme.colors.PrimaryGreen}
-                        size={40}
-                        strokeWidth={1}
-                      />
-                      <Text
-                        variant="lg"
-                        color="PrimaryGreen"
-                        textAlign="center"
-                      >
-                        Your Workout Routine
-                      </Text>
-                      <Text
-                        color="textSecondary"
-                        textAlign="center"
-                        variant="sm"
-                      >
-                        Perform any workout routine based on your weekly
-                        schedule.
-                      </Text>
-                    </TouchableOpacity>
-                  )}
+        {/* NEW UI SECTIONS (ACTIVE PLAN DASHBOARD) */}
+        {hasActivePlans && calendarData && (
+          <CalendarSection dates={calendarData} />
+        )}
 
-                  {filteredMeal && filteredMeal.length > 0 && (
-                    <TouchableOpacity
-                      style={{
-                        flexGrow: 1,
-                        backgroundColor: theme.colors.backgroundSecondary,
-                        borderWidth: 1,
-                        borderColor: theme.colors.borderSecondary,
-                        borderRadius: theme.borderRadii.sm,
-                        padding: theme.spacing.sm,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: theme.spacing.sm,
-                      }}
-                      activeOpacity={constants.activeOpacity}
-                      onPress={() => {
-                        store.dispatch(
-                          gymActions.setSelectedMealPlanType(
-                            MealPlanType.FitnessGuruCreated
-                          )
-                        );
-                        navigation.navigate("MealPlan");
-                      }}
-                    >
-                      <Utensils
-                        color={theme.colors.PrimaryGreen}
-                        size={40}
-                        strokeWidth={1}
-                      />
-                      <Text variant="lg" color="PrimaryGreen">
-                        Your Meal Plan
-                      </Text>
-                      <Text
-                        variant="sm"
-                        color="textSecondary"
-                        textAlign="center"
-                      >
-                        Perform any workout routine based on your weekly
-                        schedule.
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </Box>
+        {hasActivePlans && (progressData || filteredMeal) && (
+          <WeeklyGoalSection
+            progress={progressData}
+            mealPlan={
+              filteredMeal?.[0] ||
+              meal?.find((m) => m.type === "FitnessGuruCreated") ||
+              meal?.[0] ||
+              null
+            }
+            onViewWorkout={() => {
+              store.dispatch(
+                gymActions.setSelectedWorkout({
+                  WorkoutType: WorkoutType.FitnessGuruCreated,
+                  createdBy: fitnessGuruRequest?.trainerId,
+                })
+              );
+              navigation.navigate("WorkoutRoutine");
+            }}
+            onViewMealPlan={() => {
+              store.dispatch(
+                gymActions.setSelectedMealPlanType(
+                  MealPlanType.FitnessGuruCreated
+                )
+              );
+              navigation.navigate("MealPlan");
+            }}
+          />
+        )}
 
-                <Box>
-                  <Text variant="lgBold">Request New Schedules</Text>
-                  <Box
-                    flexDirection="row"
-                    justifyContent="space-between"
-                    gap="sm"
-                    mt="sm"
-                  >
-                    <TouchableOpacity
-                      style={{ flex: 1 }}
-                      onPress={handleWorkoutRequest}
-                    >
-                      <Box
-                        backgroundColor="backgroundSecondary"
-                        borderRadius="sm"
-                        p="md"
-                      >
-                        <Text variant="xs" color="textSecondary">
-                          Type
-                        </Text>
-                        <Text variant="md">Workout</Text>
-                      </Box>
-                    </TouchableOpacity>
+        {hasActivePlans && (
+          <MonthlySchedulesSection
+            hasWorkout={(filteredWorkout?.length ?? 0) > 0}
+            hasMealPlan={(filteredMeal?.length ?? 0) > 0}
+            onWorkoutPress={() => {
+              store.dispatch(
+                gymActions.setSelectedWorkout({
+                  WorkoutType: WorkoutType.FitnessGuruCreated,
+                  createdBy: fitnessGuruRequest?.trainerId,
+                })
+              );
+              navigation.navigate("WorkoutRoutine");
+            }}
+            onMealPress={() => {
+              store.dispatch(
+                gymActions.setSelectedMealPlanType(
+                  MealPlanType.FitnessGuruCreated
+                )
+              );
+              navigation.navigate("MealPlan");
+            }}
+          />
+        )}
 
-                    <TouchableOpacity
-                      style={{ flex: 1 }}
-                      onPress={handleMealRequest}
-                    >
-                      <Box
-                        backgroundColor="backgroundSecondary"
-                        borderRadius="sm"
-                        p="md"
-                      >
-                        <Text variant="xs" color="textSecondary">
-                          Type
-                        </Text>
-                        <Text variant="md">Meal Plan</Text>
-                      </Box>
-                    </TouchableOpacity>
-                  </Box>
-                </Box>
-              </>
-            )}
-        </Box>
+        {hasActivePlans && habitsData && (
+          <DailyHabitsSection
+            habits={habitsData}
+            onLogHabit={logHabit}
+            isLoading={isLogging}
+          />
+        )}
       </ScrollView>
-      <WorkoutReRequestSheet
-        bottomSheetRef={workoutSheetRef}
-        onSuccess={() => {
-          eligibilityRefetch();
-        }}
-      />
-      <MealReRequestSheet
-        bottomSheetRef={mealSheetRef}
-        onSuccess={() => {
-          eligibilityRefetch();
-        }}
-      />
     </PageWrapper>
   );
 };

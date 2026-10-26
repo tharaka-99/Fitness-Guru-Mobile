@@ -28,7 +28,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({
       pt="sm"
       style={{
         paddingBottom: noBottomPadding ? undefined : insets.bottom,
-        paddingTop: noTopPadding ? undefined : insets.top,
+        //paddingTop: noTopPadding ? undefined : insets.top,
       }}
     >
       {children}

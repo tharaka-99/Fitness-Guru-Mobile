@@ -17,7 +17,7 @@ import { theme } from '@utils/styles/theme';
 import NotificationCard from '../components/NotificationCard';
 import type { InAppNotificationDTO } from '../types';
 import FullScreenLoader from '@components/atoms/FullScreenLoader';
-
+import { useBottomTabPadding } from "@/hooks/useBottomTabPadding";
 
 const IN_APP_PUSH_RECEIVED_EVENT = 'notifications.in_app_push_received';
 const IN_APP_MARKED_READ_EVENT = 'notifications.in_app_marked_read';
@@ -49,6 +49,7 @@ async function fetchInAppNotifications(): Promise<InAppNotificationDTO[]> {
 const NotificationScreen: React.FC<
   MyTabNavigatorScreenProps<'Notifications'>
 > = () => {
+  const bottomPadding = useBottomTabPadding();
   const [items, setItems] = useState<InAppNotificationDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -144,7 +145,7 @@ const NotificationScreen: React.FC<
         contentContainerStyle={{
           gap: theme.spacing.md,
           flexGrow: 1,
-          paddingBottom: theme.spacing.lg,
+          paddingBottom: bottomPadding,
         }}
         refreshControl={
           <RefreshControl

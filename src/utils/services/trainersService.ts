@@ -103,8 +103,8 @@ export const getTrainerRequestById = async (
 export const getFitnessGuruRequest = async (): Promise<any> => {
   try {
     const response = await api.get(`/trainer-request/fitness-guru-request`);
-
     return response.data.data;
+
   } catch (error) {
     throw error;
   }

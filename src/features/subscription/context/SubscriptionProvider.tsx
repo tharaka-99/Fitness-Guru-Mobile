@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Platform } from "react-native";
+import { Linking, Platform } from "react-native";
 import Purchases, {
   CustomerInfo,
   PurchasesOfferings,
@@ -47,6 +47,7 @@ interface SubscriptionContextType {
   purchasePackage: (pack: PurchasesPackage) => Promise<void>;
   restorePurchases: () => Promise<CustomerInfo | null>;
   refreshCustomerInfo: () => Promise<CustomerInfo | null>;
+  presentCodeRedemption: (promoCode?: string) => Promise<void>;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(
@@ -68,7 +69,7 @@ export const findRevenueCatPackage = (
 
 export const isSubscriptionActive = (info: CustomerInfo): boolean =>
   info.entitlements.active[SUBSCRIPTION_IDS.PREMIUM_ENTITLEMENT] !==
-    undefined || info.activeSubscriptions.length > 0;
+  undefined || info.activeSubscriptions.length > 0;
 
 export const resolveMonthlyPackageOffer = (
   monthlyPackage: PurchasesPackage | undefined,
@@ -84,9 +85,9 @@ export const resolveMonthlyPackageOffer = (
 
   const isEligible =
     trialEligibility.status ===
-      INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE ||
+    INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE ||
     trialEligibility.status ===
-      INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_UNKNOWN;
+    INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_UNKNOWN;
 
   const hasAndroidTrial =
     Platform.OS === "android" &&
@@ -275,6 +276,23 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [updateSubscriptionStatus]);
 
+  const presentCodeRedemption = useCallback(async (promoCode?: string) => {
+    try {
+      if (Platform.OS === "ios") {
+        await Purchases.presentCodeRedemptionSheet();
+      } else if (Platform.OS === "android") {
+        const cleanCode = promoCode?.trim();
+        const url = cleanCode
+          ? `https://play.google.com/redeem?code=${encodeURIComponent(cleanCode)}`
+          : "https://play.google.com/redeem";
+        await Linking.openURL(url);
+      }
+    } catch (error) {
+      console.error("Error presenting code redemption:", error);
+      throw error;
+    }
+  }, []);
+
   const value = useMemo(
     () => ({
       customerInfo,
@@ -287,6 +305,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
       purchasePackage,
       restorePurchases,
       refreshCustomerInfo,
+      presentCodeRedemption,
     }),
     [
       customerInfo,
@@ -299,6 +318,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
       purchasePackage,
       restorePurchases,
       refreshCustomerInfo,
+      presentCodeRedemption,
     ]
   );
 

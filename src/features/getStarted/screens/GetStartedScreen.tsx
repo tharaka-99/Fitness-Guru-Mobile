@@ -12,6 +12,7 @@ import {
 import PagerView from "react-native-pager-view";
 import { useDispatch } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
 
 import Box from "@components/atoms/Box";
 
@@ -217,7 +218,7 @@ const GetStartedScreen: React.FC = () => {
         <View
           style={[
             styles.topBar,
-            { top: Platform.OS === "ios" ? insets.top + 30 : 50 },
+            { top: Platform.OS === "ios" ? insets.top : 50 },
           ]}
         >
           {renderDots()}
@@ -320,11 +321,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: SCREEN_HEIGHT * 0.55,
+    height: SCREEN_HEIGHT * 0.45,
   },
 
   topBar: {
     position: "absolute",
+
     left: theme.spacing.md,
     right: theme.spacing.md,
     flexDirection: "row",

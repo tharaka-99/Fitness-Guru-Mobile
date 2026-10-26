@@ -10,7 +10,8 @@ import { ChevronDown } from "lucide-react-native";
 import SelectDropdown from "react-native-select-dropdown";
 import TextInput from "@components/molecules/TextInput";
 import { Unit } from "@utils/types/types";
-import BottomSheet, {
+import {
+  BottomSheetModal,
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetView,
@@ -24,11 +25,10 @@ import ImageInput from "@components/atoms/ImageInput";
 import { theme, constants } from "@utils/styles/theme";
 import { postWorkoutReRequest } from "@utils/services/trainersService";
 import Toast from "react-native-toast-message";
-import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
-
+import { BottomSheetModalMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
 
 interface Props {
-  bottomSheetRef: React.RefObject<BottomSheetMethods | null>;
+  bottomSheetRef: React.RefObject<BottomSheetModalMethods | null>;
   onSuccess: () => void;
 }
 
@@ -133,7 +133,7 @@ const WorkoutReRequestSheet: React.FC<Props> = ({
         text2: "Workout re-request created successfully",
       });
       onSuccess();
-      bottomSheetRef.current?.close();
+      bottomSheetRef.current?.dismiss();
     } catch (error: any) {
       Toast.show({
         type: "error",
@@ -146,11 +146,12 @@ const WorkoutReRequestSheet: React.FC<Props> = ({
   };
 
   return (
-    <BottomSheet
+    <BottomSheetModal
       ref={bottomSheetRef}
-      index={-1}
+      index={0}
       snapPoints={["90%"]}
       enableDynamicSizing={false}
+      enablePanDownToClose={true}
       backdropComponent={sheetBackDrop}
       handleIndicatorStyle={{ backgroundColor: theme.colors.textPrimary }}
       backgroundStyle={{ backgroundColor: theme.colors.backgroundSecondary }}
@@ -269,7 +270,7 @@ const WorkoutReRequestSheet: React.FC<Props> = ({
         </Box>
       </BottomSheetScrollView>
       {/* </BottomSheetView> */}
-    </BottomSheet>
+    </BottomSheetModal>
   );
 };
 

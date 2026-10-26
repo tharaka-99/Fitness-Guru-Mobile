@@ -17,10 +17,12 @@ import { useQuery } from '@tanstack/react-query';
 import { getClientProfileInfo } from '@utils/services/authServices';
 import { Button as PaperButton, Dialog, Portal } from 'react-native-paper';
 import { RootState } from '@/store';
+import { useBottomTabPadding } from "@/hooks/useBottomTabPadding";
 
 const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
   navigation,
 }) => {
+  const bottomPadding = useBottomTabPadding();
   const dispatch = useDispatch();
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const user = useSelector((state: RootState) => state['feature/auth'].user);
@@ -70,14 +72,14 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
     : 'Active';
 
   return (
-    <PageWrapper noBottomPadding>
+    <PageWrapper>
       <PageHeader title="Account" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         overScrollMode="never"
         style={{ flex: 1 }}
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: bottomPadding }}
       >
         <Box flex={1} justifyContent="space-between">
           <Box>
@@ -166,7 +168,7 @@ const AccountScreen: React.FC<MyTabNavigatorScreenProps<'Account'>> = ({
                         py="xs"
                         borderRadius="xs"
                       >
-                        <Text variant="xs" color="PrimaryGreen" fontWeight="bold">Premium</Text>
+                        <Text variant="xs" color="PrimaryGreen">Premium</Text>
                       </Box>
                     </Box>
 
