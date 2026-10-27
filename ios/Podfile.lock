@@ -222,6 +222,8 @@ PODS:
     - Yoga
   - ExpoAsset (11.0.5):
     - ExpoModulesCore
+  - ExpoBlur (14.0.3):
+    - ExpoModulesCore
   - ExpoFileSystem (18.0.12):
     - ExpoModulesCore
   - ExpoFont (13.0.4):
@@ -338,47 +340,47 @@ PODS:
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
-  - GoogleDataTransport (10.1.0):
+  - GoogleDataTransport (10.1.1):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
-  - GoogleUtilities (8.1.0):
-    - GoogleUtilities/AppDelegateSwizzler (= 8.1.0)
-    - GoogleUtilities/Environment (= 8.1.0)
-    - GoogleUtilities/Logger (= 8.1.0)
-    - GoogleUtilities/MethodSwizzler (= 8.1.0)
-    - GoogleUtilities/Network (= 8.1.0)
-    - "GoogleUtilities/NSData+zlib (= 8.1.0)"
-    - GoogleUtilities/Privacy (= 8.1.0)
-    - GoogleUtilities/Reachability (= 8.1.0)
-    - GoogleUtilities/SwizzlerTestHelpers (= 8.1.0)
-    - GoogleUtilities/UserDefaults (= 8.1.0)
-  - GoogleUtilities/AppDelegateSwizzler (8.1.0):
+  - GoogleUtilities (8.1.5):
+    - GoogleUtilities/AppDelegateSwizzler (= 8.1.5)
+    - GoogleUtilities/Environment (= 8.1.5)
+    - GoogleUtilities/Logger (= 8.1.5)
+    - GoogleUtilities/MethodSwizzler (= 8.1.5)
+    - GoogleUtilities/Network (= 8.1.5)
+    - "GoogleUtilities/NSData+zlib (= 8.1.5)"
+    - GoogleUtilities/Privacy (= 8.1.5)
+    - GoogleUtilities/Reachability (= 8.1.5)
+    - GoogleUtilities/SwizzlerTestHelpers (= 8.1.5)
+    - GoogleUtilities/UserDefaults (= 8.1.5)
+  - GoogleUtilities/AppDelegateSwizzler (8.1.5):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Environment (8.1.0):
+  - GoogleUtilities/Environment (8.1.5):
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Logger (8.1.0):
+  - GoogleUtilities/Logger (8.1.5):
     - GoogleUtilities/Environment
     - GoogleUtilities/Privacy
-  - GoogleUtilities/MethodSwizzler (8.1.0):
+  - GoogleUtilities/MethodSwizzler (8.1.5):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Network (8.1.0):
+  - GoogleUtilities/Network (8.1.5):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Privacy
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (8.1.0)":
+  - "GoogleUtilities/NSData+zlib (8.1.5)":
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Privacy (8.1.0)
-  - GoogleUtilities/Reachability (8.1.0):
+  - GoogleUtilities/Privacy (8.1.5)
+  - GoogleUtilities/Reachability (8.1.5):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - GoogleUtilities/SwizzlerTestHelpers (8.1.0):
+  - GoogleUtilities/SwizzlerTestHelpers (8.1.5):
     - GoogleUtilities/MethodSwizzler
-  - GoogleUtilities/UserDefaults (8.1.0):
+  - GoogleUtilities/UserDefaults (8.1.5):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
   - hermes-engine (0.76.9):
@@ -389,12 +391,12 @@ PODS:
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
-  - PromisesObjC (2.4.0)
-  - PurchasesHybridCommon (17.52.0):
-    - RevenueCat (= 5.65.0)
-  - PurchasesHybridCommonUI (17.52.0):
-    - PurchasesHybridCommon (= 17.52.0)
-    - RevenueCatUI (= 5.65.0)
+  - PromisesObjC (2.4.1)
+  - PurchasesHybridCommon (17.55.2):
+    - RevenueCat (= 5.67.1)
+  - PurchasesHybridCommonUI (17.55.2):
+    - PurchasesHybridCommon (= 17.55.2)
+    - RevenueCatUI (= 5.67.1)
   - RCT-Folly (2024.10.14.00):
     - boost
     - DoubleConversion
@@ -1972,9 +1974,9 @@ PODS:
     - React-logger
     - React-perflogger
     - React-utils (= 0.76.9)
-  - RevenueCat (5.65.0)
-  - RevenueCatUI (5.65.0):
-    - RevenueCat (= 5.65.0)
+  - RevenueCat (5.67.1)
+  - RevenueCatUI (5.67.1):
+    - RevenueCat (= 5.67.1)
   - RNCAsyncStorage (2.1.2):
     - React-Core
   - RNCMaskedView (0.1.11):
@@ -2048,11 +2050,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNPaywalls (9.14.0):
-    - PurchasesHybridCommonUI (= 17.52.0)
+  - RNPaywalls (9.15.3):
+    - PurchasesHybridCommonUI (= 17.55.2)
     - React-Core
-  - RNPurchases (9.14.0):
-    - PurchasesHybridCommon (= 17.52.0)
+  - RNPurchases (9.15.3):
+    - PurchasesHybridCommon (= 17.55.2)
     - React-Core
   - RNReanimated (3.17.5):
     - DoubleConversion
@@ -2235,6 +2237,7 @@ DEPENDENCIES:
   - expo-dev-menu (from `../node_modules/expo-dev-menu`)
   - expo-dev-menu-interface (from `../node_modules/expo-dev-menu-interface/ios`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
+  - ExpoBlur (from `../node_modules/expo-blur/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../node_modules/expo-font/ios`)
   - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
@@ -2375,6 +2378,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-dev-menu-interface/ios"
   ExpoAsset:
     :path: "../node_modules/expo-asset/ios"
+  ExpoBlur:
+    :path: "../node_modules/expo-blur/ios"
   ExpoFileSystem:
     :path: "../node_modules/expo-file-system/ios"
   ExpoFont:
@@ -2561,6 +2566,7 @@ SPEC CHECKSUMS:
   expo-dev-menu: 2c332a184dc36a9a9f23f399cc8d834666495ece
   expo-dev-menu-interface: 00dc42302a72722fdecec3fa048de84a9133bcc4
   ExpoAsset: 0687fe05f5d051c4a34dd1f9440bd00858413cfe
+  ExpoBlur: 567af66164e3043a9a30069594aed1ddf0a88d97
   ExpoFileSystem: c8c19bf80d914c83dda3beb8569d7fb603be0970
   ExpoFont: 773955186469acc5108ff569712a2d243857475f
   ExpoImagePicker: 482b2a6198b365dd18b5a0cb6d4caeec880cb8e1
@@ -2581,13 +2587,13 @@ SPEC CHECKSUMS:
   glog: 08b301085f15bcbb6ff8632a8ebaf239aae04e6a
   GoogleAdsOnDeviceConversion: b25c8d714e457fe2ceae3d3bdc102b6cf9677afb
   GoogleAppMeasurement: 57270ccc2b77472d7e85c4cbe45972564eff78bb
-  GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
-  GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
+  GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
+  GoogleUtilities: 7dc09b3fa9ecb5c2298b952313d14628b61b9da3
   hermes-engine: 9e868dc7be781364296d6ee2f56d0c1a9ef0bb11
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
-  PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  PurchasesHybridCommon: 27cca251e01998c53a6b31bf53baf09f84926609
-  PurchasesHybridCommonUI: fb64dd31451c45a11aa9ac0cd40aac8c0a88b2d0
+  PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
+  PurchasesHybridCommon: 83c0727d99136975a5bcb20854fb65eff9f45d7e
+  PurchasesHybridCommonUI: bf11fc3f8a570f3519ca8ffa68bb7ab463456b84
   RCT-Folly: 7b4f73a92ad9571b9dbdb05bb30fad927fa971e1
   RCTDeprecation: ebe712bb05077934b16c6bf25228bdec34b64f83
   RCTRequired: ca91e5dd26b64f577b528044c962baf171c6b716
@@ -2648,16 +2654,16 @@ SPEC CHECKSUMS:
   React-utils: 54df9ada708578c8ad40d92895d6fed03e0e8a9e
   ReactCodegen: 21a52ccddc6479448fc91903a437dd23ddc7366c
   ReactCommon: bfd3600989d79bc3acbe7704161b171a1480b9fd
-  RevenueCat: 9a37739bdf42af84dd87e023db340de7e0f9d874
-  RevenueCatUI: 1a503c1713ab8f598a0eb55e9954de7e3616aa5b
+  RevenueCat: 9357239a9f0978285e68983637b8a602e65c94f0
+  RevenueCatUI: 6f9291da540f98baf405b5bdfc46b2d5547b704a
   RNCAsyncStorage: addfc2cb6511dbe199c56c6b26ede383b6c38919
   RNCMaskedView: 0e1bc4bfa8365eba5fbbb71e07fbdc0555249489
   RNDeviceInfo: 8b6fa8379062949dd79a009cf3d6b02a9c03ca59
   RNFBApp: 76d22af5150d04d6c904c469278570f3213a779d
   RNFBMessaging: d04ca5e049862be06145cea4008bbd75e32eb1e2
   RNGestureHandler: 950dfa674dbf481460ca389c65b9036ac4ab8ada
-  RNPaywalls: 990a630d86aad9ff06454364e32feccd7e1b386f
-  RNPurchases: 0c66db11d9323c2d771f8cc594562c8a90f04ee7
+  RNPaywalls: 54b6fcbf420536d517c5c742a10771dffeca7cde
+  RNPurchases: 4b05d588f6b505fd12d89293a059bcfdfaf9f76e
   RNReanimated: 77c7dbb8d177efb8b2a064d076b5407e53d57591
   RNScreens: c1486d9ff1cdd08955cc716568d3c174b4da27f9
   RNSVG: 8b1a777d54096b8c2a0fd38fc9d5a454332bbb4d

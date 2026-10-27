@@ -1,5 +1,8 @@
 import { Home, Bell, User, Dumbbell } from "lucide-react-native";
-import { BottomTabBarProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import {
+  BottomTabBarProps,
+  createBottomTabNavigator,
+} from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   DeviceEventEmitter,
@@ -9,7 +12,11 @@ import {
   Pressable,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import Animated, { useAnimatedStyle, withSpring, withTiming } from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 import AccountScreen from "@features/account/screens/AccountScreen";
 import NotificationScreen from "@features/notification/screens/NotificationScreen";
@@ -28,17 +35,34 @@ const Tab = createBottomTabNavigator<TabParamList>();
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const CustomTabBar = ({ state, descriptors, navigation, insets }: BottomTabBarProps & { insets: any }) => {
+const CustomTabBar = ({
+  state,
+  descriptors,
+  navigation,
+  insets,
+}: BottomTabBarProps & { insets: any }) => {
   return (
-    <View style={[styles.tabBarContainer, { paddingBottom: Platform.OS === 'ios' ? insets.bottom : insets.bottom + 10 }]}>
-      <BlurView intensity={Platform.OS === 'ios' ? 80 : 100} tint="dark" style={styles.blurView}>
+    <View
+      style={[
+        styles.tabBarContainer,
+        {
+          paddingBottom:
+            Platform.OS === "ios" ? insets.bottom : insets.bottom + 10,
+        },
+      ]}
+    >
+      <BlurView
+        intensity={Platform.OS === "ios" ? 80 : 100}
+        tint="dark"
+        style={styles.blurView}
+      >
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
 
           const onPress = () => {
             const event = navigation.emit({
-              type: 'tabPress',
+              type: "tabPress",
               target: route.key,
               canPreventDefault: true,
             });
@@ -62,7 +86,15 @@ const CustomTabBar = ({ state, descriptors, navigation, insets }: BottomTabBarPr
   );
 };
 
-const TabItem = ({ isFocused, onPress, options }: { isFocused: boolean, onPress: () => void, options: any }) => {
+const TabItem = ({
+  isFocused,
+  onPress,
+  options,
+}: {
+  isFocused: boolean;
+  onPress: () => void;
+  options: any;
+}) => {
   const animatedIconStyle = useAnimatedStyle(() => {
     return {
       transform: [{ scale: withSpring(isFocused ? 1.2 : 1) }],
@@ -80,7 +112,13 @@ const TabItem = ({ isFocused, onPress, options }: { isFocused: boolean, onPress:
   return (
     <AnimatedPressable onPress={onPress} style={styles.tabItem}>
       <Animated.View style={animatedIconStyle}>
-        {options.tabBarIcon && options.tabBarIcon({ color: isFocused ? theme.colors.PrimaryGreen : theme.colors.textSecondary, size: 24 })}
+        {options.tabBarIcon &&
+          options.tabBarIcon({
+            color: isFocused
+              ? theme.colors.PrimaryGreen
+              : theme.colors.textSecondary,
+            size: 24,
+          })}
 
         {/* Badge handling */}
         {options.tabBarBadge !== undefined && (
@@ -94,7 +132,6 @@ const TabItem = ({ isFocused, onPress, options }: { isFocused: boolean, onPress:
     </AnimatedPressable>
   );
 };
-
 
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
@@ -193,30 +230,31 @@ const TabNavigator = () => {
 
 const styles = StyleSheet.create({
   tabBarContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 50,
     right: 50,
   },
   blurView: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     borderRadius: 35,
-    overflow: 'hidden',
+    overflow: "hidden",
     paddingVertical: theme.spacing.md,
-    backgroundColor: Platform.OS === 'android' ? 'rgba(30, 41, 59, 0.75)' : 'transparent',
-    borderWidth: Platform.OS === 'android' ? 1 : 0,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor:
+      Platform.OS === "android" ? "rgba(30, 41, 59, 0.75)" : "transparent",
+    borderWidth: Platform.OS === "android" ? 1 : 0,
+    borderColor: "rgba(255, 255, 255, 0.1)",
   },
   tabItem: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
   },
   dot: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 12,
     width: 5,
     height: 5,
@@ -224,22 +262,22 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.PrimaryGreen,
   },
   badgeContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: -4,
     right: -8,
     backgroundColor: theme.colors.PrimaryGreen,
     borderRadius: 10,
     minWidth: 18,
     height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 4,
   },
   badgeText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 10,
-    fontWeight: 'bold',
-  }
+    fontWeight: "bold",
+  },
 });
 
 export default TabNavigator;

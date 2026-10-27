@@ -9,7 +9,17 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Toast from "react-native-toast-message";
-import { Check, Circle, X, ArrowLeft, User, Mail, Lock, Phone, MapPin } from "lucide-react-native";
+import {
+  Check,
+  Circle,
+  X,
+  ArrowLeft,
+  User,
+  Mail,
+  Lock,
+  Phone,
+  MapPin,
+} from "lucide-react-native";
 
 import PageHeader from "@components/app/header/PageHeader";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
@@ -97,7 +107,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
       if (key === "password" || key === "confirmPassword") {
         setPasswordsMatch(
           updated.password === updated.confirmPassword &&
-          updated.confirmPassword.length > 0,
+            updated.confirmPassword.length > 0
         );
       }
 
@@ -192,9 +202,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
         >
           <Text color="textSecondary">Already a member?</Text>
           <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-            <Text fontWeight="bold">
-              Login
-            </Text>
+            <Text fontWeight="bold">Login</Text>
           </TouchableOpacity>
         </Box>
       </Box>
@@ -202,7 +210,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper noBottomPadding>
       {/* <PageHeader
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">
@@ -223,7 +231,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
         enableOnAndroid={true}
         extraScrollHeight={20}
       >
-        <Box gap="base">
+        <Box gap="base" pb="xl">
           <Box>
             <Box alignItems="center" mt="2xl" mb="md">
               <Text variant="2xlBold" color="PrimaryGreen">
@@ -265,7 +273,9 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
                 // label="City"
                 placeholder="City"
                 autoCapitalize="sentences"
-                leftIcon={<MapPin color={theme.colors.PrimaryGreen} size={20} />}
+                leftIcon={
+                  <MapPin color={theme.colors.PrimaryGreen} size={20} />
+                }
                 onChangeText={(t) => handleInputChange("city", t)}
               />
               <Select
@@ -304,7 +314,7 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
                   validatePasswordRealtime(t);
                   setPasswordsMatch(
                     t === (userData.confirmPassword ?? "") &&
-                    (userData.confirmPassword?.length ?? 0) > 0,
+                      (userData.confirmPassword?.length ?? 0) > 0
                   );
                 }}
               />
@@ -340,8 +350,8 @@ const RegisterScreen: React.FC<MyAuthStackNavigatorScreenProps<"Register">> = ({
                         passwordStrength === "Strong"
                           ? "PrimaryGreen"
                           : passwordStrength === "Medium"
-                            ? "PrimaryOrange"
-                            : "PrimaryRed"
+                          ? "PrimaryOrange"
+                          : "PrimaryRed"
                       }
                     >
                       {passwordStrength}

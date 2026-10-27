@@ -1,9 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import {
-  Image,
-  ImageSourcePropType,
-  View,
-} from "react-native";
+import { Image, ImageSourcePropType, View } from "react-native";
 import PagerView from "react-native-pager-view";
 
 import Box from "@components/atoms/Box";
@@ -67,8 +63,8 @@ const WorkflowPromoBanner: React.FC<WorkflowPromoBannerProps> = ({
         overflow="hidden"
         backgroundColor="backgroundSecondary"
         style={{
-          borderWidth: 1,
-          borderColor: "rgba(160, 226, 32, 0.3)",
+          borderWidth: 0.5,
+          borderColor: "rgba(73, 73, 71, 0.3)",
         }}
       >
         <PagerView

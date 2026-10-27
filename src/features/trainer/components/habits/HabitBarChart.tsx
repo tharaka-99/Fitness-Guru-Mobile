@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
-import { View, LayoutChangeEvent, Dimensions, TouchableOpacity } from 'react-native';
-import Svg, { Line, Rect, Text as SvgText, G } from 'react-native-svg';
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
-import { theme } from '@utils/styles/theme';
-import { HabitType } from '@utils/types/habitTypes';
-import { ProcessedDayPoint } from '../../hooks/useHabitHistory';
+import React, { useState } from "react";
+import {
+  View,
+  LayoutChangeEvent,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
+import Svg, { Line, Rect, Text as SvgText, G } from "react-native-svg";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { theme } from "@utils/styles/theme";
+import { HabitType } from "@utils/types/habitTypes";
+import { ProcessedDayPoint } from "../../hooks/useHabitHistory";
 
 interface Props {
   habitType: HabitType;
-  period: 'week' | 'month';
+  period: "week" | "month";
   points: ProcessedDayPoint[];
   targetValue: number;
   ticks: number[];
@@ -19,7 +24,7 @@ interface Props {
   onSelectDay?: (point: ProcessedDayPoint) => void;
 }
 
-const DEFAULT_WIDTH = Dimensions.get('window').width - 32;
+const DEFAULT_WIDTH = Dimensions.get("window").width - 32;
 
 export const HabitBarChart: React.FC<Props> = ({
   habitType,
@@ -43,8 +48,8 @@ export const HabitBarChart: React.FC<Props> = ({
   };
 
   const chartHeight = 180;
-  const paddingLeft = habitType === 'steps' ? 44 : 36;
-  const paddingRight = 16;
+  const paddingLeft = habitType === "steps" ? 44 : 36;
+  const paddingRight = 32;
   const paddingTop = 26;
   const paddingBottom = 26;
 
@@ -59,31 +64,35 @@ export const HabitBarChart: React.FC<Props> = ({
 
   // Format goal text based on habit type
   const formatGoalLabel = () => {
-    if (habitType === 'sleep') return `Goal ${targetValue}h`;
-    if (habitType === 'water') return `Goal ${targetValue} L`;
-    if (habitType === 'steps') return `Goal ${targetValue.toLocaleString()}`;
+    if (habitType === "sleep") return `Goal ${targetValue}h`;
+    if (habitType === "water") return `Goal ${targetValue} L`;
+    if (habitType === "steps") return `Goal ${targetValue.toLocaleString()}`;
     return `Goal ${targetValue}`;
   };
 
   // Format bar top label
   const formatBarLabel = (point: ProcessedDayPoint) => {
-    if (!point.isLogged || point.value == null || point.value === 0) return '';
-    if (habitType === 'sleep') {
+    if (!point.isLogged || point.value == null || point.value === 0) return "";
+    if (habitType === "sleep") {
       return `${point.value}h`;
     }
-    if (habitType === 'water') {
+    if (habitType === "water") {
       return point.value.toFixed(1);
     }
-    if (habitType === 'steps') {
-      return point.value >= 1000 ? Math.round(point.value).toLocaleString() : `${point.value}`;
+    if (habitType === "steps") {
+      return point.value >= 1000
+        ? Math.round(point.value).toLocaleString()
+        : `${point.value}`;
     }
     return `${point.value}`;
   };
 
-  const isMonth = period === 'month';
+  const isMonth = period === "month";
   const count = points.length;
   const colWidth = plotWidth / Math.max(1, count);
-  const barWidth = isMonth ? Math.max(4, colWidth * 0.65) : Math.max(18, Math.min(32, colWidth * 0.62));
+  const barWidth = isMonth
+    ? Math.max(4, colWidth * 0.65)
+    : Math.max(18, Math.min(32, colWidth * 0.62));
 
   return (
     <Box
@@ -93,7 +102,7 @@ export const HabitBarChart: React.FC<Props> = ({
       mb="md"
       onLayout={onLayout}
       style={{
-        shadowColor: '#000',
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
         shadowRadius: 6,
@@ -101,7 +110,12 @@ export const HabitBarChart: React.FC<Props> = ({
       }}
     >
       {/* Header */}
-      <Box flexDirection="row" justifyContent="space-between" alignItems="center" mb="sm">
+      <Box
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb="sm"
+      >
         <Text variant="mdBold" color="textPrimary">
           {title}
         </Text>
@@ -113,13 +127,15 @@ export const HabitBarChart: React.FC<Props> = ({
       </Box>
 
       {/* SVG Canvas */}
-      <View style={{ width: '100%', height: chartHeight, overflow: 'hidden' }}>
+      <View style={{ width: "100%", height: chartHeight, overflow: "hidden" }}>
         <Svg width={chartWidth} height={chartHeight}>
           {/* Horizontal Grid lines and Y-axis labels */}
           {ticks.map((tickVal, idx) => {
-            const y = paddingTop + (1 - Math.min(1, Math.max(0, tickVal / maxY))) * plotHeight;
+            const y =
+              paddingTop +
+              (1 - Math.min(1, Math.max(0, tickVal / maxY))) * plotHeight;
             let tickLabel = `${tickVal}`;
-            if (habitType === 'steps' && tickVal >= 1000) {
+            if (habitType === "steps" && tickVal >= 1000) {
               tickLabel = `${tickVal}`;
             }
 
@@ -150,30 +166,32 @@ export const HabitBarChart: React.FC<Props> = ({
           })}
 
           {/* Goal Line (Dashed Green) */}
-          {goalY !== null && goalY >= paddingTop && goalY <= paddingTop + plotHeight && (
-            <G>
-              <Line
-                x1={paddingLeft}
-                y1={goalY}
-                x2={chartWidth - paddingRight}
-                y2={goalY}
-                stroke={theme.colors.PrimaryGreen}
-                strokeWidth={1.5}
-                strokeDasharray="4, 4"
-                opacity={0.9}
-              />
-              <SvgText
-                x={chartWidth - paddingRight - 20}
-                y={goalY - 6}
-                fill={theme.colors.PrimaryGreen}
-                fontSize={10}
-                fontWeight="700"
-                textAnchor="end"
-              >
-                {formatGoalLabel()}
-              </SvgText>
-            </G>
-          )}
+          {goalY !== null &&
+            goalY >= paddingTop &&
+            goalY <= paddingTop + plotHeight && (
+              <G>
+                <Line
+                  x1={paddingLeft}
+                  y1={goalY}
+                  x2={chartWidth - paddingRight}
+                  y2={goalY}
+                  stroke={theme.colors.PrimaryGreen}
+                  strokeWidth={1.5}
+                  strokeDasharray="4, 4"
+                  opacity={0.9}
+                />
+                <SvgText
+                  x={chartWidth - paddingRight - 20}
+                  y={goalY - 6}
+                  fill={theme.colors.PrimaryGreen}
+                  fontSize={10}
+                  fontWeight="700"
+                  textAnchor="end"
+                >
+                  {formatGoalLabel()}
+                </SvgText>
+              </G>
+            )}
 
           {/* Base bottom axis line */}
           <Line
@@ -256,9 +274,13 @@ export const HabitBarChart: React.FC<Props> = ({
                   <SvgText
                     x={centerX}
                     y={chartHeight - 8}
-                    fill={isSelected ? theme.colors.PrimaryGreen : theme.colors.SecondaryGrey}
+                    fill={
+                      isSelected
+                        ? theme.colors.PrimaryGreen
+                        : theme.colors.SecondaryGrey
+                    }
                     fontSize={isMonth ? 9 : 11}
-                    fontWeight={isSelected ? 'bold' : 'normal'}
+                    fontWeight={isSelected ? "bold" : "normal"}
                     textAnchor="middle"
                   >
                     {xLabel}
@@ -272,12 +294,12 @@ export const HabitBarChart: React.FC<Props> = ({
         {/* Touch overlay to tap bars */}
         <View
           style={{
-            position: 'absolute',
+            position: "absolute",
             left: paddingLeft,
             top: paddingTop,
             width: plotWidth,
             height: plotHeight,
-            flexDirection: 'row',
+            flexDirection: "row",
           }}
         >
           {points.map((point) => (

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Image, TouchableOpacity, ScrollView } from "react-native";
 import { store } from "@/store";
 import PageWrapper from "@components/app/PageWrapper";
@@ -34,6 +34,59 @@ import PersonalisedPlanCard from "../components/fitness-guru/PersonalisedPlanCar
 import { useWeeklyOverview } from "../hooks/useWeeklyOverview";
 import { useDailyHabits } from "../hooks/useDailyHabits";
 
+const QUOTES = [
+  "Stronger Than Yesterday 🔥",
+  "Progress Over Perfection 💪",
+  "Built By Discipline ⚡",
+  "Every Rep Counts 🔥",
+  "Your Only Competition Is You 💪",
+  "Earn Your Progress 🏆",
+  "Keep Showing Up 🔥",
+  "One Day Stronger 💪",
+  "Push Beyond Limits ⚡",
+  "Consistency Builds Champions 🏆",
+  "Make Every Day Count 🔥",
+  "Small Steps. Big Results. 💪",
+  "Trust The Process ⚡",
+  "No Limits. Just Progress. 🔥",
+  "Become Your Strongest Self 💪",
+  "Discipline Creates Results 🎯",
+  "Better Every Single Day 🔥",
+  "Your Journey. Your Strength. 💪",
+  "Progress Starts With You ⚡",
+  "Keep Going. Keep Growing. 🚀",
+  "Greatness Takes Consistency 🔥",
+  "Show Up. Get Stronger. 💪",
+  "Make Yourself Proud ⚡",
+  "Chase Progress, Not Perfection 🎯",
+  "Your Effort Defines You 🔥",
+  "Stronger With Every Rep 💪",
+  "Keep The Momentum Going 🚀",
+  "Hard Work Pays Off 🏆",
+  "One Rep At A Time 💪",
+  "Every Workout Matters 🔥",
+  "Sweat Today. Shine Tomorrow. ⚡",
+  "Push Hard. Stay Humble. 💪",
+  "Strength Starts Within 🔥",
+  "Turn Effort Into Results 🎯",
+  "Believe. Achieve. Repeat. 🚀",
+  "Stay Hungry. Stay Strong. 💪",
+  "Your Goals Are Waiting 🔥",
+  "Rise. Train. Conquer. ⚡",
+  "Make Today Your Day 💪",
+  "No Excuses. Just Action. 🔥",
+  "Build Strength. Build Confidence. 🏆",
+  "You’re Getting Better Daily 💪",
+  "Strong Habits. Strong Results. ⚡",
+  "Commit To Your Goals 🎯",
+  "Train With Purpose 🔥",
+  "Never Settle For Average 💪",
+  "The Grind Builds Greatness ⚡",
+  "Own Your Fitness Journey 🚀",
+  "Today’s Effort. Tomorrow’s Strength. 🔥",
+  "Keep Moving Forward 💪",
+];
+
 const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   navigation,
 }) => {
@@ -58,7 +111,6 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
     queryKey: ["fitnessGuruRequest"],
     queryFn: getFitnessGuruRequest,
   });
-
 
   const {
     isLoading: isProfileLoading,
@@ -93,6 +145,21 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
 
   const targetWorkout = filteredWorkout?.[0] || workout?.[0];
 
+  // QUOTE: new random quote every time the screen is opened/focused
+  const [quote, setQuote] = useState("");
+  const lastQuoteRef = useRef("");
+
+  useFocusEffect(
+    React.useCallback(() => {
+      let next = lastQuoteRef.current;
+      while (next === lastQuoteRef.current && QUOTES.length > 1) {
+        next = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      }
+      lastQuoteRef.current = next;
+      setQuote(next);
+    }, [])
+  );
+
   // NEW DATA FETCHING (Server-authoritative weekly sessions & targets)
   const {
     data: weeklyOverview,
@@ -101,8 +168,13 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
   } = useWeeklyOverview(targetWorkout);
   const calendarData = weeklyOverview?.calendar;
   const progressData = weeklyOverview?.progress;
-  const { data: habitsData, logHabit, isLogging, isLoading: isHabitsLoading, refetch: habitsRefetch } = useDailyHabits();
-
+  const {
+    data: habitsData,
+    logHabit,
+    isLogging,
+    isLoading: isHabitsLoading,
+    refetch: habitsRefetch,
+  } = useDailyHabits();
 
   const filteredMeal = React.useMemo(() => {
     return meal?.filter((m) => m.type === "FitnessGuruCreated");
@@ -146,10 +218,8 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
     ])
   );
 
-
   if (
     isFitnessGuruRequestLoading ||
-
     isWorkoutLoading ||
     isMealLoading ||
     isProfileLoading ||
@@ -182,19 +252,25 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
       <ScrollView
         showsVerticalScrollIndicator={false}
         overScrollMode="never"
+        style={{ flex: 1 }}
         contentContainerStyle={{
           flexGrow: 1,
-          marginBottom: bottomPadding
+          paddingBottom: bottomPadding,
         }}
       >
-        <Box px={"md"} flexDirection="row" alignItems="center" justifyContent="space-between" mb="md">
-          <Box flexDirection="row" alignItems="center">
+        <Box
+          px={"md"}
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Box flexDirection="row" alignItems="center" flex={1}>
             {/* Dual overlapping avatar badge */}
             <Box flexDirection="row" alignItems="center">
               {user?.profileImageFileUrl ? (
                 <Image
-                  source={{ uri: user.profileImageFileUrl }}
-                  style={{ width: 50, height: 50, borderRadius: 25 }}
+                  source={{ uri: profile.profileImageFileUrl }}
+                  style={{ width: 60, height: 60, borderRadius: 30 }}
                 />
               ) : (
                 <Box
@@ -227,32 +303,44 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
                 />
               </Box>
             </Box>
-            <Box ml="md">
-              <Text variant="lgBold" color="PrimaryWhite">
-                Welcome, {capitalizeString(profile?.firstName || user?.name || "User")}
+            <Box ml="md" flex={1}>
+              <Text variant="lgBold" color="PrimaryWhite" numberOfLines={1}>
+                Welcome Back,{" "}
+                {capitalizeString(profile?.firstName || user?.name || "User")}
               </Text>
-              <Text variant="sm" color="textSecondary">
-                Your fitness journey starts here
-              </Text>
+              {!!quote && (
+                <Text
+                  mt="xs"
+                  variant="sm"
+                  color="textSecondary"
+                  numberOfLines={2}
+                >
+                  {quote}
+                </Text>
+              )}
             </Box>
           </Box>
         </Box>
 
         {/* If no active plans, show the Personalised Plan onboarding stepper */}
         {!hasActivePlans && (
-          <PersonalisedPlanCard
-            stage={isPending ? "pending" : "requesting"}
-            onCompleteProfile={() =>
-              navigation.push("TrainerApplication", {
-                trainerId: "fitness-guru",
-                packageId: "456",
-              })
-            }
-          />
+          <Box flex={1}>
+            <PersonalisedPlanCard
+              stage={isPending ? "pending" : "requesting"}
+              onCompleteProfile={() =>
+                navigation.push("TrainerApplication", {
+                  trainerId: "fitness-guru",
+                  packageId: "456",
+                })
+              }
+            />
+          </Box>
         )}
 
         {/* NEW UI SECTIONS (ACTIVE PLAN DASHBOARD) */}
-        {hasActivePlans && calendarData && <CalendarSection dates={calendarData} />}
+        {hasActivePlans && calendarData && (
+          <CalendarSection dates={calendarData} />
+        )}
 
         {hasActivePlans && (progressData || filteredMeal) && (
           <WeeklyGoalSection
@@ -274,7 +362,9 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
             }}
             onViewMealPlan={() => {
               store.dispatch(
-                gymActions.setSelectedMealPlanType(MealPlanType.FitnessGuruCreated)
+                gymActions.setSelectedMealPlanType(
+                  MealPlanType.FitnessGuruCreated
+                )
               );
               navigation.navigate("MealPlan");
             }}
@@ -296,7 +386,9 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
             }}
             onMealPress={() => {
               store.dispatch(
-                gymActions.setSelectedMealPlanType(MealPlanType.FitnessGuruCreated)
+                gymActions.setSelectedMealPlanType(
+                  MealPlanType.FitnessGuruCreated
+                )
               );
               navigation.navigate("MealPlan");
             }}
@@ -304,10 +396,12 @@ const FitnessGuruScreen: React.FC<MyTabNavigatorScreenProps<"FitnessGuru">> = ({
         )}
 
         {hasActivePlans && habitsData && (
-          <DailyHabitsSection habits={habitsData} onLogHabit={logHabit} isLoading={isLogging} />
+          <DailyHabitsSection
+            habits={habitsData}
+            onLogHabit={logHabit}
+            isLoading={isLogging}
+          />
         )}
-
-        <Box height={100} />
       </ScrollView>
     </PageWrapper>
   );

@@ -9,13 +9,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider as ReduxProvider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { useFonts, Jost_400Regular, Jost_700Bold, Jost_900Black } from "@expo-google-fonts/jost";
+import {
+  useFonts,
+  Jost_400Regular,
+  Jost_700Bold,
+  Jost_900Black,
+} from "@expo-google-fonts/jost";
 
 import { reduxPersistor, store } from "@/store";
 import AppInitializer from "@components/app/AppInitializer";
 import navigationTheme from "@navigation/theme";
 import { theme } from "@utils/styles/theme";
-
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -26,7 +30,6 @@ import { SubscriptionProvider } from "@features/subscription/context/Subscriptio
 import { enableScreens } from "react-native-screens";
 enableScreens();
 
-
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 const queryClient = new QueryClient();
@@ -35,12 +38,11 @@ configureReanimatedLogger({
   strict: true, // Reanimated runs in strict mode by default
 });
 
-
 export default function App() {
   const [fontsLoaded] = useFonts({
     Jost_400Regular,
     Jost_700Bold,
-    Jost_900Black
+    Jost_900Black,
   });
 
   if (!fontsLoaded) {
@@ -57,11 +59,12 @@ export default function App() {
                 <ReduxProvider store={store}>
                   <PersistGate persistor={reduxPersistor}>
                     <SubscriptionProvider>
-                      <SafeAreaView style={styles.container}
+                      <SafeAreaView
+                        style={styles.container}
                         edges={
                           Platform.OS === "android"
                             ? ["right", "top", "left"]
-                            : undefined
+                            : ["top"]
                         }
                       >
                         <StatusBar style="light" />
@@ -80,13 +83,9 @@ export default function App() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.backgroundPrimary,
   },
 });
-
-
-

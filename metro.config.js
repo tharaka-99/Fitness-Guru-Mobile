@@ -6,10 +6,10 @@ const path = require("path");
 const config = getDefaultConfig(__dirname);
 
 config.resolver.unstable_enablePackageExports = true;
-config.resolver.unstable_conditionNames = [
-  "browser",
-  "require",
-  "react-native",
-];
+// config.resolver.unstable_conditionNames = [
+//   "browser",
+//   "require",
+//   "react-native",
+// ];
 
 module.exports = config;

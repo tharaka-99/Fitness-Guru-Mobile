@@ -8,13 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import {
-  Check,
-  CheckCircle2,
-  Tag,
-  X,
-  ExternalLink,
-} from "lucide-react-native";
+import { Check, CheckCircle2, Tag, X, ExternalLink } from "lucide-react-native";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
 import Button from "@components/atoms/Button";
@@ -304,7 +298,11 @@ const PricingPackageCard: React.FC<Props> = ({
             style={styles.actionLink}
             activeOpacity={0.7}
           >
-            <Box flexDirection="row" justifyContent="center" alignItems="center">
+            <Box
+              flexDirection="row"
+              justifyContent="center"
+              alignItems="center"
+            >
               <Text variant="md" color="PrimaryGreen">
                 Restore Purchases
               </Text>
@@ -385,7 +383,9 @@ const PricingPackageCard: React.FC<Props> = ({
                 onPress={handleAndroidRedeemSubmit}
                 activeOpacity={0.8}
               >
-                <Text style={styles.redeemConfirmText}>Redeem on Google Play</Text>
+                <Text style={styles.redeemConfirmText}>
+                  Redeem on Google Play
+                </Text>
                 <ExternalLink size={16} color={theme.colors.PrimaryBlack} />
               </TouchableOpacity>
 

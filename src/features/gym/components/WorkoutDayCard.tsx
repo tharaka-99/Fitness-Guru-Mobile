@@ -1,11 +1,11 @@
-import { ArrowRight } from 'lucide-react-native';
-import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { ArrowRight, Check } from "lucide-react-native";
+import React from "react";
+import { TouchableOpacity } from "react-native";
 
-import { PAGE_WIDTH } from '@components/app/PageWrapper';
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
-import { constants, theme } from '@utils/styles/theme';
+import { PAGE_WIDTH } from "@components/app/PageWrapper";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { constants, theme } from "@utils/styles/theme";
 
 interface Props {
   title: string;
@@ -46,11 +46,11 @@ const WorkoutDayCard: React.FC<Props> = ({
         alignItems="center"
         justifyContent="space-between"
         px="md"
-        borderWidth={isCompleted ? 1.5 : 1}
-        borderColor={isCompleted ? "PrimaryGreen" : "PrimaryGreyDark"}
-      // style={{ opacity }}
+        borderWidth={1}
+        borderColor="PrimaryGreyDark"
+        // style={{ opacity }}
       >
-        <Box flex={1} mr="sm" justifyContent="center">
+        <Box flex={1} mr="sm" justifyContent="center" gap="xs">
           <Box flexDirection="row" alignItems="center" gap="xs">
             <Text variant="mdBold" numberOfLines={1}>
               {title}
@@ -63,7 +63,11 @@ const WorkoutDayCard: React.FC<Props> = ({
                 ml="xs"
                 style={{ paddingVertical: 2 }}
               >
-                <Text variant="xs" color="PrimaryBlack" style={{ fontWeight: '700' }}>
+                <Text
+                  variant="xs"
+                  color="PrimaryBlack"
+                  style={{ fontWeight: "700" }}
+                >
                   Completed
                 </Text>
               </Box>
@@ -72,7 +76,7 @@ const WorkoutDayCard: React.FC<Props> = ({
           <Text
             color="textSecondary"
             numberOfLines={1}
-            style={{ textTransform: 'capitalize' }}
+            style={{ textTransform: "capitalize" }}
           >
             {description}
           </Text>
@@ -85,12 +89,21 @@ const WorkoutDayCard: React.FC<Props> = ({
           alignItems="center"
           justifyContent="center"
           backgroundColor={isCompleted ? "PrimaryGreen" : undefined}
-          style={!isCompleted ? { backgroundColor: 'rgba(160, 226, 32, 0.15)' } : undefined}
+          style={
+            !isCompleted
+              ? { backgroundColor: "rgba(160, 226, 32, 0.15)" }
+              : undefined
+          }
         >
-          <ArrowRight
-            size={22}
-            color={isCompleted ? theme.colors.PrimaryBlack : theme.colors.PrimaryGreen}
-          />
+          {isCompleted ? (
+            <Check
+              size={22}
+              color={theme.colors.PrimaryBlack}
+              strokeWidth={3}
+            />
+          ) : (
+            <ArrowRight size={22} color={theme.colors.PrimaryGreen} />
+          )}
         </Box>
       </Box>
     </TouchableOpacity>

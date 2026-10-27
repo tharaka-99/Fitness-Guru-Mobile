@@ -1,13 +1,13 @@
-import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import Svg, { Line } from 'react-native-svg';
-import { Check, Clock } from 'lucide-react-native';
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
-import { theme, constants } from '@utils/styles/theme';
-import Button from '@components/atoms/Button';
+import React from "react";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
+import Svg, { Line } from "react-native-svg";
+import { Check, Clock } from "lucide-react-native";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { theme, constants } from "@utils/styles/theme";
+import Button from "@components/atoms/Button";
 
-export type OnboardingStage = 'requesting' | 'pending';
+export type OnboardingStage = "requesting" | "pending";
 
 interface PersonalisedPlanCardProps {
   stage: OnboardingStage;
@@ -23,18 +23,19 @@ interface StepConfig {
 const STEPS: StepConfig[] = [
   {
     stepNumber: 1,
-    title: 'Tell Us About Yourself',
-    description: 'Complete your fitness profile and upload your body photos.',
+    title: "Tell Us About Yourself",
+    description: "Complete your fitness profile and upload your body photos.",
   },
   {
     stepNumber: 2,
-    title: 'Your Plans Are Taking Shape',
-    description: 'Our trainers review your details and create your workout and meal plans.',
+    title: "Your Plans Are Taking Shape",
+    description:
+      "Our trainers review your details and create your workout and meal plans.",
   },
   {
     stepNumber: 3,
-    title: 'Ready to Start Your Journey',
-    description: 'Explore your personalised schedules and start your journey.',
+    title: "Ready to Start Your Journey",
+    description: "Explore your personalised schedules and start your journey.",
   },
 ];
 
@@ -42,61 +43,63 @@ const PersonalisedPlanCard: React.FC<PersonalisedPlanCardProps> = ({
   stage,
   onCompleteProfile,
 }) => {
-  const isPending = stage === 'pending';
+  const isPending = stage === "pending";
   const completedCount = isPending ? 1 : 0;
 
   const getStepState = (stepNumber: number) => {
     if (stepNumber === 1) {
-      return isPending ? 'completed' : 'action_needed';
+      return isPending ? "completed" : "action_needed";
     }
     if (stepNumber === 2) {
-      return isPending ? 'in_progress' : 'upcoming';
+      return isPending ? "in_progress" : "upcoming";
     }
-    return 'upcoming';
+    return "upcoming";
   };
 
-  const renderBadge = (status: 'completed' | 'action_needed' | 'in_progress' | 'upcoming') => {
+  const renderBadge = (
+    status: "completed" | "action_needed" | "in_progress" | "upcoming"
+  ) => {
     switch (status) {
-      case 'completed':
+      case "completed":
         return (
           <Box
             borderRadius="sm"
             px="sm"
             py="xs"
-            style={{ backgroundColor: 'rgba(160, 226, 32, 0.15)' }}
+            style={{ backgroundColor: "rgba(160, 226, 32, 0.15)" }}
           >
             <Text variant="xsBold" color="PrimaryGreen">
               Completed
             </Text>
           </Box>
         );
-      case 'action_needed':
+      case "action_needed":
         return (
           <Box
             borderRadius="sm"
             px="sm"
             py="xs"
-            style={{ backgroundColor: 'rgba(160, 226, 32, 0.15)' }}
+            style={{ backgroundColor: "rgba(255, 237, 177, 0.15)" }}
           >
-            <Text variant="xsBold" color="PrimaryGreen">
+            <Text variant="xsBold" style={{ color: "#fcba03" }}>
               Action needed
             </Text>
           </Box>
         );
-      case 'in_progress':
+      case "in_progress":
         return (
           <Box
             borderRadius="sm"
             px="sm"
             py="xs"
-            style={{ backgroundColor: 'rgba(160, 226, 32, 0.15)' }}
+            style={{ backgroundColor: "rgba(255, 237, 177, 0.15)" }}
           >
-            <Text variant="xsBold" color="PrimaryGreen">
+            <Text variant="xsBold" style={{ color: "#fcba03" }}>
               In progress
             </Text>
           </Box>
         );
-      case 'upcoming':
+      case "upcoming":
       default:
         return (
           <Box
@@ -114,7 +117,7 @@ const PersonalisedPlanCard: React.FC<PersonalisedPlanCardProps> = ({
   };
 
   const renderIndicator = (stepNumber: number, status: string) => {
-    if (status === 'completed') {
+    if (status === "completed") {
       return (
         <Box
           width={44}
@@ -129,18 +132,19 @@ const PersonalisedPlanCard: React.FC<PersonalisedPlanCardProps> = ({
       );
     }
 
-    if (status === 'action_needed' || status === 'in_progress') {
+    if (status === "action_needed" || status === "in_progress") {
       return (
         <Box
           width={44}
           height={44}
           borderRadius="full"
           borderWidth={2}
-          borderColor="PrimaryGreen"
+          borderColor="PrimaryYellow"
           alignItems="center"
           justifyContent="center"
+          style={{ borderColor: "#fcba03" }}
         >
-          <Text variant="lgBold" color="PrimaryGreen">
+          <Text variant="lgBold" style={{ color: "#fcba03" }}>
             {stepNumber}
           </Text>
         </Box>
@@ -166,13 +170,14 @@ const PersonalisedPlanCard: React.FC<PersonalisedPlanCardProps> = ({
 
   return (
     <Box
+      flex={1}
       mx="md"
-      p="md"
+      px="md"
+      pt="md"
       borderRadius="lg"
       backgroundColor="backgroundSecondary"
       borderWidth={1}
       borderColor="borderSecondary"
-      mb="sm"
     >
       {/* Header */}
       <Text variant="xlBold" color="textPrimary">
@@ -200,7 +205,7 @@ const PersonalisedPlanCard: React.FC<PersonalisedPlanCardProps> = ({
                         x1="1"
                         y1="0"
                         x2="1"
-                        y2="200"
+                        y2="2000"
                         stroke={theme.colors.borderSecondary}
                         strokeWidth="2"
                         strokeDasharray="4 4"
@@ -211,11 +216,7 @@ const PersonalisedPlanCard: React.FC<PersonalisedPlanCardProps> = ({
               </View>
 
               {/* Right Column: Badge, Title, Description */}
-              <Box
-                flex={1}
-                ml="md"
-                pb={isLast ? 'none' : 'lg'}
-              >
+              <Box flex={1} ml="md" pb={isLast ? "none" : "lg"}>
                 <Box alignItems="flex-start" mb="xs">
                   {renderBadge(status)}
                 </Box>
@@ -241,7 +242,8 @@ const PersonalisedPlanCard: React.FC<PersonalisedPlanCardProps> = ({
           borderColor="borderSecondary"
           borderRadius="md"
           p="md"
-          mt="lg"
+          mt="xl"
+          mb="md"
         >
           <Box
             width={38}
@@ -252,7 +254,11 @@ const PersonalisedPlanCard: React.FC<PersonalisedPlanCardProps> = ({
             alignItems="center"
             justifyContent="center"
           >
-            <Clock size={20} color={theme.colors.PrimaryGreen} strokeWidth={2.2} />
+            <Clock
+              size={20}
+              color={theme.colors.PrimaryGreen}
+              strokeWidth={2.2}
+            />
           </Box>
           <Box ml="md" flex={1}>
             <Text variant="smBold" color="textPrimary">
@@ -280,11 +286,8 @@ const PersonalisedPlanCard: React.FC<PersonalisedPlanCardProps> = ({
         //     Complete My Profile
         //   </Text>
         // </TouchableOpacity>
-        <Box mt="lg">
-          <Button
-            onPress={onCompleteProfile}
-            title="Complete My Profile"
-          />
+        <Box mt="md">
+          <Button onPress={onCompleteProfile} title="Complete My Profile" />
         </Box>
       )}
       {/* <Box height={100} /> */}
@@ -294,13 +297,16 @@ const PersonalisedPlanCard: React.FC<PersonalisedPlanCardProps> = ({
 
 const styles = StyleSheet.create({
   stepperContainer: {
-    width: '100%',
+    flex: 1,
+    justifyContent: "space-between",
+    width: "100%",
   },
   stepRow: {
-    flexDirection: 'row',
+    flex: 1,
+    flexDirection: "row",
   },
   leftColumn: {
-    alignItems: 'center',
+    alignItems: "center",
     width: 44,
   },
 });

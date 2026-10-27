@@ -7,11 +7,7 @@ import {
 } from "lucide-react-native";
 import greetingTime from "greeting-time";
 import React, { useEffect, useState } from "react";
-import {
-  Image,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { Image, ScrollView, TouchableOpacity } from "react-native";
 import InfoCard from "@components/app/InfoCard";
 import PageWrapper from "@components/app/PageWrapper";
 import ProfileHeaderCard from "@components/app/ProfileHeaderCard";
@@ -45,7 +41,9 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
 }) => {
   const bottomPadding = useBottomTabPadding();
   const { user } = useSelector((state: any) => state["feature/auth"]);
-  const { showCreatePlanCard } = useSelector((state: any) => state["feature/gym"]);
+  const { showCreatePlanCard } = useSelector(
+    (state: any) => state["feature/gym"]
+  );
 
   const {
     isLoading: isProfileLoading,
@@ -84,73 +82,94 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
   });
 
   useFocusEffect(
-    React.useCallback(() => {
-      Promise.all([
-        // profileRefetch(),
-        // workoutRefetch(),
-        // mealRefetch(),
-        // defaultWorkoutRefetch(),
-      ]).catch((error) => {
-        console.error("Error refreshing data:", error);
-        Toast.show({ type: "error", text1: "Error", text2: "Error fetching data." });
-      });
-    }, [
-      // profileRefetch,
-      // workoutRefetch,
-      // mealRefetch
-    ])
+    React.useCallback(
+      () => {
+        Promise.all([
+          // profileRefetch(),
+          // workoutRefetch(),
+          // mealRefetch(),
+          // defaultWorkoutRefetch(),
+        ]).catch((error) => {
+          console.error("Error refreshing data:", error);
+          Toast.show({
+            type: "error",
+            text1: "Error",
+            text2: "Error fetching data.",
+          });
+        });
+      },
+      [
+        // profileRefetch,
+        // workoutRefetch,
+        // mealRefetch
+      ]
+    )
   );
 
-
   const selfCreatedMelaplan = React.useMemo(() => {
-    return mealPlan?.filter((plan) => plan.type === MealPlanType.SelfCreated) ?? [];
+    return (
+      mealPlan?.filter((plan) => plan.type === MealPlanType.SelfCreated) ?? []
+    );
   }, [mealPlan]);
 
   const selfCreatedWorkoutPlan = React.useMemo(() => {
-    return workout?.filter((work) => work.type === WorkoutType.SelfCreated) ?? [];
+    return (
+      workout?.filter((work) => work.type === WorkoutType.SelfCreated) ?? []
+    );
   }, [workout]);
 
-  const calculateCalorieRequirements = React.useCallback((profile: { calculatedMetrics?: { dci?: number }, fitnessInfo?: { goal?: string } } | undefined | null) => {
-    if (!profile?.calculatedMetrics?.dci || !profile?.fitnessInfo?.goal) {
-      return null;
-    }
+  const calculateCalorieRequirements = React.useCallback(
+    (
+      profile:
+        | {
+            calculatedMetrics?: { dci?: number };
+            fitnessInfo?: { goal?: string };
+          }
+        | undefined
+        | null
+    ) => {
+      if (!profile?.calculatedMetrics?.dci || !profile?.fitnessInfo?.goal) {
+        return null;
+      }
 
-    const dci = profile.calculatedMetrics.dci;
-    const perMealRequirement = dci;
-    const goal = profile.fitnessInfo.goal;
-    let perMealLowerLimit: number;
-    let perMealUpperLimit: number;
+      const dci = profile.calculatedMetrics.dci;
+      const perMealRequirement = dci;
+      const goal = profile.fitnessInfo.goal;
+      let perMealLowerLimit: number;
+      let perMealUpperLimit: number;
 
-    switch (goal) {
-      case "WeightGain":
-        perMealLowerLimit = perMealRequirement + 250;
-        perMealUpperLimit = perMealRequirement + 500;
-        break;
-      case "WeightLoss":
-        perMealLowerLimit = perMealRequirement - 1000;
-        perMealUpperLimit = perMealRequirement - 500;
-        break;
-      case "FatLoss":
-        perMealLowerLimit = perMealRequirement - 500;
-        perMealUpperLimit = perMealRequirement - 250;
-        break;
-      case "LeanGaining":
-        perMealLowerLimit = perMealRequirement + 100;
-        perMealUpperLimit = perMealRequirement + 250;
-        break;
-      default:
-        perMealLowerLimit = perMealRequirement - 50;
-        perMealUpperLimit = perMealRequirement + 50;
-        break;
-    }
-    return {
-      perMealRequirement,
-      perMealLowerLimit,
-      perMealUpperLimit,
-      dci,
-      goal,
-    };
-  }, []);
+      switch (goal) {
+        case "WeightGain":
+          perMealLowerLimit = perMealRequirement + 250;
+          perMealUpperLimit = perMealRequirement + 500;
+          break;
+        case "WeightLoss":
+          perMealLowerLimit = perMealRequirement - 1000;
+          perMealUpperLimit = perMealRequirement - 500;
+          break;
+        case "FatLoss":
+          perMealLowerLimit = perMealRequirement - 500;
+          perMealUpperLimit = perMealRequirement - 250;
+          break;
+        case "LeanGaining":
+          perMealLowerLimit = perMealRequirement + 100;
+          perMealUpperLimit = perMealRequirement + 250;
+          break;
+        default:
+          perMealLowerLimit = perMealRequirement - 50;
+          perMealUpperLimit = perMealRequirement + 50;
+          break;
+      }
+      return {
+        perMealRequirement,
+        perMealLowerLimit,
+        perMealUpperLimit,
+        dci,
+        goal,
+      };
+    },
+    []
+  );
 
   const calorieRequirements = React.useMemo(() => {
     return calculateCalorieRequirements(profile);
@@ -208,6 +227,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
           style={{ flex: 1 }}
           contentContainerStyle={{
             flexGrow: 1,
+            paddingBottom: bottomPadding,
           }}
         >
           <Box flexDirection="row" alignItems="center" gap="md" pb="md">
@@ -245,7 +265,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
             </Box>
           </Box>
 
-          <Box
+          {/* <Box
             flexDirection="row"
             gap="sm"
             pb="md"
@@ -301,7 +321,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                   : "0 Cal"}
               </Text>
             </Box>
-          </Box>
+          </Box> */}
 
           <WorkflowPromoBanner />
 
@@ -309,9 +329,11 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
             {selfCreatedWorkoutPlan?.length > 0 ? (
               <TouchableOpacity
                 style={{
+                  flex: 1,
+                  paddingHorizontal: theme.spacing.md,
+                  paddingVertical: theme.spacing.sm,
                   backgroundColor: theme.colors.backgroundSecondary,
                   borderRadius: theme.borderRadii.sm,
-                  padding: theme.spacing.md,
                   flexDirection: "row",
                   alignItems: "center",
                 }}
@@ -355,7 +377,9 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                 style={{
                   backgroundColor: theme.colors.backgroundSecondary,
                   borderRadius: theme.borderRadii.sm,
-                  padding: theme.spacing.md,
+                  flex: 1,
+                  paddingHorizontal: theme.spacing.md,
+                  paddingVertical: theme.spacing.sm,
                   flexDirection: "row",
                   alignItems: "center",
                 }}
@@ -400,23 +424,23 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
               style={{
                 backgroundColor: theme.colors.backgroundSecondary,
                 borderRadius: theme.borderRadii.sm,
-                padding: theme.spacing.md,
+                flex: 1,
+                paddingHorizontal: theme.spacing.md,
+                paddingVertical: theme.spacing.sm,
                 flexDirection: "row",
                 alignItems: "center",
               }}
               activeOpacity={constants.activeOpacity}
               onPress={() => {
                 store.dispatch(
-                  gymActions.setSelectedMealPlanType(
-                    MealPlanType.SelfCreated
-                  )
+                  gymActions.setSelectedMealPlanType(MealPlanType.SelfCreated)
                 );
 
                 selfCreatedMelaplan.length > 0
                   ? navigation.navigate("MealPlan")
                   : navigation.navigate("Onboard", {
-                    fromMealPlan: true,
-                  });
+                      fromMealPlan: true,
+                    });
               }}
             >
               <Box
@@ -460,7 +484,9 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
               style={{
                 backgroundColor: theme.colors.backgroundSecondary,
                 borderRadius: theme.borderRadii.sm,
-                padding: theme.spacing.md,
+                flex: 1,
+                paddingHorizontal: theme.spacing.md,
+                paddingVertical: theme.spacing.sm,
                 flexDirection: "row",
                 alignItems: "center",
               }}
@@ -574,7 +600,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
               </Box>
             </Box> */}
           </Box>
-          <Box height={100} />
+          {/* <Box height={100} />  */}
         </ScrollView>
       </PageWrapper>
     </Box>

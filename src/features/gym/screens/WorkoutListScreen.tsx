@@ -1,6 +1,11 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useRef, useState, useCallback } from "react";
-import { FlatList, TouchableOpacity, Modal, ActivityIndicator } from "react-native";
+import {
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
 import { useSelector } from "react-redux";
 import PageWrapper from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
@@ -53,15 +58,11 @@ const WorkoutListScreen: React.FC<
   } = useSelector((state: any) => state["feature/gym"]);
 
   // Server-authoritative queries and mutations
-  const {
-    data: activeSession,
-    refetch: refetchActiveSession,
-  } = useActiveWorkoutSession();
+  const { data: activeSession, refetch: refetchActiveSession } =
+    useActiveWorkoutSession();
 
-  const {
-    data: weekCalendar,
-    refetch: refetchWeekCalendar,
-  } = useWorkoutWeekCalendar();
+  const { data: weekCalendar, refetch: refetchWeekCalendar } =
+    useWorkoutWeekCalendar();
 
   const startWorkoutMutation = useStartWorkoutSession();
   const completeWorkoutMutation = useCompleteWorkoutSession();
@@ -105,16 +106,19 @@ const WorkoutListScreen: React.FC<
 
   const isSessionInProgress = Boolean(
     !isSessionDisabled &&
-    activeSession &&
-    (activeSession.workoutId || activeSession.exerciseDay != null || activeSession._id) &&
-    activeSession.status &&
-    activeSession.status !== "completed"
+      activeSession &&
+      (activeSession.workoutId ||
+        activeSession.exerciseDay != null ||
+        activeSession._id) &&
+      activeSession.status &&
+      activeSession.status !== "completed"
   );
   const isActiveSession = Boolean(
     !isSessionDisabled &&
-    isSessionInProgress &&
-    activeSession?.exerciseDay === selectedDay &&
-    (activeSession?.workoutId === currentWorkoutId || !activeSession?.workoutId)
+      isSessionInProgress &&
+      activeSession?.exerciseDay === selectedDay &&
+      (activeSession?.workoutId === currentWorkoutId ||
+        !activeSession?.workoutId)
   );
 
   // Ready to complete when status is ready_to_complete or logged exercises equal total
@@ -126,8 +130,11 @@ const WorkoutListScreen: React.FC<
 
   const isDisabled = isSessionInProgress && !isActiveSession;
 
-  const isCompletedThisWeek = !isSessionDisabled && isWorkoutDayCompleted(selectedDay, weekCalendar, currentWorkoutId);
-  const isCompletedToday = !isSessionDisabled && isTodayWorkoutCompleted(weekCalendar);
+  const isCompletedThisWeek =
+    !isSessionDisabled &&
+    isWorkoutDayCompleted(selectedDay, weekCalendar, currentWorkoutId);
+  const isCompletedToday =
+    !isSessionDisabled && isTodayWorkoutCompleted(weekCalendar);
 
   const handleStartWorkoutClick = () => {
     setStartModalVisible(true);
@@ -277,7 +284,13 @@ const WorkoutListScreen: React.FC<
                 gap="sm"
               >
                 <Check size={20} color={theme.colors.PrimaryBlack} />
-                <Text variant="md" color="PrimaryBlack">
+                <Text
+                  variant="md"
+                  fontWeight="500"
+                  letterSpacing={1}
+                  color="textPrimaryBlack"
+                  textTransform="capitalize"
+                >
                   Completed For This Week
                 </Text>
               </Box>
@@ -292,8 +305,14 @@ const WorkoutListScreen: React.FC<
                 flexDirection="row"
                 gap="sm"
               >
-                <Lock size={20} color={theme.colors.PrimaryBlack} />
-                <Text variant="mdBold" color="PrimaryBlack">
+                <Lock size={20} color={theme.colors.textPrimaryBlack} />
+                <Text
+                  variant="md"
+                  fontWeight="500"
+                  letterSpacing={1}
+                  color="textPrimaryBlack"
+                  textTransform="capitalize"
+                >
                   Locked Until Midnight
                 </Text>
               </Box>
@@ -309,42 +328,73 @@ const WorkoutListScreen: React.FC<
                   justifyContent: "center",
                   backgroundColor: theme.colors.PrimaryGreen,
                   borderRadius: theme.spacing.sm,
-                  opacity: isDisabled || startWorkoutMutation.isPending ? 0.5 : 1,
+                  opacity:
+                    isDisabled || startWorkoutMutation.isPending ? 0.5 : 1,
                 }}
               >
                 {startWorkoutMutation.isPending ? (
                   <ActivityIndicator color={theme.colors.PrimaryBlack} />
                 ) : (
-                  <Text variant="md" color="PrimaryBlack">
+                  <Text
+                    variant="md"
+                    fontWeight="500"
+                    letterSpacing={1}
+                    color="textPrimaryBlack"
+                    textTransform="capitalize"
+                  >
                     Start Workout
                   </Text>
                 )}
               </TouchableOpacity>
             ) : isActiveSession ? (
-              <TouchableOpacity
-                activeOpacity={constants.activeOpacity}
-                onPress={handleCompleteWorkout}
-                disabled={!canCompleteSession || completeWorkoutMutation.isPending}
-                style={{
-                  opacity: !canCompleteSession || completeWorkoutMutation.isPending ? 0.5 : 1,
-                  width: "100%",
-                  height: 50,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: canCompleteSession
-                    ? theme.colors.PrimaryGreen
-                    : theme.colors.SecondaryGrey,
-                  borderRadius: theme.spacing.sm,
-                }}
-              >
-                {completeWorkoutMutation.isPending ? (
-                  <ActivityIndicator color={theme.colors.PrimaryBlack} />
-                ) : (
-                  <Text variant="md" color="PrimaryBlack">
-                    {canCompleteSession ? "Complete Workout" : "In Progress (Log All Exercises)"}
+              <Box>
+                <TouchableOpacity
+                  activeOpacity={constants.activeOpacity}
+                  onPress={handleCompleteWorkout}
+                  disabled={
+                    !canCompleteSession || completeWorkoutMutation.isPending
+                  }
+                  style={{
+                    opacity:
+                      !canCompleteSession || completeWorkoutMutation.isPending
+                        ? 0.5
+                        : 1,
+                    width: "100%",
+                    height: 50,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: canCompleteSession
+                      ? theme.colors.PrimaryGreen
+                      : theme.colors.PrimaryGreen,
+                    borderRadius: theme.spacing.sm,
+                  }}
+                >
+                  {completeWorkoutMutation.isPending ? (
+                    <ActivityIndicator color={theme.colors.PrimaryBlack} />
+                  ) : (
+                    <Text
+                      variant="md"
+                      fontWeight="500"
+                      letterSpacing={1}
+                      color="textPrimaryBlack"
+                      textTransform="capitalize"
+                    >
+                      {canCompleteSession ? "Complete Workout" : "In Progress"}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+                {!canCompleteSession && (
+                  <Text
+                    variant="xs"
+                    color="textSecondary"
+                    style={{ textAlign: "center", marginTop: theme.spacing.sm }}
+                  >
+                    {`Record all exercises to complete Day ${
+                      activeSession?.exerciseDay ?? ""
+                    }`}
                   </Text>
                 )}
-              </TouchableOpacity>
+              </Box>
             ) : (
               <Box
                 width="100%"
@@ -355,13 +405,15 @@ const WorkoutListScreen: React.FC<
                 borderRadius="sm"
               >
                 <Text variant="mdBold" color="PrimaryBlack">
-                  {`LOCKED (Day ${activeSession?.exerciseDay ?? ""} In Progress)`}
+                  {`LOCKED (Day ${
+                    activeSession?.exerciseDay ?? ""
+                  } In Progress)`}
                 </Text>
               </Box>
             )}
           </Box>
         )}
-      </PageWrapper >
+      </PageWrapper>
 
       {!isSessionDisabled && (
         <Modal
@@ -377,12 +429,24 @@ const WorkoutListScreen: React.FC<
             px="xl"
             style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
           >
-            <Box backgroundColor="backgroundSecondary" borderRadius="md" p="xl" width="100%">
+            <Box
+              backgroundColor="backgroundSecondary"
+              borderRadius="md"
+              p="xl"
+              width="100%"
+            >
               <Text variant="lgBold" mb="md" textAlign="center">
                 Start Workout?
               </Text>
-              <Text variant="md" color="textSecondary" mb="xl" textAlign="center">
-                You are about to start Day {selectedDay}. This day contains {currentTotalExercises} exercises. Other workout days will be locked while this session is active.
+              <Text
+                variant="md"
+                color="textSecondary"
+                mb="xl"
+                textAlign="center"
+              >
+                You are about to start Day {selectedDay}. This day contains{" "}
+                {currentTotalExercises} exercises. Other workout days will be
+                locked while this session is active.
               </Text>
 
               <Box flexDirection="row" justifyContent="space-between" gap="md">
@@ -391,7 +455,12 @@ const WorkoutListScreen: React.FC<
                   onPress={() => setStartModalVisible(false)}
                   disabled={startWorkoutMutation.isPending}
                 >
-                  <Box backgroundColor="SecondaryGrey" p="md" borderRadius="sm" alignItems="center">
+                  <Box
+                    backgroundColor="SecondaryGrey"
+                    p="md"
+                    borderRadius="sm"
+                    alignItems="center"
+                  >
                     <Text variant="mdBold">Cancel</Text>
                   </Box>
                 </TouchableOpacity>
@@ -401,9 +470,17 @@ const WorkoutListScreen: React.FC<
                   onPress={confirmStartWorkout}
                   disabled={startWorkoutMutation.isPending}
                 >
-                  <Box backgroundColor="PrimaryGreen" p="md" borderRadius="sm" alignItems="center">
+                  <Box
+                    backgroundColor="PrimaryGreen"
+                    p="md"
+                    borderRadius="sm"
+                    alignItems="center"
+                  >
                     {startWorkoutMutation.isPending ? (
-                      <ActivityIndicator size="small" color={theme.colors.PrimaryBlack} />
+                      <ActivityIndicator
+                        size="small"
+                        color={theme.colors.PrimaryBlack}
+                      />
                     ) : (
                       <Text variant="mdBold" color="PrimaryBlack">
                         Start
@@ -415,52 +492,48 @@ const WorkoutListScreen: React.FC<
             </Box>
           </Box>
         </Modal>
-      )
-      }
+      )}
 
-      {
-        sheetOpen && (
-          selectedWorkout.WorkoutType === WorkoutType.Default ? (
-            <WorkoutInfoSheet
-              bottomSheetRef={bottomSheetRef}
-              workoutInfo={{
-                workoutName: selectedGeneralWorkoutInfo?.exercise?.name,
-                description:
-                  "Curls work the bicep muscles at the front of the upper arm and the muscles of the lower arm—the brachialis and brachioradialis.",
-                image: sampleImage,
-                additionalInfo: [
-                  {
-                    title: "Sets",
-                    value: selectedGeneralWorkoutInfo?.sets?.toString(),
-                  },
-                  {
-                    title: "Reps",
-                    value: selectedGeneralWorkoutInfo?.reps?.toString(),
-                  },
-                  {
-                    title: "Rest",
-                    value: `${selectedGeneralWorkoutInfo?.rest} sec`,
-                  },
-                ],
-              }}
-            />
-          ) : (
-            <WorkoutInfoSheet
-              bottomSheetRef={bottomSheetRef}
-              workoutInfo={{
-                workoutName: selectedWorkoutInfo?.exercise?.name,
-                description: selectedWorkoutInfo?.exercise?.description,
-                image: selectedWorkoutInfo?.exercise?.url || sampleImage,
-                additionalInfo: [
-                  { title: "Sets", value: selectedWorkoutInfo?.sets?.toString() },
-                  { title: "Reps", value: selectedWorkoutInfo?.reps?.toString() },
-                  { title: "Rest", value: `${selectedWorkoutInfo?.rest} sec` },
-                ],
-              }}
-            />
-          )
-        )
-      }
+      {sheetOpen &&
+        (selectedWorkout.WorkoutType === WorkoutType.Default ? (
+          <WorkoutInfoSheet
+            bottomSheetRef={bottomSheetRef}
+            workoutInfo={{
+              workoutName: selectedGeneralWorkoutInfo?.exercise?.name,
+              description:
+                "Curls work the bicep muscles at the front of the upper arm and the muscles of the lower arm—the brachialis and brachioradialis.",
+              image: sampleImage,
+              additionalInfo: [
+                {
+                  title: "Sets",
+                  value: selectedGeneralWorkoutInfo?.sets?.toString(),
+                },
+                {
+                  title: "Reps",
+                  value: selectedGeneralWorkoutInfo?.reps?.toString(),
+                },
+                {
+                  title: "Rest",
+                  value: `${selectedGeneralWorkoutInfo?.rest} sec`,
+                },
+              ],
+            }}
+          />
+        ) : (
+          <WorkoutInfoSheet
+            bottomSheetRef={bottomSheetRef}
+            workoutInfo={{
+              workoutName: selectedWorkoutInfo?.exercise?.name,
+              description: selectedWorkoutInfo?.exercise?.description,
+              image: selectedWorkoutInfo?.exercise?.url || sampleImage,
+              additionalInfo: [
+                { title: "Sets", value: selectedWorkoutInfo?.sets?.toString() },
+                { title: "Reps", value: selectedWorkoutInfo?.reps?.toString() },
+                { title: "Rest", value: `${selectedWorkoutInfo?.rest} sec` },
+              ],
+            }}
+          />
+        ))}
     </>
   );
 };
