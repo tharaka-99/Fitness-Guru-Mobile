@@ -1,15 +1,18 @@
 import React from "react";
 import { ActivityIndicator, Image } from "react-native";
+import { Check } from "lucide-react-native";
 
 import { PAGE_WIDTH } from "@components/app/PageWrapper";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
+import { theme as appTheme } from "@utils/styles/theme";
 
 interface WorkoutListItemProps {
   image: string;
   title: string;
   description: string;
   theme?: "green" | "standard";
+  isLogged?: boolean;
 }
 
 const IMAGE_SIZE = 65;
@@ -19,19 +22,21 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = React.memo(({
   title,
   description,
   theme = "standard",
+  isLogged = false,
 }) => {
   const isThemeGreen = theme === "green";
 
   return (
     // <Box gap="base" width={PAGE_WIDTH} flexDirection="row">
-    <Box gap="base" flex={1} flexDirection="row">
+    <Box gap="base" flex={1} flexDirection="row" alignItems="center">
       <Box
         borderRadius="xs"
         width={IMAGE_SIZE}
         height={IMAGE_SIZE}
         overflow="hidden"
         // borderBottomWidth={isThemeGreen ? 0.5 : 0}
-        borderWidth={isThemeGreen ? 1 : undefined}
+        borderWidth={isLogged ? 1.5 : (isThemeGreen ? 1 : undefined)}
+        borderColor={isLogged ? "PrimaryGreen" : undefined}
       >
         {image ? (
           <Image
@@ -61,7 +66,7 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = React.memo(({
         <Text
           variant="mdBold"
           numberOfLines={1}
-          color={isThemeGreen ? "PrimaryBlack" : "textPrimary"}
+          color={isThemeGreen ? "PrimaryBlack" : isLogged ? "PrimaryGreen" : "textPrimary"}
           style={{ textTransform: "capitalize" }}
         >
           {title}
@@ -73,6 +78,11 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = React.memo(({
           {description}
         </Text>
       </Box>
+      {isLogged && (
+        <Box pr="sm">
+          <Check size={22} color={appTheme.colors.PrimaryGreen} />
+        </Box>
+      )}
     </Box>
   );
 });

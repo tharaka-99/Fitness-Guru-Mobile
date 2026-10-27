@@ -104,11 +104,16 @@ export const getActiveWorkoutSession = async (): Promise<ActiveWorkoutSessionDat
  * POST /workout-sessions/complete
  * Completes the active workout session. Rejected until all exercises in the day are logged.
  */
-export const completeWorkoutSession = async (): Promise<any> => {
+export const completeWorkoutSession = async (params?: {
+  sessionStartDate?: string;
+}): Promise<any> => {
   try {
-    const payload = {
+    const payload: any = {
       timezoneOffsetMinutes: getLocalTimezoneOffsetMinutes(),
     };
+    if (params?.sessionStartDate) {
+      payload.sessionStartDate = params.sessionStartDate;
+    }
     const response = await api.post('/workout-sessions/complete', payload);
     const raw = response.data;
     return raw && typeof raw === 'object' && 'data' in raw ? raw.data : raw;
@@ -139,10 +144,10 @@ export const getWorkoutWeekCalendar = async (
     const list: any[] = Array.isArray(payload)
       ? payload
       : Array.isArray(payload?.days)
-      ? payload.days
-      : Array.isArray(payload?.calendar)
-      ? payload.calendar
-      : [];
+        ? payload.days
+        : Array.isArray(payload?.calendar)
+          ? payload.calendar
+          : [];
 
     return list.map((item: any) => {
       let status: 'completed' | 'rest' | 'missed' | 'none' = 'none';
