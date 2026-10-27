@@ -58,7 +58,7 @@ export const useCompleteWorkoutSession = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => completeWorkoutSession(),
+    mutationFn: (params?: { sessionStartDate?: string }) => completeWorkoutSession(params),
     onSuccess: () => {
       Toast.show({
         type: 'success',
@@ -81,13 +81,33 @@ export const useCompleteWorkoutSession = () => {
 
 /**
  * Helper to determine if today already has a completed workout session on the server.
+ * Option B (Start-Day Logic): If a session crossed midnight (started on a previous day and
+ * completed today), it is attributed to the day it started and does not lock today.
  */
 export const isTodayWorkoutCompleted = (calendar?: WeeklyCalendarDay[]): boolean => {
   if (!calendar || calendar.length === 0) return false;
   const todayStr = getLocalDateString();
   return calendar.some((day) => {
     const dayDate = day.date?.slice(0, 10);
-    return dayDate === todayStr && (day.status === 'completed' || day.completed === true);
+    if (dayDate !== todayStr) return false;
+    const isCompleted = day.status === 'completed' || day.completed === true;
+    if (!isCompleted) return false;
+
+    // If day.sessions is present, check whether any session was actually started today
+    if (Array.isArray(day.sessions) && day.sessions.length > 0) {
+      const anyStartedToday = day.sessions.some((session: any) => {
+        const startTs = session.createdAt || session.startedAt || session.startDate;
+        if (!startTs) return true;
+        const sessionStartDateStr = getLocalDateString(new Date(startTs));
+        return sessionStartDateStr === todayStr;
+      });
+
+      if (!anyStartedToday) {
+        return false;
+      }
+    }
+
+    return true;
   });
 };
 

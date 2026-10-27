@@ -23,6 +23,7 @@ import {
   isTodayWorkoutCompleted,
   isWorkoutDayCompleted,
 } from "../hooks/useWorkoutSession";
+import { getLocalDateString } from "@utils/services/workoutSessionService";
 
 const isPremiumUser = true;
 
@@ -147,11 +148,18 @@ const WorkoutListScreen: React.FC<
   };
 
   const handleCompleteWorkout = () => {
-    completeWorkoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        navigation.navigate("FitnessGuru" as any);
-      },
-    });
+    const sessionStartDate = activeSession?.createdAt
+      ? getLocalDateString(new Date(activeSession.createdAt))
+      : undefined;
+
+    completeWorkoutMutation.mutate(
+      { sessionStartDate },
+      {
+        onSuccess: () => {
+          navigation.navigate("FitnessGuru" as any);
+        },
+      }
+    );
   };
 
   // Function to handle onPress event of workout item
@@ -204,6 +212,10 @@ const WorkoutListScreen: React.FC<
             renderItem={({ item }) => {
               const { exercise, reps, rest, sets, _id } = item;
               const description = `${sets} Sets | ${reps} Reps | ${rest} Rest`;
+              const isLogged = activeSession?.loggedExercises?.some((log: any) => {
+                const id = typeof log === "string" ? log : log?.exerciseId || log?._id;
+                return id === exercise?._id || id === _id;
+              });
               return (
                 <TouchableOpacity
                   onPress={() => handleGeneralWorkoutItemPress(item)}
@@ -214,6 +226,7 @@ const WorkoutListScreen: React.FC<
                     title={exercise?.name}
                     image={exercise.url ? exercise.url : sampleImage}
                     description={description}
+                    isLogged={isLogged}
                   />
                 </TouchableOpacity>
               );
@@ -228,6 +241,10 @@ const WorkoutListScreen: React.FC<
             renderItem={({ item }) => {
               const { exercise, reps, rest, sets, _id } = item;
               const description = `${sets} Sets | ${reps} Reps | ${rest} Rest`;
+              const isLogged = activeSession?.loggedExercises?.some((log: any) => {
+                const id = typeof log === "string" ? log : log?.exerciseId || log?._id;
+                return id === exercise?._id || id === _id;
+              });
               return (
                 <TouchableOpacity
                   onPress={() => handleWorkoutItemPress(item)}
@@ -238,6 +255,7 @@ const WorkoutListScreen: React.FC<
                     title={exercise.name}
                     image={exercise?.url || sampleImage}
                     description={description}
+                    isLogged={isLogged}
                   />
                 </TouchableOpacity>
               );

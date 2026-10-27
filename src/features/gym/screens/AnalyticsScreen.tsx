@@ -44,6 +44,7 @@ import {
   isTodayWorkoutCompleted,
   isWorkoutDayCompleted,
 } from "../hooks/useWorkoutSession";
+import { getLocalDateString } from "@utils/services/workoutSessionService";
 
 const AnalyticsScreen: React.FC<
   MyStackNavigatorScreenProps<"AnalyticsScreen">
@@ -212,10 +213,34 @@ const AnalyticsScreen: React.FC<
     }
   };
 
-  const isTodayInLogs = (logs: any[]): boolean => {
-    const today = new Date().toISOString().split("T")[0]; // Format as YYYY-MM-DD
-    return logs.some((log) => log.logDate.split("T")[0] === today);
+  // Option B (Start-Day Logic):
+  // 1. Check if the exercise was already logged in the current active session
+  const isExerciseLoggedinActiveSession = Boolean(
+    isActiveSessionForThisDay &&
+    activeSession?.loggedExercises?.some((item: any) => {
+      const id = typeof item === "string" ? item : item?.exerciseId || item?._id;
+      return id === selectedExercise?.exercise?._id;
+    })
+  );
+
+  // 2. Check if logged on today's date OR on the session start date
+  const isExerciseLogged = (logs: any[]): boolean => {
+    if (isExerciseLoggedinActiveSession) return true;
+    if (!logs || !Array.isArray(logs)) return false;
+
+    const today = getLocalDateString();
+    const startTs =
+      activeSession?.createdAt ||
+      (activeSession as any)?.startedAt ||
+      (activeSession as any)?.startDate;
+    const sessionStartDate = startTs ? getLocalDateString(new Date(startTs)) : today;
+
+    return logs.some((log) => {
+      const logDate = typeof log?.logDate === "string" ? log.logDate.split("T")[0] : "";
+      return (sessionStartDate && logDate === sessionStartDate) || logDate === today;
+    });
   };
+
 
   return (
     <KeyboardAwareScrollView
@@ -339,7 +364,7 @@ const AnalyticsScreen: React.FC<
                     reps={selectedExercise?.reps}
                     submitRecord={submitRecord}
                     isLoading={isLoading}
-                    alreadyLogged={isTodayInLogs(
+                    alreadyLogged={isExerciseLogged(
                       logHistoryByWorkoutDayExercise
                         ? logHistoryByWorkoutDayExercise
                         : []
