@@ -83,10 +83,10 @@ export const initialState: InitialState = {
   dinnerCalories: 0,
   caloryRequirements: {
     perMealRequirement: 0,
-    perMealLowerLimit: 200,
-    perMealUpperLimit: 500,
-    totalLowerLimit: 1000,
-    totalUpperLimit: 3000,
+    perMealLowerLimit: 0,
+    perMealUpperLimit: 0,
+    totalLowerLimit: 0,
+    totalUpperLimit: 0,
   },
 };
 

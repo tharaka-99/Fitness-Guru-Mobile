@@ -9,7 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider as ReduxProvider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-
+import { useFonts, Jost_400Regular, Jost_700Bold, Jost_900Black } from "@expo-google-fonts/jost";
 
 import { reduxPersistor, store } from "@/store";
 import AppInitializer from "@components/app/AppInitializer";
@@ -17,7 +17,7 @@ import navigationTheme from "@navigation/theme";
 import { theme } from "@utils/styles/theme";
 
 
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
@@ -27,8 +27,9 @@ import { enableScreens } from "react-native-screens";
 enableScreens();
 
 
-const queryClient = new QueryClient();
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
+const queryClient = new QueryClient();
 configureReanimatedLogger({
   level: ReanimatedLogLevel.error,
   strict: true, // Reanimated runs in strict mode by default
@@ -36,23 +37,41 @@ configureReanimatedLogger({
 
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Jost_400Regular,
+    Jost_700Bold,
+    Jost_900Black
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <ThemeProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
           <PaperProvider theme={MD2DarkTheme}>
-            <NavigationContainer theme={navigationTheme}>
-              <ReduxProvider store={store}>
-                <PersistGate persistor={reduxPersistor}>
-                  <SubscriptionProvider>
-                    <SafeAreaView style={styles.container}>
-                      <StatusBar style="light" />
-                      <AppInitializer />
-                    </SafeAreaView>
-                  </SubscriptionProvider>
-                </PersistGate>
-              </ReduxProvider>
-            </NavigationContainer>
+            <BottomSheetModalProvider>
+              <NavigationContainer theme={navigationTheme}>
+                <ReduxProvider store={store}>
+                  <PersistGate persistor={reduxPersistor}>
+                    <SubscriptionProvider>
+                      <SafeAreaView style={styles.container}
+                        edges={
+                          Platform.OS === "android"
+                            ? ["right", "top", "left"]
+                            : undefined
+                        }
+                      >
+                        <StatusBar style="light" />
+                        <AppInitializer />
+                      </SafeAreaView>
+                    </SubscriptionProvider>
+                  </PersistGate>
+                </ReduxProvider>
+              </NavigationContainer>
+            </BottomSheetModalProvider>
             <Toast />
           </PaperProvider>
         </QueryClientProvider>

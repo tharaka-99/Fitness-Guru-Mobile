@@ -5,7 +5,7 @@ import Box from "@components/atoms/Box";
 import BoxTab from "@components/atoms/BoxTab";
 import { Dumbbell, Edit, BarChart3, ArrowLeft } from "lucide-react-native";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -29,64 +29,145 @@ import {
   LogSetDto,
 } from "@utils/types/analyticsTypes";
 import Toast from "react-native-toast-message";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { View } from "react-native";
 import { theme } from "@utils/styles/theme";
 import { Icon } from "react-native-paper";
 import Text from "@components/atoms/Text";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useDispatch, useSelector } from "react-redux";
+import { gymActions } from "@features/gym/context/slice";
+import { WorkoutType } from "@utils/types/types";
+import {
+  useActiveWorkoutSession,
+  useWorkoutWeekCalendar,
+  isTodayWorkoutCompleted,
+  isWorkoutDayCompleted,
+} from "../hooks/useWorkoutSession";
 
 const AnalyticsScreen: React.FC<
   MyStackNavigatorScreenProps<"AnalyticsScreen">
 > = ({ navigation, route }) => {
-  const { selectedExercise, selectedWorkoutId, selectedDay } =
-    store.getState()["feature/gym"];
+  const {
+    selectedExercise,
+    selectedWorkoutId,
+    selectedDay,
+    selectedWorkout,
+  } = useSelector((state: any) => state["feature/gym"]);
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const hideTabs = route.params?.hideTabs ?? false;
   const [selectedBox, setSelectedBox] = useState<string | null>("Box1");
   const [isLoading, setIsLoading] = useState(false);
+
+  const { data: activeSession } = useActiveWorkoutSession();
+  const { data: weekCalendar } = useWorkoutWeekCalendar();
+
+  const isDefault = selectedWorkout?.WorkoutType === WorkoutType.Default;
+  const isSelfCreated = selectedWorkout?.WorkoutType === WorkoutType.SelfCreated;
+  const isSessionDisabled = isDefault || isSelfCreated;
+
+  const isCurrentDayCompleted = !isSessionDisabled && isWorkoutDayCompleted(
+    selectedDay,
+    weekCalendar,
+    selectedWorkoutId
+  );
+  const isCompletedToday = !isSessionDisabled && isTodayWorkoutCompleted(weekCalendar);
+  const isSessionInProgress = Boolean(
+    !isSessionDisabled &&
+    activeSession &&
+    (activeSession.workoutId || activeSession.exerciseDay != null || activeSession._id) &&
+    activeSession.status &&
+    activeSession.status !== "completed"
+  );
+  const isActiveSessionForThisDay = Boolean(
+    !isSessionDisabled &&
+    isSessionInProgress &&
+    activeSession?.exerciseDay === selectedDay
+  );
+  const isAnotherSessionActive = Boolean(
+    !isSessionDisabled &&
+    isSessionInProgress &&
+    activeSession?.exerciseDay !== selectedDay
+  );
+
+  const isWorkoutStarted = isSessionDisabled || isActiveSessionForThisDay;
+  const isWorkoutCompleted = !isSessionDisabled && (
+    isCurrentDayCompleted ||
+    (isCompletedToday && !isActiveSessionForThisDay) ||
+    isAnotherSessionActive
+  );
+
+  const isLogSetsDisabled = !isSessionDisabled && (!isWorkoutStarted || isWorkoutCompleted);
+
+  useEffect(() => {
+    if (isSessionDisabled && selectedBox !== "Box1") {
+      setSelectedBox("Box1");
+    } else if (isLogSetsDisabled && selectedBox === "Box2") {
+      setSelectedBox("Box1");
+    }
+  }, [isSessionDisabled, isLogSetsDisabled, selectedBox]);
 
   const {
     isLoading: isLogHistoryByWorkoutDayExerciseLoading,
     data: logHistoryByWorkoutDayExercise,
     refetch: logHistoryByWorkoutDayExerciseRefetch,
   } = useQuery(
-    [
-      "getLogHistoryByWorkoutDayExercise",
-      selectedExercise?.exercise?._id,
-      selectedWorkoutId,
-      selectedDay,
-    ], // Adjust to your actual parameters
-    () =>
-      getLogHistoryByWorkoutDayExercise(
+    {
+      queryKey: [
+        "getLogHistoryByWorkoutDayExercise",
         selectedExercise?.exercise?._id,
         selectedWorkoutId,
         selectedDay,
-      ), // Function reference
+      ],
+      queryFn: () =>
+        getLogHistoryByWorkoutDayExercise(
+          selectedExercise?.exercise?._id,
+          selectedWorkoutId,
+          selectedDay
+        ),
+      enabled: !isSessionDisabled && Boolean(selectedExercise?.exercise?._id && selectedWorkoutId),
+    }
   );
   const {
     isLoading: isLastWeekAnalyticsByWorkoutDayExerciseLoading,
     data: lastWeekAnalyticsByWorkoutDayExercise,
     refetch: lastWeekAnalyticsByWorkoutDayExerciseRefetch,
   } = useQuery(
-    [
-      "getLastWeekAnalyticsByWorkoutDayExercise",
-      selectedExercise?.exercise?._id,
-      selectedWorkoutId,
-      selectedDay,
-    ], // Adjust to your actual parameters
-    () =>
-      getLastWeekAnalyticsByWorkoutDayExercise(
+    {
+      queryKey: [
+        "getLastWeekAnalyticsByWorkoutDayExercise",
         selectedExercise?.exercise?._id,
         selectedWorkoutId,
         selectedDay,
-      ), // Function reference
+      ],
+      queryFn: () =>
+        getLastWeekAnalyticsByWorkoutDayExercise(
+          selectedExercise?.exercise?._id,
+          selectedWorkoutId,
+          selectedDay
+        ),
+      enabled: !isSessionDisabled && Boolean(selectedExercise?.exercise?._id && selectedWorkoutId),
+    }
   );
 
   const handleBoxPress = (box: string) => {
+    if (box === "Box2" && isLogSetsDisabled) return;
     setSelectedBox(box);
   };
 
   const submitRecord = async (data: LogSetDto[]) => {
+    if (isLogSetsDisabled) {
+      Toast.show({
+        type: "error",
+        text1: "Cannot Log Sets",
+        text2: !isWorkoutStarted
+          ? "Please start the workout before logging sets."
+          : "This workout session is completed or locked.",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     const transformedData = data.map((set) => ({
@@ -104,21 +185,27 @@ const AnalyticsScreen: React.FC<
     } as CreateLogSetDto;
 
     try {
-      const response = await logWorkout(logSet);
+      await logWorkout(logSet);
 
       Toast.show({
         type: "success",
         text1: "Exercise logs updated!",
         text2: "Exercise logs updated successfully.",
       });
+
+
+      queryClient.invalidateQueries({ queryKey: ["activeWorkoutSession"] });
+      queryClient.invalidateQueries({ queryKey: ["workoutWeekCalendar"] });
+      queryClient.invalidateQueries({ queryKey: ["weeklyOverview"] });
+
       logHistoryByWorkoutDayExerciseRefetch();
       lastWeekAnalyticsByWorkoutDayExerciseRefetch();
       setIsLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       Toast.show({
         type: "error",
-        text1: "Error ",
-        text2: "Error login sets",
+        text1: "Error",
+        text2: error?.message || "Error logging sets",
       });
     } finally {
       setIsLoading(false);
@@ -147,25 +234,25 @@ const AnalyticsScreen: React.FC<
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View>
           <PageWrapper>
-
             <PageHeader
               leftComponent={
                 <Box flexDirection="row" alignItems="center" gap="md">
                   <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Icon
-                      source="arrow-left"
-                      size={30}
-                      color={theme.colors.PrimaryGreen}
-                    />
+                    <ArrowLeft size={30} color={theme.colors.PrimaryGreen} />
                   </TouchableOpacity>
-                  <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
-                    Analytics
+                  <Text
+                    style={{ textTransform: "capitalize", width: "80%" }}
+                    color="PrimaryGreen"
+                    variant="lgBold"
+                    numberOfLines={1}
+                  >
+                    {selectedExercise?.exercise?.name}
                   </Text>
                 </Box>
               }
             />
 
-            {hideTabs && (
+            {hideTabs && !isSessionDisabled && (
               <Box
                 flexDirection="row"
                 justifyContent="space-around"
@@ -188,6 +275,7 @@ const AnalyticsScreen: React.FC<
                   onPress={() => handleBoxPress("Box2")}
                   style={styles.middleBox}
                   selected={selectedBox === "Box2"}
+                  disabled={isLogSetsDisabled}
                   icon={{
                     icon: ({ color, size }) => (
                       <Edit color={color} size={size + 1} />
@@ -233,17 +321,31 @@ const AnalyticsScreen: React.FC<
                 />
               )}
               {selectedBox === "Box2" && (
-                <LogSetsCard
-                  sets={selectedExercise?.sets}
-                  reps={selectedExercise?.reps}
-                  submitRecord={submitRecord}
-                  isLoading={isLoading}
-                  alreadyLogged={isTodayInLogs(
-                    logHistoryByWorkoutDayExercise
-                      ? logHistoryByWorkoutDayExercise
-                      : [],
-                  )}
-                />
+                isLogSetsDisabled ? (
+                  <Box p="lg" alignItems="center" justifyContent="center" mt="xl">
+                    <Text
+                      variant="md"
+                      color="textSecondary"
+                      style={{ textAlign: "center" }}
+                    >
+                      {!isWorkoutStarted
+                        ? "Workout has not been started yet. Please start the workout session to log your sets."
+                        : "This workout session is already completed or locked for today."}
+                    </Text>
+                  </Box>
+                ) : (
+                  <LogSetsCard
+                    sets={selectedExercise?.sets}
+                    reps={selectedExercise?.reps}
+                    submitRecord={submitRecord}
+                    isLoading={isLoading}
+                    alreadyLogged={isTodayInLogs(
+                      logHistoryByWorkoutDayExercise
+                        ? logHistoryByWorkoutDayExercise
+                        : []
+                    )}
+                  />
+                )
               )}
 
               {selectedBox === "Box3" && (

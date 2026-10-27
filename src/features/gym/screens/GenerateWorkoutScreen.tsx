@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { store } from "@/store";
 import PageWrapper from "@components/app/PageWrapper";
@@ -27,7 +28,7 @@ import {
   WorkoutType,
 } from "@utils/types/types";
 import Toast from "react-native-toast-message";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import { gymActions } from "../context/slice";
 import { ArrowLeft, ArrowRight, X, PlusCircle } from "lucide-react-native";
@@ -39,17 +40,24 @@ const GenerateWorkoutScreen: React.FC<
 > = ({ navigation }) => {
   const { user } = store.getState()["feature/auth"];
   const { days } = useSelector((state: any) => state["feature/gym"]);
+  const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
   const exerciseDaysLength = days?.exerciseDays[0]?.exercises?.length || 0;
   const {
     isLoading: isCurrentWorkoutLoading,
     data: currentWorkout,
     refetch: CurrentWorkoutRefetch,
-  } = useQuery("currentWorkout", getCurrentWorkout);
+  } = useQuery(
+    {
+      queryKey: ["currentWorkout"],
+      queryFn: getCurrentWorkout
+    }
+  );
 
   useEffect(() => {
     if (currentWorkout?.length) {
       const selfCreatedWorkoutPlan = currentWorkout.find(
-        (workout) => workout.type === "SelfCreated",
+        (workout) => workout.type === "SelfCreated"
       );
 
       selfCreatedWorkoutPlan?.exerciseDays?.forEach((day: ExerciseDay) => {
@@ -76,7 +84,7 @@ const GenerateWorkoutScreen: React.FC<
             };
 
             store.dispatch(
-              gymActions.addExerciseToDay({ day: day.day, exercise }),
+              gymActions.addExerciseToDay({ day: day.day, exercise })
             );
           }
         });
@@ -167,54 +175,51 @@ const GenerateWorkoutScreen: React.FC<
   };
 
   const handleSaveWorkout = async () => {
-    if (user?.subscription?.status === true) {
-      const transformedDays: Workout = {
-        type: WorkoutType.SelfCreated,
-        exerciseDays: days.exerciseDays.map((exerciseDay: ExerciseDay) => ({
-          day: exerciseDay.day,
-          exercises: exerciseDay.exercises
-            .filter(
-              (exercise: Exercises) =>
-                exercise.exercise && exercise.exercise._id,
-            )
-            .map((exercise: Exercises) => ({
-              order: exercise.order,
-              exercise: exercise.exercise._id,
-              sets: exercise.sets,
-              reps: exercise.reps,
-              rest: exercise.rest,
-            })),
-        })),
-      };
-      const selfCreatedWorkoutPlan = currentWorkout?.find(
-        (workout) => workout.type === "SelfCreated",
-      );
+    const transformedDays: Workout = {
+      type: WorkoutType.SelfCreated,
+      exerciseDays: days.exerciseDays.map((exerciseDay: ExerciseDay) => ({
+        day: exerciseDay.day,
+        exercises: exerciseDay.exercises
+          .filter(
+            (exercise: Exercises) => exercise.exercise && exercise.exercise._id
+          )
+          .map((exercise: Exercises) => ({
+            order: exercise.order,
+            exercise: exercise.exercise._id,
+            sets: exercise.sets,
+            reps: exercise.reps,
+            rest: exercise.rest,
+          })),
+      })),
+    };
+    const selfCreatedWorkoutPlan = currentWorkout?.find(
+      (workout) => workout.type === "SelfCreated"
+    );
 
-      try {
-        if (selfCreatedWorkoutPlan && selfCreatedWorkoutPlan._id) {
-          const updateData = { ...transformedDays };
-          delete updateData.type;
-          await updateWorkout(selfCreatedWorkoutPlan._id, updateData);
-        } else {
-          await createWorkout(transformedDays);
-        }
-        Toast.show({
-          type: "success",
-          text1: "Success",
-          text2: "Workout saved successfully!",
-        });
-        navigation.navigate("Home");
-        store.dispatch(gymActions.resetWorkouts());
-      } catch (error) {
-        console.error("Error saving workout:", error);
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Failed to save workout. Please try again.",
-        });
+    try {
+      if (selfCreatedWorkoutPlan && selfCreatedWorkoutPlan._id) {
+        const updateData = { ...transformedDays };
+        delete updateData.type;
+        await updateWorkout(selfCreatedWorkoutPlan._id, updateData);
+      } else {
+        await createWorkout(transformedDays);
       }
-    } else {
-      navigation.push("GenerateMealPlan");
+      store.dispatch(gymActions.resetWorkouts());
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Workout saved successfully!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["UserWorkouts"] });
+      queryClient.invalidateQueries({ queryKey: ["currentWorkout"] });
+      navigation.navigate("Home");
+    } catch (error) {
+      console.error("Error saving workout:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to save workout. Please try again.",
+      });
     }
   };
 
@@ -237,8 +242,9 @@ const GenerateWorkoutScreen: React.FC<
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 60 + insets.bottom }}
           keyboardShouldPersistTaps="handled"
+          overScrollMode="never"
         >
           <FlatList
             data={days.exerciseDays}
@@ -261,25 +267,30 @@ const GenerateWorkoutScreen: React.FC<
                     borderWidth: 2,
                     borderColor: theme.colors.PrimaryGreen,
                     borderRadius: theme.borderRadii.xs,
-                    paddingHorizontal: theme.spacing.sm,
-                    paddingVertical: theme.spacing.xs,
+                    paddingHorizontal: theme.spacing.md,
+                    paddingVertical: theme.spacing.sm,
                     backgroundColor:
                       exerciseDaysLength <= 0
                         ? theme.colors.PrimaryGrey
-                        : "transparent",
+                        : theme.colors.PrimaryGreen,
                     opacity: exerciseDaysLength <= 0 ? 0.5 : 1,
                     gap: theme.spacing.xs,
                   }}
                 >
                   <Text
-                    variant="lgBold"
+                    variant="md"
+                    fontWeight="500"
+                    letterSpacing={1}
                     style={{
-                      color: theme.colors.PrimaryGreen,
+                      color:
+                        exerciseDaysLength <= 0
+                          ? theme.colors.PrimaryGreen
+                          : theme.colors.PrimaryBlack,
                     }}
+                    textTransform="capitalize"
                   >
-                    Next
+                    Save
                   </Text>
-                  <ArrowRight size={18} color={theme.colors.PrimaryGreen} />
                 </TouchableOpacity>
               </Box>
             )}
@@ -296,6 +307,7 @@ const GenerateWorkoutScreen: React.FC<
             backgroundColor: theme.colors.backgroundPrimary,
             paddingHorizontal: theme.spacing.sm,
             paddingVertical: theme.spacing.sm,
+            paddingBottom: theme.spacing.base,
             borderTopWidth: 1,
             borderTopColor: theme.colors.PrimaryGrey,
             flexDirection: "row",
@@ -310,25 +322,23 @@ const GenerateWorkoutScreen: React.FC<
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "center",
-              borderWidth: 2,
-              borderColor: theme.colors.PrimaryGreen,
               borderRadius: 8,
-              paddingHorizontal: 16,
-              paddingVertical: 14,
-              backgroundColor: "transparent",
+              paddingHorizontal: theme.spacing.md,
+              paddingVertical: theme.spacing.base,
+              backgroundColor: theme.colors.PrimaryGreen,
             }}
           >
             <PlusCircle
               size={20}
-              color={theme.colors.PrimaryGreen}
+              color={theme.colors.PrimaryBlack}
               style={{ marginRight: 8 }}
             />
             <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                color: theme.colors.PrimaryGreen,
-              }}
+              variant="md"
+              fontWeight="500"
+              letterSpacing={1}
+              color="textPrimaryBlack"
+              textTransform="capitalize"
             >
               Add New Day
             </Text>

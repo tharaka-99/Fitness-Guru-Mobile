@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { KeyboardType, StyleSheet } from "react-native";
 import { TextInput } from "react-native-paper";
+import { Eye, EyeOff } from "lucide-react-native";
 
 import Box from "@components/atoms/Box";
 import { theme } from "@utils/styles/theme";
@@ -12,6 +13,9 @@ export interface InputProps {
   secureTextEntry?: boolean;
   placeholder?: string;
   keyboardType?: KeyboardType;
+  outlinecolor?: string;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  leftIcon?: string | React.ReactNode;
 }
 
 if (TextInput.defaultProps == null) {
@@ -26,7 +30,12 @@ const Input: React.FC<InputProps> = ({
   onChangeText,
   keyboardType = "default",
   secureTextEntry = false,
+  outlinecolor = "transparent",
+  autoCapitalize = "none",
+  leftIcon,
 }) => {
+  const [isPasswordHidden, setIsPasswordHidden] = useState(secureTextEntry);
+
   return (
     <Box height={50}>
       <TextInput
@@ -36,17 +45,39 @@ const Input: React.FC<InputProps> = ({
         mode="outlined"
         style={styles.input}
         placeholder={placeholder}
-        outlineColor="transparent"
+        outlineColor={outlinecolor}
         onChangeText={onChangeText}
         keyboardType={keyboardType}
-        secureTextEntry={secureTextEntry}
+        secureTextEntry={isPasswordHidden}
         textColor={theme.colors.textPrimary}
         selectionColor={theme.colors.PrimaryGreen}
         activeOutlineColor={theme.colors.PrimaryGreen}
         placeholderTextColor={theme.colors.textSecondary}
-        autoCapitalize="none"
+        autoCapitalize={autoCapitalize}
         autoCorrect={false}
         autoComplete="off"
+        left={
+          leftIcon ? (
+            <TextInput.Icon
+              icon={typeof leftIcon === "string" ? leftIcon : () => leftIcon}
+              color={theme.colors.PrimaryGreen}
+            />
+          ) : undefined
+        }
+        right={
+          secureTextEntry ? (
+            <TextInput.Icon
+              icon={() =>
+                isPasswordHidden ? (
+                  <Eye color={theme.colors.PrimaryGreen} size={20} />
+                ) : (
+                  <EyeOff color={theme.colors.PrimaryGreen} size={20} />
+                )
+              }
+              onPress={() => setIsPasswordHidden(!isPasswordHidden)}
+            />
+          ) : undefined
+        }
       />
     </Box>
   );

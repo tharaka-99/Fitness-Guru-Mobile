@@ -132,4 +132,5 @@ export interface MealReRequestPayload {
   age: number;
   weight: number;
   height: number;
+  activityLevel: ActivityLevel;
 }

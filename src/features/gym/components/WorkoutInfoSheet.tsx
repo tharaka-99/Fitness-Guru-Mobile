@@ -11,7 +11,7 @@ import Text from "@components/atoms/Text";
 import { theme } from "@utils/styles/theme";
 
 interface Props {
-  bottomSheetRef: React.RefObject<BottomSheet>;
+  bottomSheetRef: React.RefObject<BottomSheet | null>;
   workoutInfo: {
     image: string;
     workoutName: string | undefined;
@@ -41,7 +41,7 @@ const WorkoutInfoSheet: React.FC<Props> = ({ bottomSheetRef, workoutInfo }) => {
   return (
     <BottomSheet
       index={-1}
-      snapPoints={["60%", "85%"]}
+      // snapPoints={["60%", "85%"]}
       ref={bottomSheetRef}
       enableDynamicSizing
       enablePanDownToClose

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -9,6 +9,8 @@ import {
   View,
 } from "react-native";
 import PagerView from "react-native-pager-view";
+import SelectDropdown from "react-native-select-dropdown";
+import { ChevronDown } from "lucide-react-native";
 import PageHeader from "@components/app/header/PageHeader";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import Box from "@components/atoms/Box";
@@ -20,6 +22,7 @@ import StepProgress from "@components/atoms/StepProgress";
 import Text from "@components/atoms/Text";
 import TextInput from "@components/molecules/TextInput";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
+import { trainerActions } from "../context/slice";
 import { capitalizeString } from "@utils/helpers";
 import {
   postFitnessGuruRequest,
@@ -36,10 +39,11 @@ import {
 } from "@utils/types/trainersTypes";
 import { Unit } from "@utils/types/types";
 import { Text as PaperText, Icon } from "react-native-paper";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ArrowLeft } from "lucide-react-native";
+import { useQueryClient } from "@tanstack/react-query";
 
 const initialFormValues: CreateTrainerRequestDto = {
   trainerId: "",
@@ -77,10 +81,15 @@ const initialFormValues: CreateTrainerRequestDto = {
 const TrainerApplicationScreen: React.FC<
   MyStackNavigatorScreenProps<"TrainerApplication">
 > = ({ route, navigation }) => {
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+  const { user } = useSelector((state: any) => state["feature/auth"]);
   const { trainerId, packageId } = route.params;
   const [currentStep, setCurrentStep] = useState<number>(0);
   const pageViewRef = useRef<PagerView>(null);
-  const { trainer } = useSelector((state: any) => state["feature/trainer"]);
+  const { trainer, pendingApplication } = useSelector(
+    (state: any) => state["feature/trainer"]
+  );
   const [unit, setUnit] = useState(Unit.Metric);
   const [formValues, setFormValues] = useState<CreateTrainerRequestDto>({
     ...initialFormValues,
@@ -173,13 +182,12 @@ const TrainerApplicationScreen: React.FC<
   };
   //
   const handleBackStep = (index: number) => {
-
     pageViewRef.current?.setPage(index);
   };
   //
   const handleInputChange = <Name extends keyof CreateTrainerRequestDto>(
     name: Name,
-    value: CreateTrainerRequestDto[Name],
+    value: CreateTrainerRequestDto[Name]
   ) => {
     setFormValues((prevValues) => ({
       ...prevValues,
@@ -192,7 +200,7 @@ const TrainerApplicationScreen: React.FC<
   //
   const handleImageUpload = (
     name: keyof typeof imageUploads,
-    value: string | string[],
+    value: string | string[]
   ) => {
     setImageUploads((prevImages) => ({
       ...prevImages,
@@ -202,15 +210,13 @@ const TrainerApplicationScreen: React.FC<
 
   const logFormData = (formData: FormData) => {
     for (let [key, value] of (formData as any).entries()) {
-      console.log(`${key}:`, value);
     }
   };
-
 
   const appendTrainerRequestData = (
     formValues: CreateTrainerRequestDto,
     imageUploads: any,
-    trainerId: string,
+    trainerId: string
   ) => {
     const formData = new FormData();
 
@@ -230,22 +236,22 @@ const TrainerApplicationScreen: React.FC<
     formData.append("homeEquipments", formValues.homeEquipments || "");
     formData.append(
       "isAnyFoodAllergies",
-      formValues.isAnyFoodAllergies.toString(),
+      formValues.isAnyFoodAllergies.toString()
     );
     formData.append("foodAllergies", formValues.foodAllergies || "");
     formData.append("isAnyInjuries", formValues.isAnyInjuries.toString());
     formData.append("injuries", formValues.injuries || "");
     formData.append(
       "isAnyPhysicalLimitations",
-      formValues.isAnyPhysicalLimitations.toString(),
+      formValues.isAnyPhysicalLimitations.toString()
     );
     formData.append(
       "physicalLimitations",
-      formValues.physicalLimitations || "",
+      formValues.physicalLimitations || ""
     );
     formData.append(
       "isUsingAnyMedications",
-      formValues.isUsingAnyMedications.toString(),
+      formValues.isUsingAnyMedications.toString()
     );
     formData.append("usingMedications", formValues.usingMedications || "");
     formData.append("activityLevel", formValues.activityLevel);
@@ -253,26 +259,26 @@ const TrainerApplicationScreen: React.FC<
     formData.append("weeklyMealBudget", formValues.weeklyMealBudget.toString());
     formData.append(
       "isUseAnySupplements",
-      formValues.isUseAnySupplements.toString(),
+      formValues.isUseAnySupplements.toString()
     );
     formData.append("supplements", formValues.supplements || "");
     formData.append("cardiovascular", formValues.cardiovascular);
     formData.append(
       "oneSetPushUpCount",
-      formValues.oneSetPushUpCount.toString(),
+      formValues.oneSetPushUpCount.toString()
     );
     formData.append(
       "oneSetBodyWeightSquats",
-      formValues.oneSetBodyWeightSquats.toString(),
+      formValues.oneSetBodyWeightSquats.toString()
     );
     formData.append("oneSetPullUps", formValues.oneSetPullUps.toString());
     formData.append(
       "canTouchToesKeepingLegsStraight",
-      formValues.canTouchToesKeepingLegsStraight.toString(),
+      formValues.canTouchToesKeepingLegsStraight.toString()
     );
     formData.append(
       "isPracticingAnyFlexibilityExercises",
-      formValues.isPracticingAnyFlexibilityExercises.toString(),
+      formValues.isPracticingAnyFlexibilityExercises.toString()
     );
     // Handle image uploads
     if (imageUploads.homeEquipments.length) {
@@ -283,49 +289,79 @@ const TrainerApplicationScreen: React.FC<
             name: `homeEquipment_${index + 1}.jpg`,
             type: "image/jpeg",
           });
-        },
+        }
       );
     }
 
+    // if (imageUploads.frontView?.[0]) {
     formData.append("frontView", {
       uri: imageUploads.frontView[0],
       name: "frontView.jpg",
       type: "image/jpeg",
     });
+    // }
+    // if (imageUploads.backView?.[0]) {
     formData.append("backView", {
       uri: imageUploads.backView[0],
       name: "backView.jpg",
       type: "image/jpeg",
     });
+    // }
+    // if (imageUploads.sideView?.[0]) {
     formData.append("sideView", {
       uri: imageUploads.sideView[0],
       name: "sideView.jpg",
       type: "image/jpeg",
     });
+    // }
+    // if (imageUploads.lowerBodyView?.[0]) {
     formData.append("lowerBodyView", {
       uri: imageUploads.lowerBodyView[0],
       name: "lowerBodyView.jpg",
       type: "image/jpeg",
     });
+    // }
     return formData;
   };
-  //
+
   const handleSubmit = async () => {
     try {
-      setIsLoading(true);
+      // if (
+      //   !imageUploads.frontView.length ||
+      //   !imageUploads.backView.length ||
+      //   !imageUploads.sideView.length ||
+      //   !imageUploads.lowerBodyView.length
+      // ) {
+      //   Toast.show({
+      //     type: "error",
+      //     text1: "Error",
+      //     text2: "Please upload all 4 body images.",
+      //   });
+      //   return;
+      // }
 
-      // Create a FormData instance
+      const isSubscribed = user?.subscription?.status === true;
+
+      if (!isSubscribed) {
+        dispatch(trainerActions.setPendingApplication(true));
+        navigation.navigate("PricingPackages");
+        return;
+      }
+
+      setIsLoading(true);
       const formData = appendTrainerRequestData(
         formValues,
         imageUploads,
-        trainerId,
+        trainerId
       );
 
       logFormData(formData);
 
       if (trainerId === "fitness-guru") {
-        await postFitnessGuruRequest(formData); // Adjust the API method to accept FormData
-        navigation.navigate("Tab", { screen: "FitnessGuru" });
+        // await postFitnessGuruRequest(formData); // Adjust the API method to accept FormData
+        const responseData = await postFitnessGuruRequest(formData);
+        queryClient.setQueryData(["fitnessGuruRequest"], responseData);
+        // navigation.navigate("Tab", { screen: "FitnessGuru" });
         Toast.show({
           type: "success",
           text1: "Success",
@@ -341,7 +377,6 @@ const TrainerApplicationScreen: React.FC<
           text2: "Trainer requested successfully!",
         });
       }
-
       setIsLoading(false);
     } catch (error: any) {
       Toast.show({
@@ -352,6 +387,14 @@ const TrainerApplicationScreen: React.FC<
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const isSubscribed = user?.subscription?.status === true;
+    if (isSubscribed && pendingApplication) {
+      dispatch(trainerActions.setPendingApplication(false));
+      handleSubmit();
+    }
+  }, [user?.subscription?.status, pendingApplication]);
 
   //
   const toggleUnit = (unit: Unit) => {
@@ -428,6 +471,7 @@ const TrainerApplicationScreen: React.FC<
               <Box gap="base" px="md">
                 <TextInput
                   label="Full Name"
+                  autoCapitalize="sentences"
                   placeholder="Enter your full name"
                   value={formValues.fullName}
                   onChangeText={(value) => handleInputChange("fullName", value)}
@@ -436,6 +480,7 @@ const TrainerApplicationScreen: React.FC<
 
                 <TextInput
                   label="Occupation"
+                  autoCapitalize="sentences"
                   placeholder="Enter your occupation"
                   value={formValues.occupation}
                   onChangeText={(value) =>
@@ -460,8 +505,10 @@ const TrainerApplicationScreen: React.FC<
                   label="Age"
                   placeholder="Enter your age"
                   keyboardType="number-pad"
-                  value={formValues.age.toString()}
-                  onChangeText={(value) => handleInputChange("age", +value)}
+                  value={formValues.age === 0 ? "" : formValues.age.toString()}
+                  onChangeText={(value) =>
+                    handleInputChange("age", value as any)
+                  }
                   error={errors.age}
                 />
 
@@ -507,10 +554,7 @@ const TrainerApplicationScreen: React.FC<
                     >
                       <Text
                         style={{
-                          color:
-                            unit === Unit.Metric
-                              ? theme.colors.PrimaryBlack
-                              : theme.colors.PrimaryWhite,
+                          color: theme.colors.PrimaryBlack,
                         }}
                       >
                         Metric
@@ -539,10 +583,7 @@ const TrainerApplicationScreen: React.FC<
                     >
                       <Text
                         style={{
-                          color:
-                            unit === Unit.Imperial
-                              ? theme.colors.PrimaryBlack
-                              : theme.colors.PrimaryWhite,
+                          color: theme.colors.PrimaryBlack,
                         }}
                       >
                         Imperial
@@ -555,8 +596,12 @@ const TrainerApplicationScreen: React.FC<
                   label={`Weight in ${unit === Unit.Metric ? "kg" : "lbs"}`}
                   placeholder="Enter your weight"
                   keyboardType="number-pad"
-                  value={formValues.weight.toString()}
-                  onChangeText={(value) => handleInputChange("weight", +value)}
+                  value={
+                    formValues.weight === 0 ? "" : formValues.weight.toString()
+                  }
+                  onChangeText={(value) =>
+                    handleInputChange("weight", value as any)
+                  }
                   error={errors.weight}
                 />
 
@@ -564,8 +609,12 @@ const TrainerApplicationScreen: React.FC<
                   label={`Height in ${unit === Unit.Metric ? "cm" : "inches"}`}
                   placeholder="Enter your height"
                   keyboardType="number-pad"
-                  value={formValues.height.toString()}
-                  onChangeText={(value) => handleInputChange("height", +value)}
+                  value={
+                    formValues.height === 0 ? "" : formValues.height.toString()
+                  }
+                  onChangeText={(value) =>
+                    handleInputChange("height", value as any)
+                  }
                   error={errors.height}
                 />
 
@@ -596,22 +645,81 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "workoutPlace",
-                      value.value as WorkoutPlace,
+                      value.value as WorkoutPlace
                     )
                   }
                   key={formValues.workoutPlace}
                 />
 
-                <TextInput
-                  label="How many workout days per week do you plan to exercise?"
-                  placeholder="Enter number of days (e.g., 3-5)"
-                  keyboardType="number-pad"
-                  value={formValues.workoutDaysPerWeek}
-                  onChangeText={(value) =>
-                    handleInputChange("workoutDaysPerWeek", value)
-                  }
-                  error={errors.workoutDaysPerWeek}
-                />
+                <Box gap="base" mt="sm">
+                  <InputLabel label="How many workout days per week do you plan to exercise?" />
+
+                  <SelectDropdown
+                    data={["1", "2", "3", "4", "5", "6"]}
+                    onSelect={(selectedItem) =>
+                      handleInputChange("workoutDaysPerWeek", selectedItem)
+                    }
+                    defaultButtonText="Select Days"
+                    buttonStyle={{
+                      width: "100%",
+                      height: 50,
+                      backgroundColor: theme.colors.backgroundSecondary,
+                      borderRadius: theme.borderRadii.xs,
+                      borderWidth: 1,
+                      borderColor: theme.colors.borderSecondary,
+                    }}
+                    renderCustomizedButtonChild={(selectedItem) => (
+                      <Box
+                        flex={1}
+                        flexDirection="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        paddingHorizontal="sm"
+                      >
+                        <Text
+                          variant="sm"
+                          color={selectedItem ? "textPrimary" : "textSecondary"}
+                        >
+                          {selectedItem
+                            ? `${selectedItem} Day${selectedItem !== "1" ? "s" : ""
+                            }`
+                            : "Select Days"}
+                        </Text>
+                        <ChevronDown
+                          size={18}
+                          color={theme.colors.textSecondary}
+                        />
+                      </Box>
+                    )}
+                    dropdownStyle={{
+                      marginTop: Platform.OS === "ios" ? 0 : -20,
+                      backgroundColor: theme.colors.backgroundSecondary,
+                      borderRadius: theme.borderRadii.xs,
+                    }}
+                    rowStyle={{
+                      borderBottomColor: theme.colors.borderSecondary,
+                      borderBottomWidth: 1,
+                    }}
+                    renderCustomizedRowChild={(item) => (
+                      <Box
+                        flex={1}
+                        paddingLeft="xl"
+                        alignItems="flex-start"
+                        justifyContent="center"
+                        paddingVertical="sm"
+                      >
+                        <Text variant="sm" color="textPrimary">
+                          {item} Day{item !== "1" ? "s" : ""}
+                        </Text>
+                      </Box>
+                    )}
+                  />
+                  {errors.workoutDaysPerWeek && (
+                    <Text color="PrimaryRed" variant="xs" mt="xs">
+                      {errors.workoutDaysPerWeek}
+                    </Text>
+                  )}
+                </Box>
 
                 <TextInput
                   label="If working out at home, please list your equipment"
@@ -640,7 +748,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "isAnyFoodAllergies",
-                      value.value as boolean,
+                      value.value as boolean
                     )
                   }
                 />
@@ -682,7 +790,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "isAnyPhysicalLimitations",
-                      value.value as boolean,
+                      value.value as boolean
                     )
                   }
                 />
@@ -705,7 +813,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "isUsingAnyMedications",
-                      value.value as boolean,
+                      value.value as boolean
                     )
                   }
                 />
@@ -764,7 +872,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "activityLevel",
-                      value.value as ActivityLevel,
+                      value.value as ActivityLevel
                     )
                   }
                 />
@@ -791,7 +899,11 @@ const TrainerApplicationScreen: React.FC<
                   label="What is your weekly budget for meals?"
                   placeholder="Enter your budget"
                   keyboardType="number-pad"
-                  value={formValues.weeklyMealBudget.toString()}
+                  value={
+                    formValues.weeklyMealBudget === 0
+                      ? ""
+                      : formValues.weeklyMealBudget.toString()
+                  }
                   onChangeText={(value) =>
                     handleInputChange("weeklyMealBudget", +value)
                   }
@@ -807,7 +919,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "isUseAnySupplements",
-                      value.value as boolean,
+                      value.value as boolean
                     )
                   }
                 />
@@ -867,7 +979,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "cardiovascular",
-                      value.value as Cardiovascular,
+                      value.value as Cardiovascular
                     )
                   }
                 />
@@ -876,7 +988,11 @@ const TrainerApplicationScreen: React.FC<
                   keyboardType="number-pad"
                   label="How many push-ups can you perform in one set?"
                   placeholder="Leave blank if you don't know"
-                  value={formValues.oneSetPushUpCount.toString()}
+                  value={
+                    formValues.oneSetPushUpCount === 0
+                      ? ""
+                      : formValues.oneSetPushUpCount.toString()
+                  }
                   onChangeText={(value) =>
                     handleInputChange("oneSetPushUpCount", Number(value))
                   }
@@ -886,7 +1002,11 @@ const TrainerApplicationScreen: React.FC<
                   keyboardType="number-pad"
                   label="How many bodyweight squats can you perform in one set?"
                   placeholder="Leave blank if you don't know"
-                  value={formValues.oneSetBodyWeightSquats.toString()}
+                  value={
+                    formValues.oneSetBodyWeightSquats === 0
+                      ? ""
+                      : formValues.oneSetBodyWeightSquats.toString()
+                  }
                   onChangeText={(value) =>
                     handleInputChange("oneSetBodyWeightSquats", Number(value))
                   }
@@ -896,7 +1016,11 @@ const TrainerApplicationScreen: React.FC<
                   keyboardType="number-pad"
                   label="How many pull-ups can you perform in one set?"
                   placeholder="Leave blank if you don't know"
-                  value={formValues.oneSetPullUps.toString()}
+                  value={
+                    formValues.oneSetPullUps === 0
+                      ? ""
+                      : formValues.oneSetPullUps.toString()
+                  }
                   onChangeText={(value) =>
                     handleInputChange("oneSetPullUps", Number(value))
                   }
@@ -919,7 +1043,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "canTouchToesKeepingLegsStraight",
-                      value.value as boolean,
+                      value.value as boolean
                     )
                   }
                 />
@@ -941,7 +1065,7 @@ const TrainerApplicationScreen: React.FC<
                   onSelect={(value) =>
                     handleInputChange(
                       "isPracticingAnyFlexibilityExercises",
-                      value.value as boolean,
+                      value.value as boolean
                     )
                   }
                 />

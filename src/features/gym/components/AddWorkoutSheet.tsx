@@ -12,12 +12,14 @@ import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
 import { constants, theme } from "@utils/styles/theme";
 import { Exercises, SearchExercises } from "@utils/types/types";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface Props {
   image: string;
   workoutName: SearchExercises;
   bottomSheetRef: React.RefObject<any>;
   onAddWorkout: (exercise: Exercises) => void;
+  onClose?: () => void;
 }
 
 const loadingGif = require("assets/loading_gif.gif");
@@ -27,6 +29,7 @@ const AddWorkoutSheet: React.FC<Props> = ({
   workoutName,
   onAddWorkout,
   bottomSheetRef,
+  onClose,
 }) => {
   const sheetBackDrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -58,13 +61,16 @@ const AddWorkoutSheet: React.FC<Props> = ({
     }
   };
 
+  const insets = useSafeAreaInsets();
+
   return (
     <BottomSheet
-      index={-1}
-      snapPoints={[500]}
+      index={0}
+      // snapPoints={[500]}
       enableDynamicSizing
       ref={bottomSheetRef}
       enablePanDownToClose
+      onClose={onClose}
       backdropComponent={sheetBackDrop}
       handleIndicatorStyle={{ backgroundColor: theme.colors.textPrimary }}
       backgroundStyle={{ backgroundColor: theme.colors.backgroundSecondary }}
@@ -73,6 +79,7 @@ const AddWorkoutSheet: React.FC<Props> = ({
         style={{
           flex: 1,
           backgroundColor: theme.colors.backgroundSecondary,
+          paddingBottom: insets.bottom,
         }}
       >
         <Box

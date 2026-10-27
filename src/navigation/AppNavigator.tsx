@@ -20,6 +20,7 @@ import AnalyticsScreen from '@features/gym/screens/AnalyticsScreen';
 import MyDashboardScreen from '@features/dashboard/screens/MyDashboardScreen';
 import PersonalInfoScreen from '@features/account/screens/PersonalInfoScreen';
 import ExercisesAnalyticsScreen from '@features/gym/screens/ExercisesAnalyticsScreen';
+import HabitHistoryScreen from '@features/trainer/screens/HabitHistoryScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -55,6 +56,7 @@ const AppNavigator = () => (
       name="ExercisesAnalytics"
       component={ExercisesAnalyticsScreen}
     />
+    <Stack.Screen name="HabitHistory" component={HabitHistoryScreen} />
   </Stack.Navigator>
 );
 

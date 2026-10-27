@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import {
   Image,
   ImageBackground,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StyleSheet,
-  TouchableWithoutFeedback,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
@@ -19,6 +14,8 @@ import { MyAuthStackNavigatorScreenProps } from "@navigation/types";
 import { Credentials } from "@utils/types/types";
 import { clientUserLogin } from "@utils/services/authServices";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { theme } from "@utils/styles/theme";
+import { Mail, Lock } from "lucide-react-native";
 
 type InputKey = keyof Credentials;
 
@@ -69,11 +66,6 @@ const LoginScreen: React.FC<MyAuthStackNavigatorScreenProps<"Login">> = ({
 
   return (
     <PageWrapper noPadding>
-      {/* <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardAvoidingView}
-        keyboardVerticalOffset={Platform.OS === "ios" ? SCREEN_HEIGHT*0.15 : SCREEN_HEIGHT*0.15}
-      > */}
       <KeyboardAwareScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
@@ -83,70 +75,78 @@ const LoginScreen: React.FC<MyAuthStackNavigatorScreenProps<"Login">> = ({
         enableOnAndroid={true}
         extraScrollHeight={20}
       >
-        <Box backgroundColor="backgroundPrimary" flex={1}>
-          <Box style={{ height: SCREEN_HEIGHT * 0.5 }}>
-            <ImageBackground
-              source={require("assets/images/background.png")}
-              style={styles.backgroundImage}
-            >
-              <Box mb="sm" pb="md">
+        <Box style={{ flex: 1 }}>
+          <Box style={{ position: "absolute", width: "100%", height: SCREEN_HEIGHT }}>
+            <Image
+              source={require("assets/images/LoginBackgound.png")}
+              style={{ width: "100%", height: "100%" }}
+              resizeMode="cover"
+            />
+          </Box>
+          {/* Spacer to push card to the bottom */}
+          <Box flex={1} minHeight={SCREEN_HEIGHT * 0.45} />
+
+          <Box style={styles.cardWrapper}>
+            <Box style={styles.cardContainer}>
+              <Box style={styles.logoCircle}>
                 <Image
-                  resizeMode="cover"
-                  style={{ width: 125, height: 125 }}
+                  resizeMode="contain"
+                  style={{ width: 40, height: 40, tintColor: theme.colors.PrimaryGreen }}
                   source={require("assets/logo_white.png")}
                 />
               </Box>
-              <Text fontWeight="500" style={{ fontSize: 20 }}>
-                WELCOME TO
-              </Text>
-              <Text fontWeight="700" style={{ fontSize: 40 }} mb="md">
-                FITNESS GURU
-              </Text>
-            </ImageBackground>
-          </Box>
 
-          <Box padding="md" style={{ flex: 1 }}>
-            <Box gap="base">
-              <TextInput
-                label="Email"
-                placeholder="Enter your email"
-                keyboardType="email-address"
-                onChangeText={(text) => handleInputChange("email", text)}
-              />
-              <TextInput
-                secureTextEntry
-                label="Password"
-                placeholder="Enter your password"
-                onChangeText={(text) => handleInputChange("password", text)}
-              />
-            </Box>
-
-            <Box mt="lg">
-              <Button
-                title="Login"
-                onPress={handleLogin}
-                isLoading={isLoading}
-              />
-            </Box>
-
-            {new Date() >= new Date("2026-03-28T17:00:00") && (
-              <Box
-                gap="sm"
-                mt="md"
-                flexDirection="row"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Text color="textSecondary">Not a member yet ?</Text>
-                <Text onPress={() => navigation.navigate("Register")} py="md">
-                  Sign in
+              <Box alignItems="center" mt="md" mb="lg">
+                <Text variant="2xlBold" color="textPrimary">
+                  Welcome back
+                </Text>
+                <Text variant="sm" color="textSecondary" mt="xs">
+                  Log in to continue your fitness journey
                 </Text>
               </Box>
-            )}
+
+              <Box gap="base">
+                <TextInput
+                  placeholder="Email"
+                  keyboardType="email-address"
+                  leftIcon={<Mail color={theme.colors.PrimaryGreen} size={20} />}
+                  onChangeText={(text) => handleInputChange("email", text)}
+                />
+                <TextInput
+                  secureTextEntry
+                  placeholder="Password"
+                  leftIcon={<Lock color={theme.colors.PrimaryGreen} size={20} />}
+                  onChangeText={(text) => handleInputChange("password", text)}
+                />
+              </Box>
+
+              <Box mt="lg">
+                <Button
+                  title="Login"
+                  onPress={handleLogin}
+                  isLoading={isLoading}
+                />
+              </Box>
+
+              {new Date() >= new Date("2026-03-28T17:00:00") && (
+                <Box
+                  gap="sm"
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="center"
+                  pb="lg"
+                >
+                  <Text color="textSecondary">Not a member yet?</Text>
+                  <Text onPress={() => navigation.navigate("Register")} fontWeight="bold" color="textPrimary">
+                    Create Account
+                  </Text>
+                </Box>
+              )}
+            </Box>
           </Box>
+
         </Box>
       </KeyboardAwareScrollView>
-      {/* </KeyboardAvoidingView> */}
     </PageWrapper>
   );
 };
@@ -154,16 +154,36 @@ const LoginScreen: React.FC<MyAuthStackNavigatorScreenProps<"Login">> = ({
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  keyboardAvoidingView: {
-    flex: 1,
-  },
   scrollContent: {
     flexGrow: 1,
   },
   backgroundImage: {
     width: "100%",
     height: "100%",
+  },
+  cardWrapper: {
+    marginHorizontal: theme.spacing.sm,
+    backgroundColor: theme.colors.PrimaryGreen,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 3,
+  },
+  cardContainer: {
+    backgroundColor: "rgba(17, 17, 17, 1)",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    paddingHorizontal: theme.spacing.lg,
+  },
+  logoCircle: {
+    alignSelf: "center",
+    marginTop: -40,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: theme.colors.backgroundPrimary,
+    justifyContent: "center",
     alignItems: "center",
-    justifyContent: "flex-end",
+    borderWidth: 3,
+    borderColor: theme.colors.PrimaryGreen,
   },
 });

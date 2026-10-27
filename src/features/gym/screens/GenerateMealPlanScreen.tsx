@@ -1,8 +1,15 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, Keyboard, TouchableOpacity, View } from "react-native";
-import { ArrowLeft, ArrowRight, Check, Search, ChevronLeft, ChevronRight, CircleX } from "lucide-react-native";
-
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  CircleX,
+} from "lucide-react-native";
 import { store } from "@/store";
 import PageWrapper, { SCREEN_HEIGHT } from "@components/app/PageWrapper";
 import PageHeader from "@components/app/header/PageHeader";
@@ -11,7 +18,7 @@ import SearchBar from "@components/atoms/SearchBar";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
 import {
   createMealPlan,
-  getCurrentMealPlan,
+  getMealPlan,
   getMealItems,
   updateMealPlan,
 } from "@utils/services/mealPlanService";
@@ -25,7 +32,7 @@ import {
 import { StyleSheet } from "react-native";
 import { Modal, Button } from "react-native-paper";
 import Toast from "react-native-toast-message";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import AddMealCard from "../components/AddMealSheet";
 import MealCalorieInfoCard, {
@@ -41,11 +48,13 @@ const GenerateMealPlanScreen: React.FC<
   const { user } = useSelector((state: any) => state["feature/auth"]);
   const { profile } = useSelector((state: any) => state["feature/overview"]);
   const goal = profile?.fitnessInfo?.goal;
+  const queryClient = useQueryClient();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedMealItem, setSelectedMealItem] = useState<MealItem>();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const [nextMealType, setNextMealType] = useState<MealType>(
     MealType.Breakfast
   );
@@ -66,13 +75,21 @@ const GenerateMealPlanScreen: React.FC<
     isLoading: isMealItemsLoading,
     data: mealItems,
     refetch: mealItemsRefetch,
-  } = useQuery("mealItems", getMealItems);
+  } = useQuery({
+    queryKey: ["mealItems"],
+    queryFn: getMealItems
+  });
 
   const {
     isLoading: isCurrentMealPlan,
     data: currentMealPlan,
     refetch: currentMealPlanRefetch,
-  } = useQuery("currentMealPlan", getCurrentMealPlan);
+  } = useQuery(
+    {
+      queryKey: ["currentMealPlan"],
+      queryFn: getMealPlan
+    }
+  );
 
   useEffect(() => {
     if (currentMealPlan?.length && user?.subscription?.status === true) {
@@ -80,66 +97,73 @@ const GenerateMealPlanScreen: React.FC<
         (mealPlan) => mealPlan.type === "SelfCreated"
       )[0];
 
-      selfCreatedMealPlan.breakfast.forEach((item) => {
-        const food = mealItems?.find((f) => f._id === item.mealItemId._id);
-        if (food) {
-          store.dispatch(
-            gymActions.updateCurrentMealFood({
-              mealItemId: food?._id ?? "",
-              count: item?.count,
-              calPerUnit: food?.calPerUnit,
-              mealType: MealType.Breakfast,
-              unitAmount: food?.unitAmount,
-            })
-          );
-        }
-      });
+      // FIX: Add a safeguard check here
+      if (selfCreatedMealPlan) {
+        selfCreatedMealPlan.breakfast?.forEach((item) => {
+          const food = mealItems?.find((f) => f._id === item.mealItemId?._id); // added optional chain to item.mealItemId
+          if (food) {
+            store.dispatch(
+              gymActions.updateCurrentMealFood({
+                mealItemId: food?._id ?? "",
+                count: item?.count,
+                calPerUnit: food?.calPerUnit,
+                mealType: MealType.Breakfast,
+                unitAmount: food?.unitAmount,
+              })
+            );
+          }
+        });
 
-      selfCreatedMealPlan.lunch.forEach((item) => {
-        const food = mealItems?.find((f) => f._id === item.mealItemId._id);
-        if (food) {
-          store.dispatch(
-            gymActions.updateCurrentMealFood({
-              mealItemId: food?._id ?? "",
-              count: item?.count,
-              calPerUnit: food?.calPerUnit,
-              mealType: MealType.Lunch,
-            })
-          );
-        }
-      });
+        selfCreatedMealPlan.lunch?.forEach((item) => {
+          const food = mealItems?.find((f) => f._id === item.mealItemId?._id);
+          if (food) {
+            store.dispatch(
+              gymActions.updateCurrentMealFood({
+                mealItemId: food?._id ?? "",
+                count: item?.count,
+                calPerUnit: food?.calPerUnit,
+                mealType: MealType.Lunch,
+              })
+            );
+          }
+        });
 
-      selfCreatedMealPlan.snack.forEach((item) => {
-        const food = mealItems?.find((f) => f._id === item.mealItemId._id);
-        if (food) {
-          store.dispatch(
-            gymActions.updateCurrentMealFood({
-              mealItemId: food?._id ?? "",
-              count: item?.count,
-              calPerUnit: food?.calPerUnit,
-              mealType: MealType.Snack,
-            })
-          );
-        }
-      });
+        selfCreatedMealPlan.snack?.forEach((item) => {
+          const food = mealItems?.find((f) => f._id === item.mealItemId?._id);
+          if (food) {
+            store.dispatch(
+              gymActions.updateCurrentMealFood({
+                mealItemId: food?._id ?? "",
+                count: item?.count,
+                calPerUnit: food?.calPerUnit,
+                mealType: MealType.Snack,
+              })
+            );
+          }
+        });
 
-      selfCreatedMealPlan.dinner.forEach((item) => {
-        const food = mealItems?.find((f) => f._id === item.mealItemId._id);
-        if (food) {
-          store.dispatch(
-            gymActions.updateCurrentMealFood({
-              mealItemId: food?._id ?? "",
-              count: item?.count,
-              calPerUnit: food?.calPerUnit,
-              mealType: MealType.Dinner,
-            })
-          );
-        }
-      });
+        selfCreatedMealPlan.dinner?.forEach((item) => {
+          const food = mealItems?.find((f) => f._id === item.mealItemId?._id);
+          if (food) {
+            store.dispatch(
+              gymActions.updateCurrentMealFood({
+                mealItemId: food?._id ?? "",
+                count: item?.count,
+                calPerUnit: food?.calPerUnit,
+                mealType: MealType.Dinner,
+              })
+            );
+          }
+        });
+      } else {
+        // Fallback if currentMealPlan exists but no "SelfCreated" entry is found
+        store.dispatch(gymActions.resetMeals());
+      }
     } else {
       store.dispatch(gymActions.resetMeals());
     }
-  }, [currentMealPlan, user?.subscription?.status]);
+  }, [currentMealPlan, user?.subscription?.status, mealItems]);
+  // Added mealItems to dependency array since it's utilized inside the loop
 
   useEffect(() => {
     if (user?.calculatedMetrics?.dci) {
@@ -179,11 +203,10 @@ const GenerateMealPlanScreen: React.FC<
       });
   }, [mealItems, searchTerm, mealDetails, selectedMealType]);
 
-
   const handleMealItemPress = (mealItem: MealItem) => {
     Keyboard.dismiss();
     setSelectedMealItem(mealItem);
-    bottomSheetRef.current?.snapToIndex(0);
+    setSheetOpen(true);
   };
 
   const handleAddMealItem = (count: number) => {
@@ -195,7 +218,7 @@ const GenerateMealPlanScreen: React.FC<
         unitAmount: selectedMealItem?.unitAmount ?? 100,
       })
     );
-    bottomSheetRef.current?.close();
+    setSheetOpen(false);
   };
 
   const handleRemoveMealItem = (mealItem: any) => {
@@ -297,7 +320,10 @@ const GenerateMealPlanScreen: React.FC<
       return mealArray.map(({ calPerUnit, ...rest }) => rest);
     };
 
-    if (user?.subscription?.status === true) {
+    if (
+      // user?.subscription?.status === true
+      true
+    ) {
       const mealDetailsWithoutCalPerUnit = {
         ...mealDetails,
         breakfast: omitCalPerUnit(mealDetails.breakfast),
@@ -327,11 +353,17 @@ const GenerateMealPlanScreen: React.FC<
           text2: result?.message || "Meal plan saved successfully!",
         });
 
+        queryClient.invalidateQueries({ queryKey: ["mealPlan"] });
+        queryClient.invalidateQueries({ queryKey: ["currentMealPlan"] });
+
         store.dispatch(gymActions.setSelectedMealType(MealType.Breakfast));
         store.dispatch(gymActions.resetMeals());
-        navigation.navigate("Home");
+        setTimeout(() => {
+          navigation.navigate("Home");
+        }, 1000);
       } catch (error: any) {
-        const errorMessage = error?.response?.data?.message || "Failed to save meal plan.";
+        const errorMessage =
+          error?.response?.data?.message || "Failed to save meal plan.";
         Toast.show({
           type: "error",
           text1: "Error",
@@ -340,15 +372,16 @@ const GenerateMealPlanScreen: React.FC<
       } finally {
         setModalVisible(false);
       }
-    } else {
-      setModalVisible(false);
-      Toast.show({
-        type: "info",
-        text1: "Subscription Required",
-        text2: "Please subscribe to save your meal plans.",
-      });
-      navigation.push("PricingPackages");
     }
+    // else {
+    //   setModalVisible(false);
+    //   Toast.show({
+    //     type: "info",
+    //     text1: "Subscription Required",
+    //     text2: "Please subscribe to save your meal plans.",
+    //   });
+    //   navigation.push("PricingPackages");
+    // }
   };
 
   const handleContinue = () => {
@@ -402,12 +435,7 @@ const GenerateMealPlanScreen: React.FC<
       </Box>
 
       {!showSearchBar && (
-        <Box
-          flexDirection="row"
-          justifyContent="flex-end"
-          gap="sm"
-          mb="md"
-        >
+        <Box flexDirection="row" justifyContent="flex-end" gap="sm" mb="md">
           {selectedMealType !== MealType.Breakfast && (
             <TouchableOpacity
               style={{
@@ -472,11 +500,11 @@ const GenerateMealPlanScreen: React.FC<
                 }}
                 summary={{
                   baseMetabolicRate:
-                    `${user?.calculatedMetrics?.bmr.toFixed(2)}Cal` ||
-                    "0.00Cal",
+                    `${user?.calculatedMetrics?.bmr.toFixed(2)} Cal` ||
+                    "0.0Cal",
                   dailyCalorieIntake:
-                    `${user?.calculatedMetrics?.dci.toFixed(2)}Cal` ||
-                    "0.00Cal",
+                    `${user?.calculatedMetrics?.dci.toFixed(2)} Cal` ||
+                    "0.0Cal",
                 }}
               />
               <MealCalorieSection
@@ -542,16 +570,22 @@ const GenerateMealPlanScreen: React.FC<
         />
       </Box>
 
-      <AddMealCard
-        image={selectedMealItem?.url || image}
-        mealName={selectedMealItem?.name || "Meal item"}
-        unit={selectedMealItem?.unit || "Unit"}
-        caloriesPerUnit={`${selectedMealItem?.calPerUnit}Cal per ${selectedMealItem?.unitAmount + " " + selectedMealItem?.unit
-          }`}
-        bottomSheetRef={bottomSheetRef}
-        selectedMealItemcount={selectedMealItem?.count || 0}
-        handleAddMealItem={handleAddMealItem}
-      />
+      {sheetOpen && (
+        <AddMealCard
+          image={selectedMealItem?.url || image}
+          mealName={selectedMealItem?.name || "Meal item"}
+          unit={selectedMealItem?.unit || "Unit"}
+          caloriesPerUnit={`${selectedMealItem?.calPerUnit}Cal per ${selectedMealItem?.unitAmount + " " + selectedMealItem?.unit
+            }`}
+          bottomSheetRef={bottomSheetRef as any}
+          selectedMealItemcount={selectedMealItem?.count || 0}
+          handleAddMealItem={handleAddMealItem}
+          onClose={() => {
+            setSheetOpen(false);
+            setSelectedMealItem(undefined);
+          }}
+        />
+      )}
 
       <Modal
         visible={modalVisible}

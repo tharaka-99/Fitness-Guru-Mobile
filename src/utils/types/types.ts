@@ -1,40 +1,40 @@
 //NOTE: => ENUMS
 export enum Gender {
-  Male = 'Male',
-  Female = 'Female',
+  Male = "Male",
+  Female = "Female",
 }
 //
 export enum ActivityLevel {
-  Sedentary = 'Sedentary',
-  Light = 'Light',
-  Moderate = 'Moderate',
-  Active = 'Active',
+  Sedentary = "Sedentary",
+  Light = "Light",
+  Moderate = "Moderate",
+  Active = "Active",
 }
 //
 export enum Goal {
-  WeightGain = 'WeightGain',
-  FatLoss = 'FatLoss',
-  Maintenance = 'Maintenance',
-  LeanGaining = 'LeanGaining',
-  WeightLoss = 'WeightLoss',
+  WeightGain = "WeightGain",
+  FatLoss = "FatLoss",
+  Maintenance = "Maintenance",
+  LeanGaining = "LeanGaining",
+  WeightLoss = "WeightLoss",
 }
 //
 export enum ExpertiseLevel {
-  Beginner = 'Beginner',
-  Intermediate = 'Intermediate',
-  Advanced = 'Advanced',
+  Beginner = "Beginner",
+  Intermediate = "Intermediate",
+  Advanced = "Advanced",
 }
 //
 export enum Unit {
-  Metric = 'Metric',
-  Imperial = 'Imperial',
+  Metric = "Metric",
+  Imperial = "Imperial",
 }
 //
 export enum WorkoutType {
-  SelfCreated = 'SelfCreated',
-  TrainerCreated = 'TrainerCreated',
-  FitnessGuruCreated = 'FitnessGuruCreated',
-  Default = 'Default',
+  SelfCreated = "SelfCreated",
+  TrainerCreated = "TrainerCreated",
+  FitnessGuruCreated = "FitnessGuruCreated",
+  Default = "Default",
 }
 
 //NOTE: => TYPES
@@ -104,6 +104,7 @@ export interface Exercises {
   rest: number;
   description?: string;
   url?: string;
+  type?: WorkoutType;
 }
 //
 export interface DefaultExercise {

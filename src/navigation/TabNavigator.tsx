@@ -1,24 +1,100 @@
-import { Home, Bell, User } from "lucide-react-native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Home, Bell, User, Dumbbell } from "lucide-react-native";
+import { BottomTabBarProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useState } from "react";
+import {
+  DeviceEventEmitter,
+  Platform,
+  StyleSheet,
+  View,
+  Pressable,
+} from "react-native";
+import { BlurView } from "expo-blur";
+import Animated, { useAnimatedStyle, withSpring, withTiming } from "react-native-reanimated";
 
 import AccountScreen from "@features/account/screens/AccountScreen";
 import NotificationScreen from "@features/notification/screens/NotificationScreen";
 import OverviewScreen from "@features/overview/screens/OverviewScreen";
-import MyTrainersScreen from "@features/trainer/screens/MyTrainersScreen";
-import { TabParamList } from "./types";
 import FitnessGuruScreen from "@features/trainer/screens/FitnessGuruScreen";
-import { DeviceEventEmitter, Image, Platform, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { TabParamList } from "./types";
 import Request from "@utils/http/request";
 import { theme } from "@utils/styles/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-
-const IN_APP_PUSH_RECEIVED_EVENT = 'notifications.in_app_push_received';
-const IN_APP_MARKED_READ_EVENT = 'notifications.in_app_marked_read';
-const IN_APP_DELETED_EVENT = 'notifications.in_app_deleted';
+const IN_APP_PUSH_RECEIVED_EVENT = "notifications.in_app_push_received";
+const IN_APP_MARKED_READ_EVENT = "notifications.in_app_marked_read";
+const IN_APP_DELETED_EVENT = "notifications.in_app_deleted";
 
 const Tab = createBottomTabNavigator<TabParamList>();
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+const CustomTabBar = ({ state, descriptors, navigation, insets }: BottomTabBarProps & { insets: any }) => {
+  return (
+    <View style={[styles.tabBarContainer, { paddingBottom: Platform.OS === 'ios' ? insets.bottom : insets.bottom + 10 }]}>
+      <BlurView intensity={Platform.OS === 'ios' ? 80 : 100} tint="dark" style={styles.blurView}>
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const isFocused = state.index === index;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          return (
+            <TabItem
+              key={route.key}
+              isFocused={isFocused}
+              onPress={onPress}
+              options={options}
+            />
+          );
+        })}
+      </BlurView>
+    </View>
+  );
+};
+
+const TabItem = ({ isFocused, onPress, options }: { isFocused: boolean, onPress: () => void, options: any }) => {
+  const animatedIconStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: withSpring(isFocused ? 1.2 : 1) }],
+      opacity: withTiming(isFocused ? 1 : 0.6, { duration: 200 }),
+    };
+  });
+
+  const animatedDotStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withTiming(isFocused ? 1 : 0, { duration: 200 }),
+      transform: [{ scale: withSpring(isFocused ? 1 : 0) }],
+    };
+  });
+
+  return (
+    <AnimatedPressable onPress={onPress} style={styles.tabItem}>
+      <Animated.View style={animatedIconStyle}>
+        {options.tabBarIcon && options.tabBarIcon({ color: isFocused ? theme.colors.PrimaryGreen : theme.colors.textSecondary, size: 24 })}
+
+        {/* Badge handling */}
+        {options.tabBarBadge !== undefined && (
+          <View style={styles.badgeContainer}>
+            <Animated.Text style={styles.badgeText}>
+              {options.tabBarBadge}
+            </Animated.Text>
+          </View>
+        )}
+      </Animated.View>
+    </AnimatedPressable>
+  );
+};
+
 
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
@@ -45,19 +121,16 @@ const TabNavigator = () => {
   useEffect(() => {
     refreshUnreadCount();
 
-    const sub = DeviceEventEmitter.addListener(
-      IN_APP_PUSH_RECEIVED_EVENT,
-      () => refreshUnreadCount(),
+    const sub = DeviceEventEmitter.addListener(IN_APP_PUSH_RECEIVED_EVENT, () =>
+      refreshUnreadCount()
     );
 
-    const sub2 = DeviceEventEmitter.addListener(
-      IN_APP_MARKED_READ_EVENT,
-      () => refreshUnreadCount(),
+    const sub2 = DeviceEventEmitter.addListener(IN_APP_MARKED_READ_EVENT, () =>
+      refreshUnreadCount()
     );
 
-    const sub3 = DeviceEventEmitter.addListener(
-      IN_APP_DELETED_EVENT,
-      () => refreshUnreadCount(),
+    const sub3 = DeviceEventEmitter.addListener(IN_APP_DELETED_EVENT, () =>
+      refreshUnreadCount()
     );
 
     return () => {
@@ -66,44 +139,15 @@ const TabNavigator = () => {
       sub3.remove();
     };
   }, [refreshUnreadCount]);
-  const { height: screenHeight } = useWindowDimensions();
-  const HEADER_OFFSET = 220;
-  const availableHeight = screenHeight - HEADER_OFFSET;
-  const TILE_MIN_HEIGHT = 120;
-  const TILE_COUNT = 3;
-  const needsScroll = availableHeight < TILE_MIN_HEIGHT * TILE_COUNT + 60;
-  const topTileHeight = needsScroll ? TILE_MIN_HEIGHT * 1.4 : undefined;
-  const bottomTileHeight = needsScroll ? TILE_MIN_HEIGHT * 1.4 : undefined;
 
   return (
     <Tab.Navigator
       initialRouteName="FitnessGuru"
+      tabBar={(props) => <CustomTabBar {...props} insets={insets} />}
       screenOptions={{
         headerShown: false,
-        tabBarAllowFontScaling: false,
-        tabBarActiveTintColor: theme.colors.PrimaryGreen,
-        tabBarInactiveTintColor: theme.colors.textSecondary,
-        tabBarStyle: {
-          backgroundColor: theme.colors.backgroundPrimary,
-          // borderTopWidth: 1.5,
-          // borderTopColor: theme.colors.borderSecondary,
-          // paddingTop: theme.spacing.xs,
-          // paddingBottom: theme.spacing.xs + insets.bottom,
-          // height: 60 + insets.bottom,
-        },
-        tabBarItemStyle: {
-          // margin: 0,
-          // padding: 0,
-          // paddingTop: theme.spacing.sm,
-        },
-        tabBarLabelStyle: {
-          //paddingTop: theme.spacing.xs,
-          fontSize: theme.textVariants.xs.fontSize,
-          fontWeight: '600',
-        }
+        tabBarHideOnKeyboard: true,
       }}
-
-
     >
       <Tab.Screen
         name="FitnessGuru"
@@ -117,47 +161,23 @@ const TabNavigator = () => {
         name="Home"
         component={OverviewScreen}
         options={{
-          title: "FitnessGuru",
-          tabBarIcon: ({ color, size, focused }) => (
-            // <Entypo name="google-play" color={color} size={size - 2} />
-            <Image
-              resizeMode="cover"
-              style={{ width: size, height: size }}
-              source={
-                focused
-                  ? require("assets/images/FG_tab_icon_active.png")
-                  : require("assets/images/FG_tab_icon_inactive.png")
-              }
-            />
+          title: "My Fitness",
+          tabBarIcon: ({ color, size }) => (
+            <Dumbbell color={color} size={size} />
           ),
         }}
       />
-      {/* <Tab.Screen
-        name="MyTrainer"
-        component={MyTrainersScreen}
-        options={{
-          title: 'My Trainers',
-          tabBarIcon: ({ color, size }) => (
-            <Entypo name="users" color={color} size={size - 2} />
-          ),
-        }}
-      /> */}
       <Tab.Screen
         name="Notifications"
         component={NotificationScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <View style={styles.bellWrap}>
-              <Bell color={color} size={size} />
-              {unreadCount > 0 ? (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>
-                    {unreadCount > 9 ? "9" : String(unreadCount)}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-          ),
+          tabBarBadge:
+            unreadCount > 0
+              ? unreadCount > 9
+                ? "9+"
+                : unreadCount
+              : undefined,
+          tabBarIcon: ({ color, size }) => <Bell color={color} size={size} />,
         }}
       />
       <Tab.Screen
@@ -171,30 +191,55 @@ const TabNavigator = () => {
   );
 };
 
-export default TabNavigator;
-
 const styles = StyleSheet.create({
-  bellWrap: {
-    width: 30,
-    height: 30,
-    justifyContent: "center",
-    alignItems: "center",
+  tabBarContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 50,
+    right: 50,
   },
-  badge: {
-    position: "absolute",
+  blurView: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    borderRadius: 35,
+    overflow: 'hidden',
+    paddingVertical: theme.spacing.md,
+    backgroundColor: Platform.OS === 'android' ? 'rgba(30, 41, 59, 0.75)' : 'transparent',
+    borderWidth: Platform.OS === 'android' ? 1 : 0,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+  },
+  dot: {
+    position: 'absolute',
+    bottom: 12,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: theme.colors.PrimaryGreen,
+  },
+  badgeContainer: {
+    position: 'absolute',
+    top: -4,
     right: -8,
-    top: -6,
-    width: 18,
+    backgroundColor: theme.colors.PrimaryGreen,
+    borderRadius: 10,
+    minWidth: 18,
     height: 18,
-    borderRadius: 9,
-    backgroundColor: theme.colors.PrimaryRed,
-    justifyContent: "center",
-    alignItems: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
   },
   badgeText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 10,
-    fontWeight: "700",
-    textAlign: "center",
-  },
+    fontWeight: 'bold',
+  }
 });
+
+export default TabNavigator;

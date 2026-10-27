@@ -11,6 +11,9 @@ dist/
 web-build/
 ios/build/
 android/app/build/
+android/app/release/
+*.apk
+*.aab
 
 # environment
 .env

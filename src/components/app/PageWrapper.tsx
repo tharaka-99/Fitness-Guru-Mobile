@@ -2,23 +2,29 @@ import React from "react";
 import { Dimensions, ScrollView } from "react-native";
 
 import Box from "@components/atoms/Box";
+
 import { theme } from "@utils/styles/theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface PageWrapperProps {
   children: React.ReactNode;
   noPadding?: boolean;
+  noBottomPadding?: boolean;
 }
 
 const PageWrapper: React.FC<PageWrapperProps> = ({
   children,
   noPadding = false,
+  noBottomPadding = false
 }) => {
+  const insets = useSafeAreaInsets();
   return (
     <Box
       flex={1}
       width={SCREEN_WIDTH}
       px={noPadding ? undefined : "md"}
       pt="sm"
+      style={{ paddingBottom: noBottomPadding ? undefined : insets.bottom }}
     >
       {children}
     </Box>

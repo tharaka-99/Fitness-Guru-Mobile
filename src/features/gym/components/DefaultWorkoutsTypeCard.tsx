@@ -1,11 +1,11 @@
-import { ArrowRight } from 'lucide-react-native';
-import React from 'react';
-import { Image, TouchableOpacity } from 'react-native';
+import { ArrowRight } from "lucide-react-native";
+import React from "react";
+import { Image, TouchableOpacity } from "react-native";
 
-import { PAGE_WIDTH } from '@components/app/PageWrapper';
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
-import { constants, theme } from '@utils/styles/theme';
+import { PAGE_WIDTH } from "@components/app/PageWrapper";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { constants, theme } from "@utils/styles/theme";
 
 interface Props {
   title: string;
@@ -30,35 +30,41 @@ const DefaultWorkoutsTypeCard: React.FC<Props> = ({
         width={PAGE_WIDTH}
         flexDirection="row"
         backgroundColor="backgroundSecondary"
+        alignItems="center"
+        justifyContent="space-between"
+        p={"md"}
+        borderWidth={1}
+        borderColor={"PrimaryGreyDark"}
       >
-        <Box
+        {/* <Box
           width="18%"
           height="100%"
           alignItems="center"
           justifyContent="center"
         >
-          <Image style={{}} source={image} />
-        </Box>
+          <Image style={{ width: 50, height: 50 }} source={image} />
+        </Box> */}
 
-        <Box px="sm" flex={1} alignItems="flex-start" justifyContent="center">
-          <Text variant="lgBold" numberOfLines={1} color="PrimaryGreen">
+        <Box gap="xs" flex={1} alignItems="flex-start" justifyContent="center">
+          <Text variant="mdBold" numberOfLines={1} color="PrimaryGreen">
             {title.toUpperCase()}
           </Text>
-          <Text color="textPrimary" variant="smBold" fontWeight={'300'}>
+          <Text color="textSecondary" variant="sm" fontWeight={"300"}>
             {description}
           </Text>
         </Box>
-
         <Box
-          width="16%"
-          height="100%"
+          width={44}
+          height={44}
+          borderRadius="full"
           alignItems="center"
           justifyContent="center"
-          backgroundColor="PrimaryGreen"
+          backgroundColor={"PrimaryGreen"}
+          style={{ backgroundColor: 'rgba(160, 226, 32, 0.15)' }}
         >
           <ArrowRight
-            size={23}
-            color={theme.colors.PrimaryBlack}
+            size={22}
+            color={theme.colors.PrimaryGreen}
           />
         </Box>
       </Box>

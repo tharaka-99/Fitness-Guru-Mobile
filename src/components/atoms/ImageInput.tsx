@@ -1,23 +1,31 @@
-import { X, Upload } from 'lucide-react-native';
-import * as ImagePicker from 'expo-image-picker';
-import React, { useEffect, useState } from 'react';
-import { Alert, Image, TouchableOpacity } from 'react-native';
+import { X, Upload } from "lucide-react-native";
+import * as ImagePicker from "expo-image-picker";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  Image,
+  TouchableOpacity,
+  ToastAndroid,
+  Platform,
+} from "react-native";
 
-import Box from '@components/atoms/Box';
-import InputLabel from '@components/atoms/InputLabel';
-import Text from '@components/atoms/Text';
-import { theme } from '@utils/styles/theme';
+import Box from "@components/atoms/Box";
+import InputLabel from "@components/atoms/InputLabel";
+import Text from "@components/atoms/Text";
+import { theme } from "@utils/styles/theme";
 
 export interface ImageInputProps {
   onImageUpload?: (images: string[]) => void;
   selectionLimit?: number;
   label?: string;
+  maxFileSizeMB?: number; // Added prop to make it configurable
 }
 
 const ImageInput: React.FC<ImageInputProps> = ({
   label,
   onImageUpload,
   selectionLimit = 1,
+  maxFileSizeMB = 12, // Default limit set to 5MB
 }) => {
   const [images, setImages] = useState<string[]>([]);
 
@@ -25,52 +33,91 @@ const ImageInput: React.FC<ImageInputProps> = ({
     if (onImageUpload) onImageUpload(images);
   }, [images]);
 
+  // Helper to show Toast notifications across iOS and Android
+  const showToast = (message: string) => {
+    if (Platform.OS === "android") {
+      ToastAndroid.show(message, ToastAndroid.LONG);
+    } else {
+      Alert.alert("Upload Error", message);
+    }
+  };
+
+  // Helper to validate file sizes
+  const validateImageSizes = (
+    assets: ImagePicker.ImagePickerAsset[]
+  ): string[] => {
+    const maxSizeBytes = maxFileSizeMB * 1024 * 1024;
+    const validUris: string[] = [];
+    let hasLargeImage = false;
+
+    assets.forEach((asset) => {
+      // asset.fileSize is given in bytes
+      if (asset.fileSize && asset.fileSize > maxSizeBytes) {
+        hasLargeImage = true;
+      } else {
+        validUris.push(asset.uri);
+      }
+    });
+
+    if (hasLargeImage) {
+      showToast(
+        `Some images were skipped because they exceed the ${maxFileSizeMB}MB limit.`
+      );
+    }
+
+    return validUris;
+  };
+
   const handleImageUpload = async () => {
     Alert.alert(
-      'Choose an Option',
-      'Would you like to take a photo or choose from the gallery?',
+      "Choose an Option",
+      "Would you like to take a photo or choose from the gallery?",
       [
         {
-          text: 'Take Photo',
+          text: "Take Photo",
           onPress: async () => {
             const permission =
               await ImagePicker.requestCameraPermissionsAsync();
             if (permission.granted) {
               const result = await ImagePicker.launchCameraAsync({
-                quality: 1,
+                quality: 0.8, // Slightly reducing quality helps prevent oversized image generation
                 allowsEditing: true,
-                mediaTypes: 'images',
+                mediaTypes: "images",
               });
               if (!result.canceled) {
-                setImages((prev) => [...prev, result.assets[0].uri]);
+                const validUris = validateImageSizes(result.assets);
+                if (validUris.length > 0) {
+                  setImages((prev) => [...prev, ...validUris]);
+                }
               }
             } else {
-              Alert.alert('Camera permission is required to take a photo.');
+              Alert.alert("Camera permission is required to take a photo.");
             }
           },
         },
         {
-          text: 'Choose from Gallery',
+          text: "Choose from Gallery",
           onPress: async () => {
             const permission =
               await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (permission.granted) {
               const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: 'images',
+                mediaTypes: "images",
                 allowsMultipleSelection: true,
                 selectionLimit: selectionLimit - images.length,
+                allowsEditing: true,
                 quality: 1,
               });
               if (!result.canceled) {
-                const selectedUris = result.assets.map((image) => image.uri);
-                setImages((prev) => [...prev, ...selectedUris]);
+                const validUris = validateImageSizes(result.assets);
+                setImages((prev) => [...prev, ...validUris]);
               }
             } else {
-              Alert.alert('Gallery permission is required to upload photos.');
+              Alert.alert("Gallery permission is required to upload photos.");
             }
           },
         },
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
       ]
     );
   };
@@ -114,7 +161,7 @@ const ImageInput: React.FC<ImageInputProps> = ({
                   <TouchableOpacity
                     onPress={() => handleImageRemove(idx)}
                     style={{
-                      position: 'absolute',
+                      position: "absolute",
                       top: -10,
                       right: -10,
                       backgroundColor: theme.colors.PrimaryRed,
@@ -122,10 +169,7 @@ const ImageInput: React.FC<ImageInputProps> = ({
                       padding: 4,
                     }}
                   >
-                    <X
-                      size={16}
-                      color={theme.colors.PrimaryWhite}
-                    />
+                    <X size={16} color={theme.colors.PrimaryWhite} />
                   </TouchableOpacity>
                 </Box>
               ))}
@@ -150,10 +194,7 @@ const ImageInput: React.FC<ImageInputProps> = ({
               borderColor="textSecondary"
             >
               <Box justifyContent="center" alignItems="center" gap="xs">
-                <Upload
-                  size={20}
-                  color={theme.colors.textSecondary}
-                />
+                <Upload size={20} color={theme.colors.textSecondary} />
                 <Text color="textSecondary">Upload</Text>
               </Box>
             </Box>
