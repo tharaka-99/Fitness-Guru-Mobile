@@ -51,10 +51,11 @@ const WorkoutRoutineScreen: React.FC<
     queryFn: getCurrentWorkout,
   });
 
-  const { data: defaultWorkouts, isLoading: isDefaultWorkoutLoading } = useQuery({
-    queryKey: ["defaultWorkout"],
-    queryFn: getClientDefaultWorkouts,
-  });
+  const { data: defaultWorkouts, isLoading: isDefaultWorkoutLoading } =
+    useQuery({
+      queryKey: ["defaultWorkout"],
+      queryFn: getClientDefaultWorkouts,
+    });
 
   // Server-authoritative session and week calendar hooks
   const {
@@ -84,7 +85,12 @@ const WorkoutRoutineScreen: React.FC<
     }, [refetchActiveSession, refetchWeekCalendar, eligibilityRefetch])
   );
 
-  if (isWorkoutLoading || isDefaultWorkoutLoading || isActiveSessionLoading || isWeekCalendarLoading) {
+  if (
+    isWorkoutLoading ||
+    isDefaultWorkoutLoading ||
+    isActiveSessionLoading ||
+    isWeekCalendarLoading
+  ) {
     return <FullScreenLoader message="Loading..." />;
   }
 
@@ -119,7 +125,9 @@ const WorkoutRoutineScreen: React.FC<
         type: "info",
         text1: "Request Not Available",
         text2: eligibility?.workout?.nextRequestAt
-          ? `You can request again on ${formatDate(eligibility?.workout?.nextRequestAt)}`
+          ? `You can request again on ${formatDate(
+              eligibility?.workout?.nextRequestAt
+            )}`
           : "Meal plan and workout plan from Fitness Guru are required",
       });
       return;
@@ -135,17 +143,24 @@ const WorkoutRoutineScreen: React.FC<
         isEligible: true,
       };
     }
-    if (eligibility.workout.remainingDays && eligibility.workout.remainingDays > 0) {
+    if (
+      eligibility.workout.remainingDays &&
+      eligibility.workout.remainingDays > 0
+    ) {
       const days = eligibility.workout.remainingDays;
       const dateStr = formatDate(eligibility.workout.nextRequestAt);
       return {
-        text: `Next request available in ${days} day${days > 1 ? "s" : ""}${dateStr ? ` (${dateStr})` : ""}`,
+        text: `Next request available in ${days} day${days > 1 ? "s" : ""}${
+          dateStr ? ` (${dateStr})` : ""
+        }`,
         isEligible: false,
       };
     }
     if (eligibility.workout.nextRequestAt) {
       return {
-        text: `Next request available on ${formatDate(eligibility.workout.nextRequestAt)}`,
+        text: `Next request available on ${formatDate(
+          eligibility.workout.nextRequestAt
+        )}`,
         isEligible: false,
       };
     }
@@ -170,10 +185,13 @@ const WorkoutRoutineScreen: React.FC<
   }
 
   // Extract exerciseDays from the filtered selfCreatedData
-  const exerciseDays = filteredData?.map((item: Workout) => item.exerciseDays).flat();
+  const exerciseDays = filteredData
+    ?.map((item: Workout) => item.exerciseDays)
+    .flat();
 
   // get the general workout list according to the selected day
-  const generalExerciseDays = defaultWorkouts?.[selectedGeneralDay]?.exerciseDays;
+  const generalExerciseDays =
+    defaultWorkouts?.[selectedGeneralDay]?.exerciseDays;
 
   // Function to handle onPress event of WorkoutDayCard
   const handleWorkoutDayPress = (day: number) => {
@@ -186,11 +204,15 @@ const WorkoutRoutineScreen: React.FC<
 
   const isSessionInProgress = Boolean(
     activeSession &&
-    (activeSession.workoutId || activeSession.exerciseDay != null || activeSession._id) &&
-    activeSession.status &&
-    activeSession.status !== "completed"
+      (activeSession.workoutId ||
+        activeSession.exerciseDay != null ||
+        activeSession._id) &&
+      activeSession.status &&
+      activeSession.status !== "completed"
   );
   const isAnyCompletedToday = isTodayWorkoutCompleted(weekCalendar);
+
+  const canRequestWorkout = !!eligibility?.workout?.canRequest;
 
   return (
     <PageWrapper>
@@ -210,7 +232,8 @@ const WorkoutRoutineScreen: React.FC<
             <TouchableOpacity onPress={handleAddWorkout}>
               <Plus size={30} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
-          ) : null}
+          ) : null
+        }
       />
       {selectedWorkout.WorkoutType === WorkoutType.Default ? (
         <FlatList
@@ -234,13 +257,18 @@ const WorkoutRoutineScreen: React.FC<
                 .join(", ") || "No exercises available";
 
             const defaultWorkoutId =
-              defaultWorkouts?.[selectedGeneralDay]?._id ?? "default-workout-id";
-            const isCompletedThisWeek = isWorkoutDayCompleted(day, weekCalendar, defaultWorkoutId);
+              defaultWorkouts?.[selectedGeneralDay]?._id ??
+              "default-workout-id";
+            const isCompletedThisWeek = isWorkoutDayCompleted(
+              day,
+              weekCalendar,
+              defaultWorkoutId
+            );
             const isActiveSession = Boolean(
               isSessionInProgress &&
-              activeSession?.exerciseDay === day &&
-              (activeSession?.workoutId === defaultWorkoutId ||
-                !activeSession?.workoutId)
+                activeSession?.exerciseDay === day &&
+                (activeSession?.workoutId === defaultWorkoutId ||
+                  !activeSession?.workoutId)
             );
 
             return (
@@ -262,7 +290,9 @@ const WorkoutRoutineScreen: React.FC<
           data={exerciseDays?.filter((item: ExerciseDay) => {
             const { exercises } = item;
             return (
-              exercises?.some((exercise: Exercises) => exercise?.exercise?.name) || false
+              exercises?.some(
+                (exercise: Exercises) => exercise?.exercise?.name
+              ) || false
             );
           })}
           ListEmptyComponent={
@@ -289,9 +319,10 @@ const WorkoutRoutineScreen: React.FC<
               isWorkoutDayCompleted(day, weekCalendar, workoutId);
             const isActiveSession = Boolean(
               !isSelfCreated &&
-              isSessionInProgress &&
-              activeSession?.exerciseDay === day &&
-              (activeSession?.workoutId === workoutId || !activeSession?.workoutId)
+                isSessionInProgress &&
+                activeSession?.exerciseDay === day &&
+                (activeSession?.workoutId === workoutId ||
+                  !activeSession?.workoutId)
             );
 
             return (
@@ -302,7 +333,9 @@ const WorkoutRoutineScreen: React.FC<
                 isActiveSession={isActiveSession}
                 isSessionInProgress={!isSelfCreated && isSessionInProgress}
                 isCompleted={isCompletedThisWeek}
-                isDailyLocked={!isSelfCreated && isAnyCompletedToday && !isCompletedThisWeek}
+                isDailyLocked={
+                  !isSelfCreated && isAnyCompletedToday && !isCompletedThisWeek
+                }
               />
             );
           }}
@@ -313,7 +346,7 @@ const WorkoutRoutineScreen: React.FC<
         selectedWorkout.WorkoutType !== WorkoutType.Default && (
           <Box pt="sm">
             <Button
-              type="outline"
+              disabled={!canRequestWorkout}
               title="Request New Workout Schedule"
               onPress={handleWorkoutRequest}
             />

@@ -2,6 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:Fitness Guru LK.storekit">
+   </FileRef>
+   <FileRef
+      location = "group:Fitness Guru LK.storekit">
+   </FileRef>
+   <FileRef
       location = "group:fitnessguru.xcodeproj">
    </FileRef>
    <FileRef

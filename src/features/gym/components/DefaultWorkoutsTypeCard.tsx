@@ -23,6 +23,7 @@ const DefaultWorkoutsTypeCard: React.FC<Props> = ({
   return (
     <TouchableOpacity activeOpacity={constants.activeOpacity} onPress={onPress}>
       <Box
+        gap="xs"
         mb="sm"
         height={90}
         borderRadius="sm"
@@ -46,8 +47,8 @@ const DefaultWorkoutsTypeCard: React.FC<Props> = ({
         </Box> */}
 
         <Box gap="xs" flex={1} alignItems="flex-start" justifyContent="center">
-          <Text variant="mdBold" numberOfLines={1} color="PrimaryGreen">
-            {title.toUpperCase()}
+          <Text variant="mdBold" numberOfLines={1} color="PrimaryWhite">
+            {title}
           </Text>
           <Text color="textSecondary" variant="sm" fontWeight={"300"}>
             {description}
@@ -60,12 +61,9 @@ const DefaultWorkoutsTypeCard: React.FC<Props> = ({
           alignItems="center"
           justifyContent="center"
           backgroundColor={"PrimaryGreen"}
-          style={{ backgroundColor: 'rgba(160, 226, 32, 0.15)' }}
+          style={{ backgroundColor: "rgba(160, 226, 32, 0.15)" }}
         >
-          <ArrowRight
-            size={22}
-            color={theme.colors.PrimaryGreen}
-          />
+          <ArrowRight size={22} color={theme.colors.PrimaryGreen} />
         </Box>
       </Box>
     </TouchableOpacity>

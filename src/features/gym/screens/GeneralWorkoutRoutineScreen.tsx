@@ -59,41 +59,41 @@ const GeneralWorkoutRoutineScreen: React.FC<
     {
       id: 0,
       image: require("assets/images/kettlebell.png"),
-      name: "ignite",
+      name: "Ignite",
       description:
         "Kickstart your fitness journey with this invigorating workout.",
     },
     {
       id: 1,
       image: require("assets/images/Momemtum.png"),
-      name: "momentum",
+      name: "Momentum",
       description: "Build on yesterday`s progress and keep the momentum going.",
     },
     {
       id: 2,
       image: require("assets/images/vitality.png"),
-      name: "vitality",
+      name: "Vitality",
       description:
         "Restore energy and vitality with a balanced workout routine.",
     },
     {
       id: 3,
       image: require("assets/images/Zenith1.png"),
-      name: "zenith",
+      name: "Zenith",
       description:
         "Reach the peak of your performance with this comprehensive workout.",
     },
     {
       id: 4,
       image: require("assets/images/resilience.png"),
-      name: "resilience",
+      name: "Resilience",
       description:
         "Strengthen your body and mind, cultivating resilience for the challenges.",
     },
     {
       id: 5,
       image: require("assets/images/Apex1.png"),
-      name: "apex",
+      name: "Apex",
       description:
         "Push your limits and reach the pinnacle of your fitness potential.",
     },

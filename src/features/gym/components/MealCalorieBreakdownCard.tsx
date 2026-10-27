@@ -1,13 +1,13 @@
-import React from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
-import { theme } from '@utils/styles/theme';
-import { MealPlanNutrition } from '@utils/types/mealPlanTypes';
+import React from "react";
+import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { theme } from "@utils/styles/theme";
+import { MealPlanNutrition } from "@utils/types/mealPlanTypes";
 
-export const CARBS_COLOR = '#2DD4BF';
-export const FATS_COLOR = '#D95B96';
-export const PROTEIN_COLOR = '#F5A623';
+export const CARBS_COLOR = "#2DD4BF";
+export const FATS_COLOR = "#D95B96";
+export const PROTEIN_COLOR = "#F5A623";
 
 interface Props {
   nutrition: MealPlanNutrition;
@@ -18,7 +18,7 @@ interface Props {
 
 const MealCalorieBreakdownCard: React.FC<Props> = ({
   nutrition,
-  title = 'Calories',
+  title = "Calories",
   mealBadge,
   style,
 }) => {
@@ -34,42 +34,25 @@ const MealCalorieBreakdownCard: React.FC<Props> = ({
       style={style}
     >
       {/* Top Header Row */}
-      <Box flexDirection="row" justifyContent="space-between" alignItems="center" mb="xs">
+      <Box
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb="xs"
+      >
         <Text variant="sm" color="textSecondary">
           {title}
         </Text>
-        {mealBadge && (
-          <Box
-            backgroundColor="PrimaryGreyDark"
-            px="sm"
-            py="xs"
-            borderRadius="full"
-            flexDirection="row"
-            alignItems="center"
-          >
-            <Box
-              width={6}
-              height={6}
-              borderRadius="full"
-              backgroundColor="PrimaryGreen"
-              mr="xs"
-            />
-            <Text
-              variant="xsBold"
-              color="PrimaryGreen"
-              style={{ letterSpacing: 0.5, textTransform: 'uppercase' }}
-            >
-              {mealBadge}
-            </Text>
-          </Box>
-        )}
       </Box>
 
       {/* Big Calorie Display */}
       <Box mb="xs">
         <Text variant="2xlBold" color="PrimaryWhite">
           {Math.round(nutrition.totalCalories).toLocaleString()}
-          <Text variant="md" color="textSecondary"> kcal</Text>
+          <Text variant="md" color="textSecondary">
+            {" "}
+            kcal
+          </Text>
         </Text>
       </Box>
 
@@ -90,7 +73,7 @@ const MealCalorieBreakdownCard: React.FC<Props> = ({
                 style={{
                   width: `${nutrition.carbsPercent}%`,
                   backgroundColor: CARBS_COLOR,
-                  height: '100%',
+                  height: "100%",
                 }}
               />
             )}
@@ -99,7 +82,7 @@ const MealCalorieBreakdownCard: React.FC<Props> = ({
                 style={{
                   width: `${nutrition.fatsPercent}%`,
                   backgroundColor: FATS_COLOR,
-                  height: '100%',
+                  height: "100%",
                 }}
               />
             )}
@@ -108,7 +91,7 @@ const MealCalorieBreakdownCard: React.FC<Props> = ({
                 style={{
                   width: `${nutrition.proteinPercent}%`,
                   backgroundColor: PROTEIN_COLOR,
-                  height: '100%',
+                  height: "100%",
                 }}
               />
             )}
@@ -143,7 +126,7 @@ const MealCalorieBreakdownCard: React.FC<Props> = ({
             {Math.round(nutrition.totalCarbs)}g
           </Text>
           <Text variant="sm" color="textSecondary" mt="xs">
-            {hasCalories ? `${Math.round(nutrition.carbsPercent)}%` : '0%'}
+            {hasCalories ? `${Math.round(nutrition.carbsPercent)}%` : "0%"}
           </Text>
         </Box>
 
@@ -164,7 +147,7 @@ const MealCalorieBreakdownCard: React.FC<Props> = ({
             {Math.round(nutrition.totalFats)}g
           </Text>
           <Text variant="sm" color="textSecondary" mt="xs">
-            {hasCalories ? `${Math.round(nutrition.fatsPercent)}%` : '0%'}
+            {hasCalories ? `${Math.round(nutrition.fatsPercent)}%` : "0%"}
           </Text>
         </Box>
 
@@ -185,7 +168,7 @@ const MealCalorieBreakdownCard: React.FC<Props> = ({
             {Math.round(nutrition.totalProtein)}g
           </Text>
           <Text variant="sm" color="textSecondary" mt="xs">
-            {hasCalories ? `${Math.round(nutrition.proteinPercent)}%` : '0%'}
+            {hasCalories ? `${Math.round(nutrition.proteinPercent)}%` : "0%"}
           </Text>
         </Box>
       </Box>
@@ -195,8 +178,8 @@ const MealCalorieBreakdownCard: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   emptyBar: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     backgroundColor: theme.colors.PrimaryGreyDark,
   },
 });

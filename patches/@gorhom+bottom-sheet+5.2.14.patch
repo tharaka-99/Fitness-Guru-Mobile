@@ -1,0 +1,43 @@
+diff --git a/node_modules/@gorhom/bottom-sheet/lib/commonjs/hooks/useAnimatedLayout.js b/node_modules/@gorhom/bottom-sheet/lib/commonjs/hooks/useAnimatedLayout.js
+index 973d05c..d64b929 100644
+--- a/node_modules/@gorhom/bottom-sheet/lib/commonjs/hooks/useAnimatedLayout.js
++++ b/node_modules/@gorhom/bottom-sheet/lib/commonjs/hooks/useAnimatedLayout.js
+@@ -92,7 +92,7 @@ function useAnimatedLayout(containerLayoutState, topInset, bottomInset, modal, s
+       state.modify(_state => {
+         'worklet';
+ 
+-        _state.window = window;
++        _state.window = windowDimensions;
+         return _state;
+       });
+     });
+diff --git a/node_modules/@gorhom/bottom-sheet/lib/module/hooks/useAnimatedLayout.js b/node_modules/@gorhom/bottom-sheet/lib/module/hooks/useAnimatedLayout.js
+index b0eec93..ce82718 100644
+--- a/node_modules/@gorhom/bottom-sheet/lib/module/hooks/useAnimatedLayout.js
++++ b/node_modules/@gorhom/bottom-sheet/lib/module/hooks/useAnimatedLayout.js
+@@ -88,7 +88,7 @@ export function useAnimatedLayout(containerLayoutState, topInset, bottomInset, m
+       state.modify(_state => {
+         'worklet';
+ 
+-        _state.window = window;
++        _state.window = windowDimensions;
+         return _state;
+       });
+     });
+diff --git a/node_modules/@gorhom/bottom-sheet/src/hooks/useAnimatedLayout.ts b/node_modules/@gorhom/bottom-sheet/src/hooks/useAnimatedLayout.ts
+index 68c674d..c47e8ac 100644
+--- a/node_modules/@gorhom/bottom-sheet/src/hooks/useAnimatedLayout.ts
++++ b/node_modules/@gorhom/bottom-sheet/src/hooks/useAnimatedLayout.ts
+@@ -106,10 +106,10 @@ export function useAnimatedLayout(
+     [state, verticalInset, modal]
+   );
+   useEffect(() => {
+-    Dimensions.addEventListener('change', ({ window }) => {
++    Dimensions.addEventListener('change', ({ window: windowDimensions }) => {
+       state.modify(_state => {
+         'worklet';
+-        _state.window = window;
++        _state.window = windowDimensions;
+         return _state;
+       });
+     });

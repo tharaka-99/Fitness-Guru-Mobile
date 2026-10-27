@@ -1,12 +1,16 @@
-import React from 'react';
-import { TouchableOpacity } from 'react-native';
-import Box from '@components/atoms/Box';
-import Text from '@components/atoms/Text';
-import { theme } from '@utils/styles/theme';
-import { HabitType } from '@utils/types/habitTypes';
-import { ProcessedDayPoint, toISODate, isHabitDayEditable } from '../../hooks/useHabitHistory';
-import { Check, Edit3, Plus } from 'lucide-react-native';
-import Toast from 'react-native-toast-message';
+import React from "react";
+import { TouchableOpacity } from "react-native";
+import Box from "@components/atoms/Box";
+import Text from "@components/atoms/Text";
+import { theme } from "@utils/styles/theme";
+import { HabitType } from "@utils/types/habitTypes";
+import {
+  ProcessedDayPoint,
+  toISODate,
+  isHabitDayEditable,
+} from "../../hooks/useHabitHistory";
+import { Check, Edit3, Plus } from "lucide-react-native";
+import Toast from "react-native-toast-message";
 
 interface Props {
   habitType: HabitType;
@@ -14,7 +18,11 @@ interface Props {
   onLogEntry: (point: ProcessedDayPoint) => void;
 }
 
-export const HabitLogHistoryList: React.FC<Props> = ({ habitType, points, onLogEntry }) => {
+export const HabitLogHistoryList: React.FC<Props> = ({
+  habitType,
+  points,
+  onLogEntry,
+}) => {
   // Sort in reverse chronological order (latest date first)
   const sortedPoints = React.useMemo(() => {
     return [...points].reverse();
@@ -32,7 +40,12 @@ export const HabitLogHistoryList: React.FC<Props> = ({ habitType, points, onLogE
 
   return (
     <Box mt="md" mb="xl">
-      <Box flexDirection="row" justifyContent="space-between" alignItems="center" mb="md">
+      <Box
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb="md"
+      >
         <Text variant="lgBold" color="textPrimary">
           Log History
         </Text>
@@ -44,8 +57,8 @@ export const HabitLogHistoryList: React.FC<Props> = ({ habitType, points, onLogE
       {sortedPoints.map((point) => {
         const isToday = point.dateString === todayStr;
         const isYesterday = point.dateString === yesterdayStr;
-        const isEditable = isHabitDayEditable(point.dateString, habitType);
-        const dateTag = isToday ? 'Today' : isYesterday ? 'Yesterday' : '';
+        const isEditable = isToday;
+        const dateTag = isToday ? "Today" : "";
 
         return (
           <TouchableOpacity
@@ -56,12 +69,13 @@ export const HabitLogHistoryList: React.FC<Props> = ({ habitType, points, onLogE
                 onLogEntry(point);
               } else {
                 Toast.show({
-                  type: 'info',
-                  text1: habitType === 'weight' ? 'Weight Log' : 'Habit History',
+                  type: "info",
+                  text1:
+                    habitType === "weight" ? "Weight Log" : "Habit History",
                   text2:
-                    habitType === 'weight'
+                    habitType === "weight"
                       ? "Only today's weight can be logged or edited."
-                      : 'Only today and yesterday can be logged or edited.',
+                      : "Only today and yesterday can be logged or edited.",
                 });
               }
             }}
@@ -80,7 +94,7 @@ export const HabitLogHistoryList: React.FC<Props> = ({ habitType, points, onLogE
                   ? theme.colors.PrimaryGreen
                   : point.isLogged
                   ? theme.colors.SecondaryGrey
-                  : 'transparent',
+                  : "transparent",
                 opacity: isEditable || point.isLogged ? 1 : 0.6,
               }}
             >
@@ -99,7 +113,11 @@ export const HabitLogHistoryList: React.FC<Props> = ({ habitType, points, onLogE
                       ml="xs"
                       style={{ paddingHorizontal: 6, paddingVertical: 2 }}
                     >
-                      <Text variant="xsBold" color="PrimaryGreen" style={{ fontSize: 9 }}>
+                      <Text
+                        variant="xsBold"
+                        color="PrimaryGreen"
+                        style={{ fontSize: 9 }}
+                      >
                         {dateTag}
                       </Text>
                     </Box>
@@ -111,16 +129,29 @@ export const HabitLogHistoryList: React.FC<Props> = ({ habitType, points, onLogE
                   {point.isGoalMet ? (
                     <Box flexDirection="row" alignItems="center">
                       <Check size={12} color={theme.colors.PrimaryGreen} />
-                      <Text variant="xs" color="PrimaryGreen" ml="xs" style={{ fontSize: 11 }}>
-                        {habitType === 'weight' ? 'Recorded' : 'Goal Reached'}
+                      <Text
+                        variant="xs"
+                        color="PrimaryGreen"
+                        ml="xs"
+                        style={{ fontSize: 11 }}
+                      >
+                        {habitType === "weight" ? "Recorded" : "Goal Reached"}
                       </Text>
                     </Box>
                   ) : point.isLogged ? (
-                    <Text variant="xs" color="textSecondary" style={{ fontSize: 11 }}>
+                    <Text
+                      variant="xs"
+                      color="textSecondary"
+                      style={{ fontSize: 11 }}
+                    >
                       Logged • In Progress
                     </Text>
                   ) : (
-                    <Text variant="xs" color="SecondaryGrey" style={{ fontSize: 11 }}>
+                    <Text
+                      variant="xs"
+                      color="SecondaryGrey"
+                      style={{ fontSize: 11 }}
+                    >
                       Not logged
                     </Text>
                   )}
@@ -139,8 +170,13 @@ export const HabitLogHistoryList: React.FC<Props> = ({ habitType, points, onLogE
                   </Text>
                 )}
 
-                {habitType !== 'weight' && point.target > 0 && (
-                  <Text variant="xs" color="textSecondary" mt="xs" style={{ fontSize: 10 }}>
+                {habitType !== "weight" && point.target > 0 && (
+                  <Text
+                    variant="xs"
+                    color="textSecondary"
+                    mt="xs"
+                    style={{ fontSize: 10 }}
+                  >
                     Target: {point.target} {point.unit}
                   </Text>
                 )}
@@ -150,14 +186,24 @@ export const HabitLogHistoryList: React.FC<Props> = ({ habitType, points, onLogE
                     {point.isLogged ? (
                       <Box flexDirection="row" alignItems="center">
                         <Edit3 size={12} color={theme.colors.SecondaryGrey} />
-                        <Text variant="xs" color="textSecondary" ml="xs" style={{ fontSize: 10 }}>
+                        <Text
+                          variant="xs"
+                          color="textSecondary"
+                          ml="xs"
+                          style={{ fontSize: 10 }}
+                        >
                           Edit
                         </Text>
                       </Box>
                     ) : (
                       <Box flexDirection="row" alignItems="center">
                         <Plus size={12} color={theme.colors.PrimaryGreen} />
-                        <Text variant="xs" color="PrimaryGreen" ml="xs" style={{ fontSize: 10 }}>
+                        <Text
+                          variant="xs"
+                          color="PrimaryGreen"
+                          ml="xs"
+                          style={{ fontSize: 10 }}
+                        >
                           Log
                         </Text>
                       </Box>

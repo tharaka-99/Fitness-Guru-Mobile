@@ -9,9 +9,17 @@ import PageWrapper from "@components/app/PageWrapper";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
 import { MyStackNavigatorScreenProps } from "@navigation/types";
-import { getMealPlan, calculateMealItemsNutrition } from "@utils/services/mealPlanService";
+import {
+  getMealPlan,
+  calculateMealItemsNutrition,
+} from "@utils/services/mealPlanService";
 import { theme } from "@utils/styles/theme";
-import { MealItem, MealPlan, MealPlanType, MealType } from "@utils/types/mealPlanTypes";
+import {
+  MealItem,
+  MealPlan,
+  MealPlanType,
+  MealType,
+} from "@utils/types/mealPlanTypes";
 import MealsListItem from "../components/MealsListItem";
 import MealCalorieBreakdownCard from "../components/MealCalorieBreakdownCard";
 import { gymActions } from "../context/slice";
@@ -103,7 +111,7 @@ const MealsListScreen: React.FC<MyStackNavigatorScreenProps<"MealsList">> = ({
   return (
     <PageWrapper>
       <PageHeader
-        title={getMealDisplayName(activeMealType).toUpperCase()}
+        title={getMealDisplayName(activeMealType)}
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">
             <TouchableOpacity
@@ -113,7 +121,7 @@ const MealsListScreen: React.FC<MyStackNavigatorScreenProps<"MealsList">> = ({
               <ArrowLeft size={28} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
             <Text color="PrimaryGreen" variant="xlBold" numberOfLines={1}>
-              {getMealDisplayName(activeMealType).toUpperCase()}
+              {getMealDisplayName(activeMealType)}
             </Text>
           </Box>
         }
@@ -192,25 +200,31 @@ const MealsListScreen: React.FC<MyStackNavigatorScreenProps<"MealsList">> = ({
         renderItem={({ item, index }) => {
           const { count = 0 } = item || {};
           const mealItemId =
-            item && typeof item.mealItemId === "object" && item.mealItemId !== null
+            item &&
+            typeof item.mealItemId === "object" &&
+            item.mealItemId !== null
               ? item.mealItemId
               : null;
 
           const unit = mealItemId?.unit || item?.unit || "";
           const name = mealItemId?.name || item?.name || "Unknown Item";
-          const url = mealItemId?.imageUrl || mealItemId?.url || item?.url || "";
+          const url =
+            mealItemId?.imageUrl || mealItemId?.url || item?.url || "";
           const id = mealItemId?._id || item?._id || String(index);
           const description = `${count} ${unit}`;
 
           // Calculate item-specific calories
-          const rawUnitAmount = Number(mealItemId?.unitAmount ?? item?.unitAmount);
+          const rawUnitAmount = Number(
+            mealItemId?.unitAmount ?? item?.unitAmount
+          );
           const unitAmount = rawUnitAmount > 0 ? rawUnitAmount : 100;
           const multiplier = (Number(count) || 0) / unitAmount;
           const itemCarbs = (Number(mealItemId?.carbs) || 0) * multiplier;
           const itemFats = (Number(mealItemId?.fats) || 0) * multiplier;
           const itemProtein = (Number(mealItemId?.protein) || 0) * multiplier;
           const calculatedCals = itemCarbs * 4 + itemFats * 9 + itemProtein * 4;
-          const calPerUnit = Number(mealItemId?.calPerUnit ?? item?.calPerUnit) || 0;
+          const calPerUnit =
+            Number(mealItemId?.calPerUnit ?? item?.calPerUnit) || 0;
           const itemCalories =
             calculatedCals > 0 ? calculatedCals : calPerUnit * multiplier;
 

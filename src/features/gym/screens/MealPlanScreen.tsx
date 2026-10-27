@@ -30,19 +30,19 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
   navigation,
 }) => {
   const { isSubscribed } = useSubscription();
-  const selectedMealPlanType = useSelector((state: any) => state["feature/gym"].selectedMealPlanType);
+  const selectedMealPlanType = useSelector(
+    (state: any) => state["feature/gym"].selectedMealPlanType
+  );
   const mealSheetRef = useRef<BottomSheetModalMethods | null>(null);
 
   const {
     isLoading: isMealPlanLoading,
     data: mealPlan,
     refetch: mealPlanRefetch,
-  } = useQuery(
-    {
-      queryKey: ["mealPlan"],
-      queryFn: getMealPlan
-    }
-  );
+  } = useQuery({
+    queryKey: ["mealPlan"],
+    queryFn: getMealPlan,
+  });
 
   const { data: eligibility, refetch: eligibilityRefetch } = useQuery({
     queryKey: ["scheduleReRequestEligibility"],
@@ -90,7 +90,9 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
         type: "info",
         text1: "Request Not Available",
         text2: eligibility?.meal?.nextRequestAt
-          ? `You can request again on ${formatDate(eligibility?.meal?.nextRequestAt)}`
+          ? `You can request again on ${formatDate(
+              eligibility?.meal?.nextRequestAt
+            )}`
           : "Meal plan from Fitness Guru is required",
       });
       return;
@@ -110,13 +112,17 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
       const days = eligibility.meal.remainingDays;
       const dateStr = formatDate(eligibility.meal.nextRequestAt);
       return {
-        text: `Next request available in ${days} day${days > 1 ? "s" : ""}${dateStr ? ` (${dateStr})` : ""}`,
+        text: `Next request available in ${days} day${days > 1 ? "s" : ""}${
+          dateStr ? ` (${dateStr})` : ""
+        }`,
         isEligible: false,
       };
     }
     if (eligibility.meal.nextRequestAt) {
       return {
-        text: `Next request available on ${formatDate(eligibility.meal.nextRequestAt)}`,
+        text: `Next request available on ${formatDate(
+          eligibility.meal.nextRequestAt
+        )}`,
         isEligible: false,
       };
     }
@@ -138,6 +144,8 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
     });
   }
 
+  const canRequestMeal = !!eligibility?.meal?.canRequest;
+
   return (
     <PageWrapper>
       <PageHeader
@@ -146,8 +154,8 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
             <TouchableOpacity onPress={handleAddMealPlan}>
               <Plus size={30} color={theme.colors.PrimaryGreen} />
             </TouchableOpacity>
-          ) : null}
-
+          ) : null
+        }
         title="Meal Plan"
         leftComponent={
           <Box flexDirection="row" alignItems="center" gap="md">
@@ -163,7 +171,9 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
 
       <FlatList
         data={selectedMeal}
-        keyExtractor={(item, index) => item._id ? String(item._id) : String(index)}
+        keyExtractor={(item, index) =>
+          item._id ? String(item._id) : String(index)
+        }
         contentContainerStyle={{ gap: theme.spacing.sm, flexGrow: 1 }}
         ListEmptyComponent={
           <Box flex={1} justifyContent="center" alignItems="center" px="xl">
@@ -192,11 +202,11 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
             <>
               <WorkoutDayCard
                 title={"Breakfast"}
-                description={breakfastItems
-                  .map((item) => {
-                    return item;
-                  })
-                  .toString()}
+                description={
+                  breakfastItems?.length
+                    ? breakfastItems.join(", ")
+                    : "No breakfast"
+                }
                 onPress={() => {
                   store.dispatch(gymActions.setselectedMealPlanType(breakfast));
                   store.dispatch(
@@ -207,7 +217,9 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
               />
               <WorkoutDayCard
                 title={"Lunch"}
-                description={lunchItems.map((item) => item).toString()}
+                description={
+                  lunchItems?.length ? lunchItems.join(", ") : "No lunch"
+                }
                 onPress={() => {
                   store.dispatch(gymActions.setselectedMealPlanType(lunch));
                   store.dispatch(
@@ -218,7 +230,9 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
               />
               <WorkoutDayCard
                 title={"Snack"}
-                description={snackItems.map((item) => item).toString()}
+                description={
+                  snackItems?.length ? snackItems.join(", ") : "No snacks"
+                }
                 onPress={() => {
                   store.dispatch(gymActions.setselectedMealPlanType(snack));
                   store.dispatch(
@@ -229,7 +243,9 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
               />
               <WorkoutDayCard
                 title={"Dinner"}
-                description={dinnerItems.map((item) => item).toString()}
+                description={
+                  dinnerItems?.length ? dinnerItems.join(", ") : "No dinner"
+                }
                 onPress={() => {
                   store.dispatch(gymActions.setselectedMealPlanType(dinner));
                   store.dispatch(
@@ -246,7 +262,8 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
       {selectedMealPlanType !== MealPlanType.SelfCreated && (
         <Box pt="sm">
           <Button
-            type="outline"
+            // type="outline"
+            disabled={!canRequestMeal}
             title="Request New Meal Plan"
             onPress={handleMealRequest}
           />
