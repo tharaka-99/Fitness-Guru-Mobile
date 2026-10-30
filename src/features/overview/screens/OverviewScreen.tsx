@@ -122,9 +122,9 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
     (
       profile:
         | {
-            calculatedMetrics?: { dci?: number };
-            fitnessInfo?: { goal?: string };
-          }
+          calculatedMetrics?: { dci?: number };
+          fitnessInfo?: { goal?: string };
+        }
         | undefined
         | null
     ) => {
@@ -214,7 +214,7 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
   const isDataMissing = !profile || !workout || !mealPlan;
 
   if (isProfileLoading && isDataMissing) {
-    return <FullScreenLoader message="Loading..." />;
+    return <FullScreenLoader />;
   }
 
   return (
@@ -439,8 +439,8 @@ const OverviewScreen: React.FC<MyTabNavigatorScreenProps<"Home">> = ({
                 selfCreatedMelaplan.length > 0
                   ? navigation.navigate("MealPlan")
                   : navigation.navigate("Onboard", {
-                      fromMealPlan: true,
-                    });
+                    fromMealPlan: true,
+                  });
               }}
             >
               <Box

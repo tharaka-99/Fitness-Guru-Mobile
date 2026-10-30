@@ -63,7 +63,7 @@ const CalendarSection: React.FC<Props> = ({ dates }) => {
               <CheckCircle2 size={20} color={theme.colors.PrimaryBlack} fill={theme.colors.PrimaryGreen} />
             )}
             {isRest && (
-              <MoonStar size={20} color={theme.colors.PrimaryBlack} fill={theme.colors.textSecondary} />
+              <MoonStar size={20} color={theme.colors.textSecondary} fill={theme.colors.textSecondary} />
             )}
             {isMissed && (
               <CircleDashed size={20} color={theme.colors.PrimaryBlack} />

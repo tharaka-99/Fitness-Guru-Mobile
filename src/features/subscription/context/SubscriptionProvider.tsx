@@ -11,6 +11,10 @@ import Purchases, {
   CustomerInfo,
   PurchasesOfferings,
   PurchasesPackage,
+  PurchasesStoreProduct,
+  PurchasesStoreProductDiscount,
+  PurchasesPromotionalOffer,
+  SubscriptionOption,
   LOG_LEVEL,
   INTRO_ELIGIBILITY_STATUS,
 } from "react-native-purchases";
@@ -24,6 +28,8 @@ export const SUBSCRIPTION_IDS = {
   PREMIUM_ENTITLEMENT: "Premium access",
   IOS_TRIAL_PRODUCT: "premium_monthly_ios",
   PREMIUM_PLAN_NAME: "Premium",
+  PARTNER_PROMOTION_PRODUCT: "fg_partner_promotion",
+  PARTNER_PROMOTION_OFFER_ANDROID: "partner-offer",
 } as const;
 
 export interface TrialEligibility {
@@ -45,6 +51,7 @@ interface SubscriptionContextType {
   isRestoring: boolean;
   trialEligibility: TrialEligibility;
   purchasePackage: (pack: PurchasesPackage) => Promise<void>;
+  purchasePartnerPromotion: () => Promise<CustomerInfo>;
   restorePurchases: () => Promise<CustomerInfo | null>;
   refreshCustomerInfo: () => Promise<CustomerInfo | null>;
   presentCodeRedemption: (promoCode?: string) => Promise<void>;
@@ -246,6 +253,128 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
     [updateSubscriptionStatus]
   );
 
+  const purchasePartnerPromotion = useCallback(async (): Promise<CustomerInfo> => {
+    setIsPurchasing(true);
+    try {
+      if (Platform.OS === "android") {
+        // Fetch products for partner promotion
+        const products = await Purchases.getProducts(
+          [SUBSCRIPTION_IDS.PARTNER_PROMOTION_PRODUCT],
+          Purchases.PRODUCT_CATEGORY.SUBSCRIPTION
+        );
+
+        console.log(
+          "[RevenueCat] Fetched partner promotion products:",
+          products.map((p) => ({
+            identifier: p.identifier,
+            options: p.subscriptionOptions?.map((o) => ({ id: o.id, tags: o.tags })),
+          }))
+        );
+
+        // In Google Play Billing, identifier is formatted as `productId:basePlanId` (e.g. fg_partner_promotion:partner-promo)
+        const promoProduct =
+          products.find(
+            (p) =>
+              p.identifier === SUBSCRIPTION_IDS.PARTNER_PROMOTION_PRODUCT ||
+              p.identifier.startsWith(`${SUBSCRIPTION_IDS.PARTNER_PROMOTION_PRODUCT}:`) ||
+              p.identifier.includes(SUBSCRIPTION_IDS.PARTNER_PROMOTION_PRODUCT)
+          ) || products[0];
+
+        if (!promoProduct) {
+          throw new Error(
+            `Product "${SUBSCRIPTION_IDS.PARTNER_PROMOTION_PRODUCT}" not found in Google Play.`
+          );
+        }
+
+        // Search for the specific partner-offer option among subscription options
+        const partnerOption =
+          promoProduct.subscriptionOptions?.find(
+            (opt: SubscriptionOption) =>
+              opt.id === SUBSCRIPTION_IDS.PARTNER_PROMOTION_OFFER_ANDROID ||
+              opt.id.endsWith(`:${SUBSCRIPTION_IDS.PARTNER_PROMOTION_OFFER_ANDROID}`) ||
+              opt.id.includes(SUBSCRIPTION_IDS.PARTNER_PROMOTION_OFFER_ANDROID) ||
+              opt.tags?.includes(SUBSCRIPTION_IDS.PARTNER_PROMOTION_OFFER_ANDROID)
+          ) || promoProduct.defaultOption;
+
+        if (!partnerOption) {
+          throw new Error(
+            `Subscription offer "${SUBSCRIPTION_IDS.PARTNER_PROMOTION_OFFER_ANDROID}" not found.`
+          );
+        }
+
+        const result = await Purchases.purchaseSubscriptionOption(partnerOption);
+        setCustomerInfo(result.customerInfo);
+        updateSubscriptionStatus(result.customerInfo);
+        return result.customerInfo;
+      } else {
+        // iOS Implementation
+        const products = await Purchases.getProducts(
+          [SUBSCRIPTION_IDS.PARTNER_PROMOTION_PRODUCT],
+          Purchases.PRODUCT_CATEGORY.SUBSCRIPTION
+        );
+
+        const promoProduct =
+          products.find(
+            (p) =>
+              p.identifier === SUBSCRIPTION_IDS.PARTNER_PROMOTION_PRODUCT ||
+              p.identifier.startsWith(`${SUBSCRIPTION_IDS.PARTNER_PROMOTION_PRODUCT}:`) ||
+              p.identifier.includes(SUBSCRIPTION_IDS.PARTNER_PROMOTION_PRODUCT)
+          ) || products[0];
+
+        if (!promoProduct) {
+          throw new Error(
+            `Product "${SUBSCRIPTION_IDS.PARTNER_PROMOTION_PRODUCT}" not found in App Store.`
+          );
+        }
+
+        // Full iOS redemption structure/types alongside Android:
+        // TODO: Insert iOS App Store Offer Key / ID here
+        /*
+        const discountIdentifier = "TODO_IOS_APP_STORE_OFFER_ID"; // TODO: Insert iOS App Store Offer Key / ID here
+        const discount: PurchasesStoreProductDiscount | undefined =
+          promoProduct.discounts?.find(
+            (d) => d.identifier === discountIdentifier
+          );
+
+        if (!discount) {
+          throw new Error(
+            `iOS promotional discount offer "${discountIdentifier}" not found.`
+          );
+        }
+
+        const promotionalOffer: PurchasesPromotionalOffer | undefined =
+          await Purchases.getPromotionalOffer(promoProduct, discount);
+
+        if (!promotionalOffer) {
+          throw new Error("Failed to generate promotional offer for iOS.");
+        }
+
+        const result = await Purchases.purchaseDiscountedProduct(
+          promoProduct,
+          promotionalOffer
+        );
+        setCustomerInfo(result.customerInfo);
+        updateSubscriptionStatus(result.customerInfo);
+        return result.customerInfo;
+        */
+
+        // Fallback store product purchase until iOS App Store Offer Key / ID is configured
+        const result = await Purchases.purchaseStoreProduct(promoProduct);
+        setCustomerInfo(result.customerInfo);
+        updateSubscriptionStatus(result.customerInfo);
+        return result.customerInfo;
+      }
+    } catch (error: unknown) {
+      const purchaseError = error as { userCancelled?: boolean };
+      if (!purchaseError?.userCancelled) {
+        console.error("Error purchasing partner promotion:", error);
+      }
+      throw error;
+    } finally {
+      setIsPurchasing(false);
+    }
+  }, [updateSubscriptionStatus]);
+
   const restorePurchases = useCallback(async () => {
     setIsRestoring(true);
     try {
@@ -303,6 +432,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
       isRestoring,
       trialEligibility,
       purchasePackage,
+      purchasePartnerPromotion,
       restorePurchases,
       refreshCustomerInfo,
       presentCodeRedemption,
@@ -316,6 +446,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
       isRestoring,
       trialEligibility,
       purchasePackage,
+      purchasePartnerPromotion,
       restorePurchases,
       refreshCustomerInfo,
       presentCodeRedemption,

@@ -165,6 +165,109 @@ const useProfileSetup = () => {
 };
 
 /**
+ * Shared post-purchase and entitlement handler
+ */
+const handlePostPurchaseSuccess = async (options: any) => {
+  // Handle injured user
+  if (options.user?.isInjured) {
+    options.dispatch(authActions.setIsInjured(true));
+    options.navigation.navigate("Tab", { screen: "FitnessGuru" });
+    return;
+  }
+
+  // Handle default workout
+  if (
+    options.gymData?.selectedWorkout?.WorkoutType === WorkoutType.Default
+  ) {
+    try {
+      await setClientProfileInfo(options.profile);
+    } catch (err) {
+      console.error("Error setting profile for default workout:", err);
+    }
+    options.navigation.navigate("Tab", { screen: "FitnessGuru" });
+    return;
+  }
+
+  // Get fresh subscription status
+  const currentUser = (store.getState() as any)["feature/auth"].user;
+  const hasSubscription = hasPremiumAccess(currentUser);
+
+  console.log("options.pendingApplication", options.pendingApplication);
+
+  if (options.pendingApplication) {
+    Toast.show({
+      type: "success",
+      text1: "Success",
+      text2:
+        "Trainer subscription activated successfully, waiting for approval!",
+    });
+    setTimeout(() => {
+      options.dispatch(authActions.setSubscription({ status: true }));
+    }, 1000);
+  } else {
+    options.navigation.navigate("Tab", { screen: "FitnessGuru" });
+  }
+
+  if (hasSubscription) {
+    // Check if user has complete workout data
+    const hasWorkoutData =
+      options.gymData?.days?.exerciseDays &&
+      options.gymData.days.exerciseDays.length > 0;
+
+    const hasMealData =
+      options.gymData?.mealDetails &&
+      Object.keys(options.gymData.mealDetails).length > 0;
+
+    // If user has both workout AND meal data, setup them
+    if (hasWorkoutData && hasMealData) {
+      try {
+        await options.setupProfile(
+          options.profile,
+          options.gymData,
+          options.user
+        );
+
+        options.dispatch(gymActions.resetWorkouts());
+        options.dispatch(gymActions.resetMeals());
+
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Profile setup and workout created successfully!",
+        });
+        options.navigation.navigate("Tab", { screen: "FitnessGuru" });
+      } catch (setupError: any) {
+        console.error("Error during setup:", setupError);
+
+        if (setupError?.response?.status === 400) {
+          Toast.show({
+            type: "error",
+            text1: "Validation Error",
+            text2:
+              "Invalid data format. Please check your profile information.",
+          });
+        } else {
+          Toast.show({
+            type: "error",
+            text1: "Setup Error",
+            text2: "Failed to complete setup. Please try again.",
+          });
+        }
+        return;
+      }
+    } else {
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Activated subscription successfully!",
+      });
+      options.navigation.navigate("Tab", { screen: "FitnessGuru" });
+      return;
+    }
+  }
+};
+
+/**
  * Hook for handling purchase and post-purchase actions
  */
 const usePurchaseHandler = (options: any) => {
@@ -206,103 +309,7 @@ const usePurchaseHandler = (options: any) => {
         // Execute purchase
         await options.purchasePackage(selectedPackage);
 
-        // Handle injured user
-        if (options.user?.isInjured) {
-          options.dispatch(authActions.setIsInjured(true));
-          options.navigation.navigate("Tab", { screen: "FitnessGuru" });
-          return;
-        }
-
-        // Handle default workout
-        if (
-          options.gymData?.selectedWorkout?.WorkoutType === WorkoutType.Default
-        ) {
-          try {
-            await setClientProfileInfo(options.profile);
-          } catch (err) {
-            console.error("Error setting profile for default workout:", err);
-          }
-          options.navigation.navigate("Tab", { screen: "FitnessGuru" });
-          return;
-        }
-
-        // Get fresh subscription status
-        const currentUser = (store.getState() as any)["feature/auth"].user;
-        const hasSubscription = hasPremiumAccess(currentUser);
-
-        console.log("options.pendingApplication", options.pendingApplication);
-
-        if (options.pendingApplication) {
-          Toast.show({
-            type: "success",
-            text1: "Success",
-            text2:
-              "Trainer subscription activated successfully, waiting for approval!",
-          });
-          setTimeout(() => {
-            options.dispatch(authActions.setSubscription({ status: true }));
-          }, 1000);
-        } else {
-          options.navigation.navigate("Tab", { screen: "FitnessGuru" });
-        }
-
-        if (hasSubscription) {
-          // Check if user has complete workout data
-          const hasWorkoutData =
-            options.gymData?.days?.exerciseDays &&
-            options.gymData.days.exerciseDays.length > 0;
-
-          const hasMealData =
-            options.gymData?.mealDetails &&
-            Object.keys(options.gymData.mealDetails).length > 0;
-
-          // If user has both workout AND meal data, setup them
-          if (hasWorkoutData && hasMealData) {
-            try {
-              await options.setupProfile(
-                options.profile,
-                options.gymData,
-                options.user
-              );
-
-              options.dispatch(gymActions.resetWorkouts());
-              options.dispatch(gymActions.resetMeals());
-
-              Toast.show({
-                type: "success",
-                text1: "Success",
-                text2: "Profile setup and workout created successfully!",
-              });
-              options.navigation.navigate("Tab", { screen: "FitnessGuru" });
-            } catch (setupError: any) {
-              console.error("Error during setup:", setupError);
-
-              if (setupError?.response?.status === 400) {
-                Toast.show({
-                  type: "error",
-                  text1: "Validation Error",
-                  text2:
-                    "Invalid data format. Please check your profile information.",
-                });
-              } else {
-                Toast.show({
-                  type: "error",
-                  text1: "Setup Error",
-                  text2: "Failed to complete setup. Please try again.",
-                });
-              }
-              return;
-            }
-          } else {
-            Toast.show({
-              type: "success",
-              text1: "Success",
-              text2: "Activated subscription successfully!",
-            });
-            options.navigation.navigate("Tab", { screen: "FitnessGuru" });
-            return;
-          }
-        }
+        await handlePostPurchaseSuccess(options);
       } catch (error: any) {
         if (!error?.userCancelled) {
           console.error("Error during purchase:", error);
@@ -319,7 +326,35 @@ const usePurchaseHandler = (options: any) => {
     [options]
   );
 
-  return { executePurchase, isLoading };
+  const executePartnerPromotion = useCallback(
+    async () => {
+      try {
+        setIsLoading(true);
+
+        // Execute partner promotion purchase
+        await options.purchasePartnerPromotion();
+
+        await handlePostPurchaseSuccess(options);
+      } catch (error: any) {
+        if (!error?.userCancelled) {
+          console.error("Error during partner promotion purchase:", error);
+          Toast.show({
+            type: "error",
+            text1: "Promotion Error",
+            text2:
+              error?.message ||
+              "Failed to activate partner promotion. Please try again.",
+          });
+        }
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [options]
+  );
+
+  return { executePurchase, executePartnerPromotion, isLoading };
 };
 
 // ============================================================================
@@ -342,7 +377,8 @@ const PricingPackagesScreen: React.FC<
   const gymData = useSelector((state: RootState) => state["feature/gym"]);
 
   // Custom hooks
-  const { offerings, purchasePackage, isSubscribed } = useSubscription();
+  const { offerings, purchasePackage, purchasePartnerPromotion, isSubscribed } =
+    useSubscription();
   const {
     packages,
     isLoading: isPackagesLoading,
@@ -350,9 +386,14 @@ const PricingPackagesScreen: React.FC<
   } = usePackageService();
   const { setupProfile } = useProfileSetup();
 
-  const { executePurchase, isLoading: isPurchaseLoading } = usePurchaseHandler({
+  const {
+    executePurchase,
+    executePartnerPromotion,
+    isLoading: isPurchaseLoading,
+  } = usePurchaseHandler({
     offerings,
     purchasePackage,
+    purchasePartnerPromotion,
     user,
     profile,
     gymData,
@@ -384,6 +425,10 @@ const PricingPackagesScreen: React.FC<
     },
     [executePurchase]
   );
+
+  const handlePartnerPromoRedeem = useCallback(async () => {
+    await executePartnerPromotion();
+  }, [executePartnerPromotion]);
 
   const handleBackPress = useCallback(() => {
     navigation.goBack();
@@ -453,6 +498,7 @@ const PricingPackagesScreen: React.FC<
               offerings={offerings ?? undefined}
               onActionPress={handleActionPress}
               onChangePackage={handleChangePackage}
+              onRedeemPartnerPromo={handlePartnerPromoRedeem}
             />
           )}
         </ScrollView>

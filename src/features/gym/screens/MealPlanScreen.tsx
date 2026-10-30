@@ -57,7 +57,7 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
   );
 
   if (isMealPlanLoading) {
-    return <FullScreenLoader message="Loading..." />;
+    return <FullScreenLoader />;
   }
 
   const handleAddMealPlan = () => {
@@ -91,8 +91,8 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
         text1: "Request Not Available",
         text2: eligibility?.meal?.nextRequestAt
           ? `You can request again on ${formatDate(
-              eligibility?.meal?.nextRequestAt
-            )}`
+            eligibility?.meal?.nextRequestAt
+          )}`
           : "Meal plan from Fitness Guru is required",
       });
       return;
@@ -112,9 +112,8 @@ const MealPlanScreen: React.FC<MyStackNavigatorScreenProps<"MealPlan">> = ({
       const days = eligibility.meal.remainingDays;
       const dateStr = formatDate(eligibility.meal.nextRequestAt);
       return {
-        text: `Next request available in ${days} day${days > 1 ? "s" : ""}${
-          dateStr ? ` (${dateStr})` : ""
-        }`,
+        text: `Next request available in ${days} day${days > 1 ? "s" : ""}${dateStr ? ` (${dateStr})` : ""
+          }`,
         isEligible: false,
       };
     }

@@ -121,7 +121,8 @@ export const normalizeHabitsDashboard = (
   const water = habitsObj.water || habitsObj.Water || {};
   const waterRaw = water.consumed ?? water.value ?? water.amount ?? water.litres ?? water.liters ?? water.currentValue ?? (typeof water === 'number' ? water : null);
   const waterVal = waterRaw != null ? Number(Number(waterRaw).toFixed(2)) : 0;
-  const waterTarget = water.target != null ? Number(Number(water.target).toFixed(2)) : undefined;
+  const rawWaterTarget = water.target ?? water.targetValue ?? 3;
+  const waterTarget = rawWaterTarget != null ? Number(Number(rawWaterTarget).toFixed(2)) : 3;
   const isWaterLogged = Boolean(
     water.logged === true ||
     (waterRaw != null && waterVal > 0)

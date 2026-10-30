@@ -5,11 +5,14 @@ import {
   TouchableOpacity,
   Linking,
   Platform,
+  Alert,
 } from "react-native";
 import { ArrowUpCircle } from "lucide-react-native";
+import DeviceInfo from "react-native-device-info";
 import { theme } from "@utils/styles/theme";
 import Box from "@components/atoms/Box";
 import Text from "@components/atoms/Text";
+
 
 interface ForceUpdateModalProps {
   isVisible: boolean;
@@ -18,17 +21,51 @@ interface ForceUpdateModalProps {
   latestVersion: string;
 }
 
+
+const DEFAULT_IOS_URL = "https://apps.apple.com/app/id6743677433";
+const DEFAULT_ANDROID_URL =
+  "https://play.google.com/store/apps/details?id=com.fitnessguru.mobile";
+
+
 const ForceUpdateModal: React.FC<ForceUpdateModalProps> = ({
   isVisible,
   storeUrl,
   currentVersion,
   latestVersion,
 }) => {
-  const handleUpdate = () => {
-    Linking.openURL(storeUrl).catch((err) =>
-      console.error("Failed to open store link:", err)
-    );
+  const handleUpdate = async () => {
+    const targetUrl =
+      storeUrl ||
+      (Platform.OS === "ios" ? DEFAULT_IOS_URL : DEFAULT_ANDROID_URL);
+
+
+    console.log("targetUrl", targetUrl);
+
+
+    try {
+      const isEmulator = await DeviceInfo.isEmulator().catch(() => false);
+      if (Platform.OS === "ios" && isEmulator) {
+        Alert.alert(
+          "iOS Simulator Notice",
+          "The Apple App Store app is not installed on iOS Simulators (Apple excludes it from all simulators).\n\nOn a physical iPhone, this opens the native App Store directly to Fitness Guru LK.",
+          [
+            {
+              text: "Try Safari Anyway",
+              onPress: () => Linking.openURL(targetUrl).catch(() => { }),
+            },
+            { text: "Got it", style: "default" },
+          ]
+        );
+        return;
+      }
+
+
+      await Linking.openURL(targetUrl);
+    } catch (err) {
+      console.error("Failed to open store link:", err);
+    }
   };
+
 
   return (
     <Modal
@@ -53,6 +90,7 @@ const ForceUpdateModal: React.FC<ForceUpdateModalProps> = ({
             <ArrowUpCircle size={64} color={theme.colors.PrimaryGreen} />
           </Box>
 
+
           <Text
             variant="2xlBold"
             color="textPrimary"
@@ -62,6 +100,7 @@ const ForceUpdateModal: React.FC<ForceUpdateModalProps> = ({
             Update Required
           </Text>
 
+
           <Text
             variant="sm"
             color="textSecondary"
@@ -70,6 +109,7 @@ const ForceUpdateModal: React.FC<ForceUpdateModalProps> = ({
           >
             v{currentVersion} → v{latestVersion}
           </Text>
+
 
           <Text
             variant="md"
@@ -81,6 +121,7 @@ const ForceUpdateModal: React.FC<ForceUpdateModalProps> = ({
             improvements. To continue working on the best version of yourself,
             please update Fitness Guru.
           </Text>
+
 
           <TouchableOpacity
             style={styles.button}
@@ -94,6 +135,7 @@ const ForceUpdateModal: React.FC<ForceUpdateModalProps> = ({
     </Modal>
   );
 };
+
 
 const styles = StyleSheet.create({
   overlay: {
@@ -147,4 +189,8 @@ const styles = StyleSheet.create({
   },
 });
 
+
 export default ForceUpdateModal;
+
+
+

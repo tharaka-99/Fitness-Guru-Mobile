@@ -14,7 +14,6 @@ import {
   getTrainerPackagesById,
   getTrainerRequestById,
 } from "@utils/services/trainersService";
-import { ActivityIndicator, Icon } from "react-native-paper";
 import { useSelector } from "react-redux";
 import { capitalizeString } from "@utils/helpers";
 import { getClientWorkoutsForTrainerView } from "@utils/services/workoutService";
@@ -99,7 +98,6 @@ const TrainerProfileScreen: React.FC<
   if (isTrainerPackagesLoading || isWorkoutLoading) {
     return (
       <FullScreenLoader
-        message="Loading..."
         header={capitalizeString(trainer?.firstName) + " " + trainer?.lastName}
       />
     );

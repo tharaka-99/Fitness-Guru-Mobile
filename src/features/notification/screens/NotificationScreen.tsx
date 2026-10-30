@@ -128,7 +128,6 @@ const NotificationScreen: React.FC<
   if (loading && items.length === 0) {
     return (
       <FullScreenLoader
-        message="Loading..."
         header="Notifications"
       />
     );

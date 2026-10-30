@@ -138,7 +138,6 @@ const MyDashboardScreen: React.FC<
     return (
       <PageWrapper>
         <FullScreenLoader
-          message="Loading..."
         />
       </PageWrapper>
     );

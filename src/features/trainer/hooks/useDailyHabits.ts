@@ -56,13 +56,15 @@ export const useDailyHabits = (date?: string) => {
           }
 
           if (newHabit.type === 'water') {
-            const target = habit.targetValue;
+            const target = habit.targetValue || 3;
             return {
               ...habit,
               logged: true,
               currentValue: newHabit.consumed,
+              targetValue: target,
               formattedValue: `${newHabit.consumed} L`,
-              progress: target && target > 0 ? Math.min(1, newHabit.consumed / target) : 0,
+              formattedTarget: `${target} L`,
+              progress: target > 0 ? Math.min(1, newHabit.consumed / target) : 0,
               lastUpdated: new Date().toISOString(),
             };
           }

@@ -53,7 +53,7 @@ const CustomTabBar = ({
     >
       <BlurView
         intensity={Platform.OS === "ios" ? 80 : 100}
-        tint="dark"
+        tint="systemChromeMaterialDark"
         style={styles.blurView}
       >
         {state.routes.map((route, index) => {

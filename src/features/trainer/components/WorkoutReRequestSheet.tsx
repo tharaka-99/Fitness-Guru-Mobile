@@ -3,7 +3,6 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
   Platform,
 } from "react-native";
 import { ChevronDown } from "lucide-react-native";
